@@ -14,10 +14,12 @@ int main(void){
 			i++;
 		} else {
 			button_presses += time_required / times[i];
-			time_required = times[i] % 
+			time_required %= times[i];
 			printf("presses for %d = %d\n", times[i], button_presses);
-			
 			i++;
+			if (time_required > 1 && time_required < times[BUTTONS-1]) {
+				button_presses++;			
+			}
 		}
 	}
 	printf("Number of button presses = %d", button_presses);
