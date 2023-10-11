@@ -1,0 +1,1 @@
+clang -Wall -Wextra -std=C99 -pedantic -Wvla -Wfloat-equal -O2 -lm
