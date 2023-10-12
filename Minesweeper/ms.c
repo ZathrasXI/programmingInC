@@ -12,12 +12,14 @@
 
 bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[MAXSQ*MAXSQ+1])
 {
-    printf("%u %u %u \n", totmines, width, height);
-    int length = MAXSQ*MAXSQ+1;
-    for (int i = 0; i < length; i++) {
-        printf("%s", inp);
+    printf("%u %u %u\n\n\n", totmines, width, height);
+
+    if (strlen(inp) != width * height){
+        return false;
     }
-    printf("\n");
+    // Ensure only characters are from the set:   0123456789?X
+    
+    printf("%s\n", inp);
     return true;
 }
 
