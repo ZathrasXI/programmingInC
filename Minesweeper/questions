@@ -1,0 +1,7 @@
+The rules for valid input into `make_board()` are in `check_syntax()`
+
+In rule 2 a "known, numbered square" is just a square that has a number
+
+An unknown square is a "?"
+
+n (number in square) - m (surrounding mines)
