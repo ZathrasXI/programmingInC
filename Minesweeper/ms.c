@@ -1,4 +1,5 @@
 #include "ms.h"
+#include <ctype.h>
 
 // Maybe some of your own function prototypes here
 
@@ -12,14 +13,18 @@
 
 bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[MAXSQ*MAXSQ+1])
 {
+    unsigned length = strlen(inp);
     printf("%u %u %u\n\n\n", totmines, width, height);
 
-    if (strlen(inp) != width * height){
+    if (length != width * height){
         return false;
     }
-    // Ensure only characters are from the set:   0123456789?X
-    
-    printf("%s\n", inp);
+
+    for (unsigned i = 0; i < length; i++){
+        if (isdigit(inp[i]) == 0 && inp[i] != 'X' && inp[i] != '?'){
+            return false;
+        }
+    }
     return true;
 }
 
