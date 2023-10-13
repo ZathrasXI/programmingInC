@@ -36,4 +36,4 @@ void driver(void);
 bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[MAXSQ*MAXSQ+1]);
 
 // To test any other functions you've created in ms.c
-// void test(void);
+void test(void);

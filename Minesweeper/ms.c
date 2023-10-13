@@ -3,7 +3,7 @@
 
 // Maybe some of your own function prototypes here
 
-bool is_valid_number(char number);
+bool is_valid_number(char c);
 
 // board solve_board(board b)
 // {
@@ -27,7 +27,6 @@ bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[M
     unsigned mine_counter = 0;
     for (unsigned i = 0; i < length; i++)
     {
-        //TODO: digit >=0 && <= 9
         if (!is_valid_number(inp[i]) && inp[i] != 'X' && inp[i] != '?'){
             return false;
         }
@@ -48,15 +47,15 @@ bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[M
 // {
 // }
 
-bool is_valid_number(char number)
+bool is_valid_number(char c)
 {
-    if(!isdigit(number))
+    if(!isdigit(c))
     {
         return false;
     }
 
     int num;
-    int convert_successfully = sscanf(&number, "%d", &num);
+    int convert_successfully = sscanf(&c, "%d", &num);
     if(!convert_successfully)
     {  
         return false;
@@ -75,5 +74,7 @@ void test(void)
 {
     assert(is_valid_number('0') == true);
     assert(is_valid_number('9') == true);
-    assert(is_valid_number('X') == true);
+    assert(is_valid_number('X') == false);
+    assert(is_valid_number('?') == false);
+
 }

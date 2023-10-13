@@ -2,7 +2,7 @@
 
 int main(void)
 {
-   // test();
+   test();
    driver();
    return 0;
 }
