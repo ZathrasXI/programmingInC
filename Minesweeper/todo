@@ -1,0 +1,4 @@
+error handling? e.g. when char not converted successfully in is_valid_number
+
+check with Neill that testing for `is_valid_number()` is acceptable - 
+can't test cases < 0 or > 10 because it won't compile
