@@ -22,7 +22,7 @@ typedef struct board {
 void driver(void);
 
 // Returns a board based on the minecout, width, height and grid (passed as a string)
-// board make_board(int minecount, int width, int height, char inp[MAXSQ*MAXSQ+1]);
+board make_board(int minecount, int width, int height, char inp[MAXSQ*MAXSQ+1]);
 
 // Returns string correspnding to the boards grid
 // void board2str(char s[MAXSQ*MAXSQ+1], board b);
