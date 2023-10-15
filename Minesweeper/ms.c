@@ -58,7 +58,21 @@ board make_board(int totmines, int width, int height, char inp[MAXSQ*MAXSQ+1])
     {
         for (int j = 0; j < width; j++)
         {
-            new_board.grid[board_row][j] = inp[i + j];
+            if(isdigit(inp[i + j]))
+            {
+                //TODO Why doesn't this line work?
+                // int converted_successfully = sscanf((&inp[i + j]), "%d", &new_board.grid[board_row][j]);
+                char cell = inp[i+j];
+                int converted_successfully = sscanf(&cell, "%d", &new_board.grid[board_row][j]);
+                if(!converted_successfully)
+                {
+                    printf("error converting %c to type int\n", inp[i+j]);
+                }
+            } 
+            else
+            {
+                new_board.grid[board_row][j] = inp[i + j];
+            }
         }
         board_row++;
     }
@@ -97,11 +111,11 @@ void test(void)
     assert(is_valid_number('?') == false);
 
     int test_grid[5][5] = {
-        {QUESTION_MARK,49,49,48,QUESTION_MARK},
-        {49,QUESTION_MARK,50,49,48},
-        {49,QUESTION_MARK,ASCII_X,QUESTION_MARK,49},
-        {48,49,50,QUESTION_MARK,49},
-        {QUESTION_MARK,48,49,49,49}
+        {QUESTION_MARK,1,1,0,QUESTION_MARK},
+        {1,QUESTION_MARK,2,1,0},
+        {1,QUESTION_MARK,ASCII_X,QUESTION_MARK,1},
+        {0,1,2,QUESTION_MARK,1},
+        {QUESTION_MARK,0,1,1,1}
     };
     board test_board = make_board(5,5,5,"?110?1?2101?X?1012?1?0111");
 
@@ -109,8 +123,6 @@ void test(void)
     {
         for (int j = 0; j < 5; j++)
         {
-            printf("i:%d j:%d\n", i, j);
-            printf("board:%d array:%d\n",test_board.grid[i][j],test_grid[i][j]);
             assert(test_board.grid[i][j] == test_grid[i][j]);
         }
     }
