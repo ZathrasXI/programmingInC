@@ -106,7 +106,7 @@ bool is_valid_number(char c)
         return false;
     }
 
-    if(num < 0 || num > 9)
+    if(num < 0 || num > 8)
     {
         return false;
     }
