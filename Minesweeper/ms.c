@@ -60,10 +60,7 @@ board make_board(int totmines, int width, int height, char inp[MAXSQ*MAXSQ+1])
         {
             if(isdigit(inp[i + j]))
             {
-                //TODO Why doesn't this line work?
-                // int converted_successfully = sscanf((&inp[i + j]), "%d", &new_board.grid[board_row][j]);
-                char cell = inp[i+j];
-                int converted_successfully = sscanf(&cell, "%d", &new_board.grid[board_row][j]);
+                int converted_successfully = sscanf((&inp[i + j]), "%1d", &new_board.grid[board_row][j]);
                 if(!converted_successfully)
                 {
                     printf("error converting %c to type int\n", inp[i+j]);
