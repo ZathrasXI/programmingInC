@@ -25,7 +25,7 @@ void driver(void);
 board make_board(int minecount, int width, int height, char inp[MAXSQ*MAXSQ+1]);
 
 // Returns string correspnding to the boards grid
-// void board2str(char s[MAXSQ*MAXSQ+1], board b);
+void board2str(char s[MAXSQ*MAXSQ+1], board b);
 
 // Repeatedly applies both rules to replace unknows and returns final board
 // board solve_board(board b);

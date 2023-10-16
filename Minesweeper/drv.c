@@ -28,16 +28,14 @@ void driver(void)
    strcpy(str, "000000111001X100111000000");
    assert(syntax_check(1, 5, 5, str)==true);
    b = make_board(1, 5, 5, str);
-   //TODO: Delete this print statement
-   printf("%d",b.grid[0][0]);
-   // board2str(str, b);
+   board2str(str, b);
    assert(strcmp(str, "000000111001X100111000000")==0);
 
    // No unknowns
    strcpy(str, "XXXXXX535XX303XX535XXXXXX");
    assert(syntax_check(16, 5, 5, str)==true);
    b = make_board(16, 5, 5, str);
-   // board2str(str, b);
+   board2str(str, b);
    assert(strcmp(str, "XXXXXX535XX303XX535XXXXXX")==0);
 
    // 1X1 mine
@@ -45,7 +43,7 @@ void driver(void)
    assert(syntax_check(1, 1, 1, str)==true);
    b = make_board(1, 1, 1, str);
    // b = solve_board(b);
-   // board2str(str, b);
+   board2str(str, b);
    assert(strcmp(str, "X")==0);
   
    // Rule 1 : 3x3 with 8 mines, 1 unknown

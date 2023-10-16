@@ -3,6 +3,7 @@
 
 #define QUESTION_MARK 63
 #define ASCII_X 88
+#define ASCII_CONVERSION 48
 
 // Maybe some of your own function prototypes here
 
@@ -12,15 +13,29 @@ bool is_valid_number(char c);
 // {
 // }
 
-// void board2str(char s[MAXSQ*MAXSQ+1], board b)
-// {
-// }
+void board2str(char s[MAXSQ*MAXSQ+1], board b)
+{
+    int row_in_string = 0;
+    for(int i = 0; i < b.h; i++)
+    {
+        for(int j = 0; j < b.w; j++)
+        {
+            if(b.grid[i][j] >= 0 && b.grid[i][j] <= 9)
+            {
+                s[row_in_string + j] = b.grid[i][j] + ASCII_CONVERSION;    
+            } 
+            else
+            {
+                s[row_in_string + j] = b.grid[i][j];    
+            }
+        }
+        row_in_string += b.w;
+    }
+}
 
 bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[MAXSQ*MAXSQ+1])
 {
     unsigned length = strlen(inp);
-    printf("%u %u\n\n\n", width, height);
-
     if (length != width * height)
     {
         return false;
@@ -123,5 +138,4 @@ void test(void)
             assert(test_board.grid[i][j] == test_grid[i][j]);
         }
     }
-
 }
