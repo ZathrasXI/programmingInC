@@ -5,13 +5,34 @@
 #define ASCII_X 88
 #define ASCII_CONVERSION 48
 
-// Maybe some of your own function prototypes here
-
+bool adjacent_mines_have_sufficient_mines_neighbouring_them(int row, int column, int grid[MAXSQ][MAXSQ]);
+int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
 bool is_valid_number(char c);
+void get_moore_neighbourhood(
+    int neighbourhood[3][3],
+    int grid[MAXSQ][MAXSQ], 
+    int row, 
+    int column);
 
-// board solve_board(board b)
-// {
-// }
+board solve_board(board b)
+{
+    int mines = 0;
+    for (int i = 0; i < b.h; i++)
+    {
+        for (int j = 0; j < b.w; j++)
+        {
+            if (b.grid[i][j] == QUESTION_MARK)
+            {
+                if (adjacent_mines_have_sufficient_mines_neighbouring_them(i,j,b.grid))
+                {
+                    mines = adjacent_mines(i,j,b.grid);
+                    b.grid[i][j] = mines;
+                }
+            }
+        }
+    }
+    return b;
+}
 
 void board2str(char s[MAXSQ*MAXSQ+1], board b)
 {
@@ -114,21 +135,62 @@ bool is_valid_number(char c)
 }
 
 
+bool adjacent_mines_have_sufficient_mines_neighbouring_them(int row, int column, int grid[MAXSQ][MAXSQ])
+{
+    int mine_count;
+    for (int i = row - 1; i <= row + 1; i++)
+    {
+        for (int j = column - 1; j <= column + 1; j++)
+        {
+            if (i >= 0 && i < MAXSQ && j >= 0 && j < MAXSQ && grid[i][j] < 8)
+            {
+                mine_count = adjacent_mines(i,j,grid);
+                if (mine_count != grid[i][j])
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
+{
+    int mines = 0;
+    for (int i = row - 1; i <= row + 1; i++)
+    {
+        for (int j = column - 1; j <= column + 1; j++)
+        {
+            if (i >= 0 && i < 3 && j >= 0 && j < 3)
+            {
+                if (grid[i][j] == ASCII_X)
+                {
+                    mines++;
+                }
+            }
+        }
+    }
+    return mines;
+}
+
+
 
 void test(void)
 {
     assert(is_valid_number('0') == true);
-    assert(is_valid_number('9') == true);
+    assert(is_valid_number('8') == true);
     assert(is_valid_number('X') == false);
     assert(is_valid_number('?') == false);
 
-    int test_grid[5][5] = {
+    int test_grid[MAXSQ][MAXSQ] = {
         {QUESTION_MARK,1,1,0,QUESTION_MARK},
         {1,QUESTION_MARK,2,1,0},
         {1,QUESTION_MARK,ASCII_X,QUESTION_MARK,1},
         {0,1,2,QUESTION_MARK,1},
         {QUESTION_MARK,0,1,1,1}
     };
+    // make_board()
     board test_board = make_board(5,5,5,"?110?1?2101?X?1012?1?0111");
 
     for (int i = 0; i < 5; i++)
@@ -138,4 +200,20 @@ void test(void)
             assert(test_board.grid[i][j] == test_grid[i][j]);
         }
     }
+
+    // get_moore_neighbourhood()
+    // int test_neighbourhood[3][3];
+    // get_moore_neighbourhood(test_neighbourhood, test_grid, 0,0);
+    // printf("testing %d\n", test_neighbourhood[0][0]);
+    // printf("testing %d\n", test_neighbourhood[0][1]);
+    // printf("testing %d\n", test_neighbourhood[1][0]);
+    // printf("testing %d\n", test_neighbourhood[1][1]);
+
+    // assert (test_neighbourhood[0][0] == QUESTION_MARK);
+    // assert (test_neighbourhood[0][1] == 1);
+    // assert (test_neighbourhood[1][0] == 1);
+    // assert (test_neighbourhood[1][1] == QUESTION_MARK);
+
+
+
 }

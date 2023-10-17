@@ -28,7 +28,7 @@ board make_board(int minecount, int width, int height, char inp[MAXSQ*MAXSQ+1]);
 void board2str(char s[MAXSQ*MAXSQ+1], board b);
 
 // Repeatedly applies both rules to replace unknows and returns final board
-// board solve_board(board b);
+board solve_board(board b);
 
 // Make sure number of characters in string == width*height
 // Ensure only characters are from the set:   0123456789?X
