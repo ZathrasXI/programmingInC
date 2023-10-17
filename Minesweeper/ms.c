@@ -60,10 +60,10 @@ bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[M
     unsigned mine_counter = 0;
     for (unsigned i = 0; i < length; i++)
     {
-        if (!is_valid_number(inp[i]) && inp[i] != 'X' && inp[i] != '?'){
+        if (!is_valid_number(inp[i]) && inp[i] != MINE && inp[i] != UNK){
             return false;
         }
-        if (inp[i] == 'X'){
+        if (inp[i] == MINE){
             mine_counter++;
         }
     }
@@ -169,8 +169,8 @@ void test(void)
     assert(is_valid_number('0') == true);
     assert(is_valid_number('8') == true);
     assert(is_valid_number('9') == false);
-    assert(is_valid_number('X') == false);
-    assert(is_valid_number('?') == false);
+    assert(is_valid_number(MINE) == false);
+    assert(is_valid_number(UNK) == false);
 
     //assets for tests
     int test_grid[MAXSQ][MAXSQ] = {
