@@ -173,15 +173,15 @@ void test(void)
     //assets for tests
     int test_grid[MAXSQ][MAXSQ] = {
         {QUESTION_MARK,1,1,0,QUESTION_MARK},
-        {1,QUESTION_MARK,2,1,0},
-        {1,QUESTION_MARK,ASCII_X,QUESTION_MARK,1},
-        {0,1,2,QUESTION_MARK,1},
+        {1,2,3,2,1},
+        {1,ASCII_X,ASCII_X,ASCII_X,2},
+        {1,2,4,ASCII_X,2},
         {QUESTION_MARK,0,1,1,1}
     };
-    int test_adjacent_mines[] = {0,0,0,0,0,  0,1,1,1,0,  0,1,0,1,0,  0,1,1,1,0, 0,0,0,0,0};
+    int test_adjacent_mines[] = {0,0,0,0,0,  1,2,3,2,1,  1,1,3,2,2,  1,2,4,2,2, 0,0,1,1,1};
 
     // make_board()
-    board test_board = make_board(5,5,5,"?110?1?2101?X?1012?1?0111");
+    board test_board = make_board(5,5,5,"?110?123211XXX2124X2?0111");
 
     for (int i = 0; i < 5; i++)
     {
