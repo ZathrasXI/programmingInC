@@ -23,11 +23,9 @@ board solve_board(board b)
         {
             if (b.grid[i][j] == QUESTION_MARK)
             {
-                if (adjacent_mines_have_sufficient_mines_neighbouring_them(i,j,b.grid))
-                {
-                    mines = adjacent_mines(i,j,b.grid);
-                    b.grid[i][j] = mines;
-                }
+                mines = adjacent_mines(i,j,b.grid);
+                b.grid[i][j] = mines;
+
             }
         }
     }
@@ -157,20 +155,24 @@ bool adjacent_mines_have_sufficient_mines_neighbouring_them(int row, int column,
 
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
 {
+    printf("r:%d, c:%d\n", row,column);
     int mines = 0;
     for (int i = row - 1; i <= row + 1; i++)
     {
         for (int j = column - 1; j <= column + 1; j++)
         {
-            if (i >= 0 && i < 3 && j >= 0 && j < 3)
+            if (i >= 0 && i < MAXSQ && j >= 0 && j < MAXSQ)
             {
+                printf("| i:%d, j:%d, == %d |",i,j, grid[i][j]);
                 if (grid[i][j] == ASCII_X)
                 {
                     mines++;
                 }
             }
         }
+        printf("\n");
     }
+    printf("mines %d\n", mines);
     return mines;
 }
 
@@ -190,6 +192,7 @@ void test(void)
         {0,1,2,QUESTION_MARK,1},
         {QUESTION_MARK,0,1,1,1}
     };
+    
     // make_board()
     board test_board = make_board(5,5,5,"?110?1?2101?X?1012?1?0111");
 
@@ -201,19 +204,8 @@ void test(void)
         }
     }
 
-    // get_moore_neighbourhood()
-    // int test_neighbourhood[3][3];
-    // get_moore_neighbourhood(test_neighbourhood, test_grid, 0,0);
-    // printf("testing %d\n", test_neighbourhood[0][0]);
-    // printf("testing %d\n", test_neighbourhood[0][1]);
-    // printf("testing %d\n", test_neighbourhood[1][0]);
-    // printf("testing %d\n", test_neighbourhood[1][1]);
-
-    // assert (test_neighbourhood[0][0] == QUESTION_MARK);
-    // assert (test_neighbourhood[0][1] == 1);
-    // assert (test_neighbourhood[1][0] == 1);
-    // assert (test_neighbourhood[1][1] == QUESTION_MARK);
-
+    //adjacent mines
+    // int row = 3, column = 3;
 
 
 }
