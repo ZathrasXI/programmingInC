@@ -4,15 +4,11 @@
 #define QUESTION_MARK 63
 #define ASCII_X 88
 #define ASCII_CONVERSION 48
+#define MAX_DIGIT 8 
 
-bool adjacent_mines_have_sufficient_mines_neighbouring_them(int row, int column, int grid[MAXSQ][MAXSQ]);
+bool mines_of_adjacent_cells(int row, int column, int grid[MAXSQ][MAXSQ]);
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
 bool is_valid_number(char c);
-void get_moore_neighbourhood(
-    int neighbourhood[3][3],
-    int grid[MAXSQ][MAXSQ], 
-    int row, 
-    int column);
 
 board solve_board(board b)
 {
@@ -23,9 +19,9 @@ board solve_board(board b)
         {
             if (b.grid[i][j] == QUESTION_MARK)
             {
+                // bool mines_need = mines_of_adjacent_cells(i,j,b.grid);
                 mines = adjacent_mines(i,j,b.grid);
                 b.grid[i][j] = mines;
-
             }
         }
     }
@@ -132,30 +128,23 @@ bool is_valid_number(char c)
     return true;
 }
 
-
-bool adjacent_mines_have_sufficient_mines_neighbouring_them(int row, int column, int grid[MAXSQ][MAXSQ])
+bool mines_of_adjacent_cells(int row, int column, int grid[MAXSQ][MAXSQ])
 {
-    int mine_count;
     for (int i = row - 1; i <= row + 1; i++)
     {
         for (int j = column - 1; j <= column + 1; j++)
         {
-            if (i >= 0 && i < MAXSQ && j >= 0 && j < MAXSQ && grid[i][j] < 8)
+            if (i >= 0 && i < MAXSQ && j >= 0 && j < MAXSQ && grid[i][j] < MAX_DIGIT)
             {
-                mine_count = adjacent_mines(i,j,grid);
-                if (mine_count != grid[i][j])
-                {
-                    return false;
-                }
+                printf(".");
             }
         }
     }
-    return true;
+    return false;
 }
 
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
 {
-    printf("r:%d, c:%d\n", row,column);
     int mines = 0;
     for (int i = row - 1; i <= row + 1; i++)
     {
@@ -163,28 +152,25 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
         {
             if (i >= 0 && i < MAXSQ && j >= 0 && j < MAXSQ)
             {
-                printf("| i:%d, j:%d, == %d |",i,j, grid[i][j]);
-                if (grid[i][j] == ASCII_X)
+                if (grid[i][j] == ASCII_X && &grid[i][j] != &grid[row][column]) 
                 {
                     mines++;
                 }
             }
         }
-        printf("\n");
     }
-    printf("mines %d\n", mines);
     return mines;
 }
-
-
 
 void test(void)
 {
     assert(is_valid_number('0') == true);
     assert(is_valid_number('8') == true);
+    assert(is_valid_number('9') == false);
     assert(is_valid_number('X') == false);
     assert(is_valid_number('?') == false);
 
+    //assets for tests
     int test_grid[MAXSQ][MAXSQ] = {
         {QUESTION_MARK,1,1,0,QUESTION_MARK},
         {1,QUESTION_MARK,2,1,0},
@@ -192,7 +178,8 @@ void test(void)
         {0,1,2,QUESTION_MARK,1},
         {QUESTION_MARK,0,1,1,1}
     };
-    
+    int test_adjacent_mines[] = {0,0,0,0,0,  0,1,1,1,0,  0,1,0,1,0,  0,1,1,1,0, 0,0,0,0,0};
+
     // make_board()
     board test_board = make_board(5,5,5,"?110?1?2101?X?1012?1?0111");
 
@@ -204,8 +191,16 @@ void test(void)
         }
     }
 
-    //adjacent mines
-    // int row = 3, column = 3;
-
-
+    // adjacent_mines()
+    int mines = adjacent_mines(0,0,test_grid);
+    int index = 0;
+    assert(mines == 0);
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            assert(adjacent_mines(i,j,test_grid) == test_adjacent_mines[index]);
+            index++;
+        }
+    }
 }
