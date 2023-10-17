@@ -74,6 +74,6 @@ void driver(void)
    b = solve_board(b);
    board2str(str, b);
    printf("after  str: %s\n\n", str);
-   // assert(strcmp(str, "111001X21012X21012X100111")==0);
+   assert(strcmp(str, "111001X21012X21012X100111")==0);
 
 }

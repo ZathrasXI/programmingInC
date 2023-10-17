@@ -6,7 +6,7 @@
 #define ASCII_CONVERSION 48
 #define MAX_DIGIT 8 
 
-bool mines_of_adjacent_cells(int row, int column, int grid[MAXSQ][MAXSQ]);
+int unknown_cells_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
 bool is_valid_number(char c);
 
@@ -19,7 +19,8 @@ board solve_board(board b)
         {
             if (b.grid[i][j] == QUESTION_MARK)
             {
-                // bool mines_need = mines_of_adjacent_cells(i,j,b.grid);
+                int unknowns = unknown_cells_in_neighbourhood(i,j,b.grid);
+                printf("unknowns %d\n", unknowns);
                 mines = adjacent_mines(i,j,b.grid);
                 b.grid[i][j] = mines;
             }
@@ -128,19 +129,20 @@ bool is_valid_number(char c)
     return true;
 }
 
-bool mines_of_adjacent_cells(int row, int column, int grid[MAXSQ][MAXSQ])
+int unknown_cells_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
 {
+    int cell_count = 0;
     for (int i = row - 1; i <= row + 1; i++)
     {
         for (int j = column - 1; j <= column + 1; j++)
         {
-            if (i >= 0 && i < MAXSQ && j >= 0 && j < MAXSQ && grid[i][j] < MAX_DIGIT)
+            if (grid[i][j] == QUESTION_MARK && &grid[i][j] != &grid[row][column])
             {
-                printf(".");
+                cell_count++;
             }
         }
     }
-    return false;
+    return cell_count;
 }
 
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
@@ -179,6 +181,7 @@ void test(void)
         {QUESTION_MARK,0,1,1,1}
     };
     int test_adjacent_mines[] = {0,0,0,0,0,  1,2,3,2,1,  1,1,3,2,2,  1,2,4,2,2, 0,0,1,1,1};
+    int test_unknown_cells[] = {0,1,0,1,0,  1,1,0,1,1, 0,0,0,0,0, 1,1,0,0,0, 0,1,0,0,0};
 
     // make_board()
     board test_board = make_board(5,5,5,"?110?123211XXX2124X2?0111");
@@ -200,6 +203,17 @@ void test(void)
         for (int j = 0; j < 5; j++)
         {
             assert(adjacent_mines(i,j,test_grid) == test_adjacent_mines[index]);
+            index++;
+        }
+    }
+    index = 0;
+    
+    //unknown_cells_in_neighbourhood()
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            assert(unknown_cells_in_neighbourhood(i,j,test_grid) == test_unknown_cells[index]);
             index++;
         }
     }
