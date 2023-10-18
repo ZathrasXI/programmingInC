@@ -11,29 +11,33 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
 bool is_valid_number(char c);
 bool indexes_within_grid(int row, int column);
 bool should_be_a_mine(int row, int column, int grid[MAXSQ][MAXSQ]);
-bool question_mark_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
+int question_marks_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
+int question_marks_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int changes);
 
 board solve_board(board b)
 {
     int mines_found = 0;
-    while (mines_found < b.totmines)
+    while (mines_found <= b.totmines)
     {
         for (int i = 0; i < b.h; i++)
         {
             for (int j = 0; j < b.w; j++)
             {
+                if (b.grid[i][j] == ASCII_X)
+                {
+                    mines_found++;
+                }
                 if (b.grid[i][j] <= MAX_DIGIT )
                 {
-                    // if ? in neighbourhood and adjacent mines != cell value
-                    if (question_mark_in_neighbourhood(i,j,b.grid) && adjacent_mines(i,j,b.grid) != b.grid[i][j])
+                    if (indexes_within_grid(i,j) && b.grid[i][j] - question_marks_in_neighbourhood(i,j,b.grid) == adjacent_mines(i,j,b.grid))
                     {
-                        // change value of the cell that has the question mark
-                        // I need the co-ordinates of each question make
+                        int new_mines = question_marks_to_mines(i, j, b.grid, question_marks_in_neighbourhood(i,j,b.grid));
+                        mines_found += new_mines;
                     }
                 }
+
             }
         }
-        mines_found++;
     }
     return b;
 }
@@ -198,20 +202,42 @@ bool should_be_a_mine(int row, int column, int grid[MAXSQ][MAXSQ])
     return false;
 }
 
-bool question_mark_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
+int question_marks_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
 {
+    int counter = 0;
     for (int i = row - 1; i <= row + 1; i++)
     {
         for (int j = column - 1; j <= row + 1; j++)
         {
             if (grid[i][j] == QUESTION_MARK)
             {
-                return true;
+                counter++;
             }
         }
     }
-    return false;
+    return counter;
 }
+
+int question_marks_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int changes)
+{
+    int cells_changed = 0;
+    while (cells_changed < changes)
+    {
+        for (int r = row - 1; r <= row + 1; r++)
+        {
+            for (int c = column - 1; c <= column + 1; c++)
+            {
+                if (indexes_within_grid(r,c) && grid[r][c] == QUESTION_MARK)
+                {
+                    grid[r][c] = ASCII_X;
+                    cells_changed++;
+                }
+            }
+        }
+    }
+    return cells_changed;
+}
+
 
 void test(void)
 {
