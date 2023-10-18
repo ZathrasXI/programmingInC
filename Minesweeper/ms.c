@@ -10,33 +10,30 @@ int unknown_cells_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
 bool is_valid_number(char c);
 bool indexes_within_grid(int row, int column);
+bool should_be_a_mine(int row, int column, int grid[MAXSQ][MAXSQ]);
+bool question_mark_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
 
 board solve_board(board b)
 {
-    int mines = 0;
-    for (int i = 0; i < b.h; i++)
+    int mines_found = 0;
+    while (mines_found < b.totmines)
     {
-        for (int j = 0; j < b.w; j++)
+        for (int i = 0; i < b.h; i++)
         {
-            if (b.grid[i][j] == QUESTION_MARK)
+            for (int j = 0; j < b.w; j++)
             {
-                //TODO make this a function
-                int row = i, column = j;
-                for (int l = row - 1; l <= row + 1; l++)
+                if (b.grid[i][j] <= MAX_DIGIT )
                 {
-                    for (int m = column - 1; m <= column + 1; m++)
+                    // if ? in neighbourhood and adjacent mines != cell value
+                    if (question_mark_in_neighbourhood(i,j,b.grid) && adjacent_mines(i,j,b.grid) != b.grid[i][j])
                     {
-                        if (indexes_within_grid(l,m) && b.grid[l][m] < 9 && unknown_cells_in_neighbourhood(l,m,b.grid) > 0)
-                        {
-                            int undiscovered_mines = b.grid[l][m] - unknown_cells_in_neighbourhood(l,m,b.grid);
-                            printf("undiscovered mines... %d - %d =  %d\n", b.grid[l][m], unknown_cells_in_neighbourhood(l,m,b.grid), undiscovered_mines);
-                        }
+                        // change value of the cell that has the question mark
+                        // I need the co-ordinates of each question make
                     }
                 }
-                mines = adjacent_mines(i,j,b.grid);
-                b.grid[i][j] = mines;
             }
         }
+        mines_found++;
     }
     return b;
 }
@@ -166,7 +163,7 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
         {
             if (indexes_within_grid(i,j))
             {
-                if (grid[i][j] == ASCII_X && &grid[i][j] != &grid[row][column]) 
+                if (grid[i][j] == ASCII_X && (i != row || j != column)) 
                 {
                     mines++;
                 }
@@ -179,6 +176,41 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
 bool indexes_within_grid(int row, int column)
 {
     return row >= 0 && row < MAXSQ && column >= 0 && column < MAXSQ;
+}
+
+bool should_be_a_mine(int row, int column, int grid[MAXSQ][MAXSQ])
+{
+    for (int r = row - 1; r <= row + 1; r++)
+    {
+        for (int c = column - 1; c <= column + 1; c++)
+        {
+            if (indexes_within_grid(r,c) && (r != row || c != column) && grid[r][c] < 9)
+            {
+                int mines = adjacent_mines(r,c,grid);
+                if (grid[r][c] > mines)
+                {
+                    printf("cell %d:%d value %d mines %d\n",r,c, grid[r][c], mines);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool question_mark_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
+{
+    for (int i = row - 1; i <= row + 1; i++)
+    {
+        for (int j = column - 1; j <= row + 1; j++)
+        {
+            if (grid[i][j] == QUESTION_MARK)
+            {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void test(void)
@@ -241,4 +273,32 @@ void test(void)
     assert(indexes_within_grid(MAXSQ,MAXSQ) == false);
     assert(indexes_within_grid(0,0) == true);
     assert(indexes_within_grid(MAXSQ-1,MAXSQ-1) == true);
+
+    // should be a mine()
+    // int test_minefield[MAXSQ][MAXSQ] = {
+    //     {QUESTION_MARK,1,1,0,QUESTION_MARK},
+    //     {1,QUESTION_MARK,2,1,0},
+    //     {1,QUESTION_MARK,ASCII_X,QUESTION_MARK,1},
+    //     {0,1,2,QUESTION_MARK,1},
+    //     {QUESTION_MARK,0,1,1,1}
+    // };
+    // bool test_mines[] = {false,false,false,false,false,
+    //                     false,true,false,false,false,
+    //                     false,false,false,false,false,
+    //                     false,false,false,true,false,
+    //                     false,false,false,false,false};
+    
+    // int counter = 0;
+    // for (int i = 0; i < 5; i++)
+    // {
+    //     for (int j = 0; j < 5; j++)
+    //     {
+    //         // assert(should_be_a_mine(i,j,test_minefield) == test_mines[counter]);
+    //         if (should_be_a_mine(i,j,test_minefield) != test_mines[counter])
+    //         {
+    //             printf("test minefinder: %d\n", counter);
+    //         }
+    //         counter++;
+    //     }
+    // }
 }
