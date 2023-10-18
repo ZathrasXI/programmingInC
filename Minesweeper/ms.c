@@ -20,23 +20,19 @@ board solve_board(board b)
         {
             if (b.grid[i][j] == QUESTION_MARK)
             {
-                // int unknowns = unknown_cells_in_neighbourhood(i,j,b.grid);
-
-                // int row = i, column = j;
-                // for (int l = row - 1; l <= row + 1; l++)
-                // {
-                //     for (int m = column - 1; l <= column; m++)
-                //     {
-                //         if (unknown_cells_in_neighbourhood(l,m,b.grid) > 0)
-                //         {
-
-                //         }
-                //     }
-                // }
-
-
-
-                // printf("unknowns %d\n", unknowns);
+                //TODO make this a function
+                int row = i, column = j;
+                for (int l = row - 1; l <= row + 1; l++)
+                {
+                    for (int m = column - 1; m <= column + 1; m++)
+                    {
+                        if (indexes_within_grid(l,m) && b.grid[l][m] < 9 && unknown_cells_in_neighbourhood(l,m,b.grid) > 0)
+                        {
+                            int undiscovered_mines = b.grid[l][m] - unknown_cells_in_neighbourhood(l,m,b.grid);
+                            printf("undiscovered mines... %d - %d =  %d\n", b.grid[l][m], unknown_cells_in_neighbourhood(l,m,b.grid), undiscovered_mines);
+                        }
+                    }
+                }
                 mines = adjacent_mines(i,j,b.grid);
                 b.grid[i][j] = mines;
             }
@@ -152,7 +148,7 @@ int unknown_cells_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
     {
         for (int j = column - 1; j <= column + 1; j++)
         {
-            if (grid[i][j] == QUESTION_MARK && &grid[i][j] != &grid[row][column])
+            if (indexes_within_grid(i,j) && grid[i][j] == QUESTION_MARK && &grid[i][j] != &grid[row][column])
             {
                 cell_count++;
             }
@@ -229,7 +225,7 @@ void test(void)
     }
     index = 0;
     
-    //unknown_cells_in_neighbourhood()
+    // unknown_cells_in_neighbourhood()
     for (int i = 0; i < 5; i++)
     {
         for (int j = 0; j < 5; j++)
@@ -239,7 +235,7 @@ void test(void)
         }
     }
 
-    //indexes_within_grid()
+    // indexes_within_grid()
     assert(indexes_within_grid(-1,0) == false);
     assert(indexes_within_grid(0,-1) == false);
     assert(indexes_within_grid(MAXSQ,MAXSQ) == false);
