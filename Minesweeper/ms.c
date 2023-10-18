@@ -39,6 +39,18 @@ board solve_board(board b)
             }
         }
     }
+
+    for (int i = 0; i < b.h; i++)
+    {
+        for (int j = 0; j < b.h; j++)
+        {
+            if (b.grid[i][j] == QUESTION_MARK)
+            {
+                int mines = adjacent_mines(i,j,b.grid);
+                b.grid[i][j] = mines;
+            }
+        }
+    }
     return b;
 }
 
