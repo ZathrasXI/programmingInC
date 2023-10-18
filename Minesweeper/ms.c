@@ -9,6 +9,7 @@
 int unknown_cells_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
 bool is_valid_number(char c);
+bool indexes_within_grid(int row, int column);
 
 board solve_board(board b)
 {
@@ -19,8 +20,23 @@ board solve_board(board b)
         {
             if (b.grid[i][j] == QUESTION_MARK)
             {
-                int unknowns = unknown_cells_in_neighbourhood(i,j,b.grid);
-                printf("unknowns %d\n", unknowns);
+                // int unknowns = unknown_cells_in_neighbourhood(i,j,b.grid);
+
+                // int row = i, column = j;
+                // for (int l = row - 1; l <= row + 1; l++)
+                // {
+                //     for (int m = column - 1; l <= column; m++)
+                //     {
+                //         if (unknown_cells_in_neighbourhood(l,m,b.grid) > 0)
+                //         {
+
+                //         }
+                //     }
+                // }
+
+
+
+                // printf("unknowns %d\n", unknowns);
                 mines = adjacent_mines(i,j,b.grid);
                 b.grid[i][j] = mines;
             }
@@ -152,7 +168,7 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
     {
         for (int j = column - 1; j <= column + 1; j++)
         {
-            if (i >= 0 && i < MAXSQ && j >= 0 && j < MAXSQ)
+            if (indexes_within_grid(i,j))
             {
                 if (grid[i][j] == ASCII_X && &grid[i][j] != &grid[row][column]) 
                 {
@@ -162,6 +178,11 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
         }
     }
     return mines;
+}
+
+bool indexes_within_grid(int row, int column)
+{
+    return row >= 0 && row < MAXSQ && column >= 0 && column < MAXSQ;
 }
 
 void test(void)
@@ -217,4 +238,11 @@ void test(void)
             index++;
         }
     }
+
+    //indexes_within_grid()
+    assert(indexes_within_grid(-1,0) == false);
+    assert(indexes_within_grid(0,-1) == false);
+    assert(indexes_within_grid(MAXSQ,MAXSQ) == false);
+    assert(indexes_within_grid(0,0) == true);
+    assert(indexes_within_grid(MAXSQ-1,MAXSQ-1) == true);
 }
