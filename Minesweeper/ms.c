@@ -267,12 +267,28 @@ void test(void)
     assert(unknowns_to_mines(2,2,&test_no_unk,0) == 0);
 
     // solve_board() && board2str()
-    char s1[MAXSQ*MAXSQ+1];
+    char s[MAXSQ*MAXSQ+1];
     board b1;
-    strcpy(s1, "?100?232101XX21123X1?0111");
-    assert(syntax_check(3, 5, 5, s1)==true);
-    b1 = make_board(5,5,5,s1);
+
+    strcpy(s, "?100?232101XX21123X1?0111");
+    assert(syntax_check(3, 5, 5, s)==true);
+    b1 = make_board(5,5,5,s);
     b1 = solve_board(b1);
-    board2str(s1, b1);
-    assert(strcmp(s1, "X1000232101XX21123X100111") == 0);
+    board2str(s, b1);
+    assert(strcmp(s, "X1000232101XX21123X100111") == 0);
+
+    strcpy(s, "XXXXXXXXXXXX");
+    assert(syntax_check(12, 3, 4, s)==true);
+    b1 = make_board(12,3,4,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    assert(strcmp(s, "XXXXXXXXXXXX") == 0);
+
+    strcpy(s, "?");
+    assert(syntax_check(0, 1, 1, s)==true);
+    b1 = make_board(0,1,1,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    printf("%s\n", s);
+    assert(strcmp(s, "0") == 0);
 }
