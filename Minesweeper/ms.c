@@ -1,8 +1,6 @@
 #include "ms.h"
 #include <ctype.h>
 
-#define QUESTION_MARK 63
-#define ASCII_X 88
 #define ASCII_CONVERSION 48
 #define MAX_DIGIT 8 
 
@@ -21,7 +19,7 @@ board solve_board(board b)
         {
             for (int j = 0; j < b.w; j++)
             {
-                if (b.grid[i][j] == ASCII_X)
+                if (b.grid[i][j] == MINE)
                 {
                     mines_found++;
                 }
@@ -41,7 +39,7 @@ board solve_board(board b)
     {
         for (int j = 0; j < b.h; j++)
         {
-            if (b.grid[i][j] == QUESTION_MARK)
+            if (b.grid[i][j] == UNK)
             {
                 int mines = adjacent_mines(i,j,b.grid);
                 b.grid[i][j] = mines;
@@ -156,7 +154,7 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
         {
             if (indexes_within_grid(i,j))
             {
-                if (grid[i][j] == ASCII_X && (i != row || j != column)) 
+                if (grid[i][j] == MINE && (i != row || j != column)) 
                 {
                     mines++;
                 }
@@ -178,7 +176,7 @@ int unknowns_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
     {
         for (int j = column - 1; j <= row + 1; j++)
         {
-            if (grid[i][j] == QUESTION_MARK)
+            if (indexes_within_grid(i,j) && grid[i][j] == UNK)
             {
                 counter++;
             }
@@ -196,9 +194,9 @@ int unknowns_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int changes)
         {
             for (int c = column - 1; c <= column + 1; c++)
             {
-                if (indexes_within_grid(r,c) && grid[r][c] == QUESTION_MARK)
+                if (indexes_within_grid(r,c) && grid[r][c] == UNK)
                 {
-                    grid[r][c] = ASCII_X;
+                    grid[r][c] = MINE;
                     cells_changed++;
                 }
             }
@@ -217,11 +215,11 @@ void test(void)
 
     //assets for tests
     int test_grid[MAXSQ][MAXSQ] = {
-        {QUESTION_MARK,1,1,0,QUESTION_MARK},
+        {UNK,1,1,0,UNK},
         {1,2,3,2,1},
-        {1,ASCII_X,ASCII_X,ASCII_X,2},
-        {1,2,4,ASCII_X,2},
-        {QUESTION_MARK,0,1,1,1}
+        {1,MINE,MINE,MINE,2},
+        {1,2,4,MINE,2},
+        {UNK,0,1,1,1}
     };
     int test_adjacent_mines[] = {0,0,0,0,0,  1,2,3,2,1,  1,1,3,2,2,  1,2,4,2,2, 0,0,1,1,1};
 
