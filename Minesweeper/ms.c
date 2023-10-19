@@ -256,10 +256,13 @@ void test(void)
     assert(indexes_within_boundary(0, 0, &test_board) == true);
     assert(indexes_within_boundary(4, 4, &test_board) == true);
 
-    // unkowns_in_neighbourhood()
-
+    // unknowns_in_neighbourhood()
     assert(unknowns_in_neighbourhood(0,1,&test_board) == 1);
     assert(unknowns_in_neighbourhood(2,2,&test_unk) == 8);
     assert(unknowns_in_neighbourhood(2,2,&test_no_unk) == 0);
-    
+
+    // unknowns_to_mines()
+    assert(unknowns_to_mines(0,1,&test_board,1) == 1);
+    assert(unknowns_to_mines(2,2,&test_unk,8) == 8);
+    assert(unknowns_to_mines(2,2,&test_no_unk,0) == 0);
 }
