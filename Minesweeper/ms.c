@@ -6,11 +6,11 @@
 #define MAX_DIGIT 8
 #define MAX_ATTEMPTS 5
 
-int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
+int adjacent_mines(int row, int column, board* b);
 bool is_valid_number(char c);
-bool indexes_within_boundary(int row, int column);
-int unknowns_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
-int unknowns_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int amount);
+bool indexes_within_boundary(int row, int column, board* b);
+int unknowns_in_neighbourhood(int row, int column, board* b);
+int unknowns_to_mines(int row, int column, board* b, int amount);
 
 board solve_board(board b)
 {
@@ -27,9 +27,9 @@ board solve_board(board b)
                 }
                 if (b.grid[i][j] <= MAX_DIGIT)
                 {
-                    if (b.grid[i][j] - unknowns_in_neighbourhood(i,j,b.grid) == adjacent_mines(i,j,b.grid))
+                    if (b.grid[i][j] - unknowns_in_neighbourhood(i,j,&b) == adjacent_mines(i,j,&b))
                     {
-                        mines_found += unknowns_to_mines(i, j, b.grid, unknowns_in_neighbourhood(i,j,b.grid));
+                        mines_found += unknowns_to_mines(i, j, &b, unknowns_in_neighbourhood(i,j,&b));
                     }
                 }
             }
@@ -43,7 +43,7 @@ board solve_board(board b)
         {
             if (b.grid[i][j] == UNK)
             {
-                b.grid[i][j] = adjacent_mines(i,j,b.grid);
+                b.grid[i][j] = adjacent_mines(i,j,&b);
             }
         }
     }
@@ -142,16 +142,16 @@ bool is_valid_number(char c)
     return true;
 }
 
-int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
+int adjacent_mines(int row, int column, board* b)
 {
     int mines = 0;
     for (int r = row - 1; r <= row + 1; r++)
     {
         for (int c = column - 1; c <= column + 1; c++)
         {
-            if (indexes_within_boundary(r,c))
+            if (indexes_within_boundary(r,c,b))
             {
-                if (grid[r][c] == MINE && (r != row || c != column)) 
+                if (b->grid[r][c] == MINE && (r != row || c != column)) 
                 {
                     mines++;
                 }
@@ -161,20 +161,19 @@ int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ])
     return mines;
 }
 
-bool indexes_within_boundary(int row, int column)
+bool indexes_within_boundary(int row, int column, board* b)
 {
-    //TODO replace MAXSQ with b.h and b.w
-    return row >= 0 && row < MAXSQ && column >= 0 && column < MAXSQ;
+    return row >= 0 && row < b->h && column >= 0 && column < b->w;
 }
 
-int unknowns_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
+int unknowns_in_neighbourhood(int row, int column, board* b)
 {
     int counter = 0;
     for (int r = row - 1; r <= row + 1; r++)
     {
         for (int c = column - 1; c <= row + 1; c++)
         {
-            if (indexes_within_boundary(r,c) && grid[r][c] == UNK)
+            if (indexes_within_boundary(r,c,b) && b->grid[r][c] == UNK)
             {
                 counter++;
             }
@@ -183,7 +182,7 @@ int unknowns_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
     return counter;
 }
 
-int unknowns_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int amount)
+int unknowns_to_mines(int row, int column, board* b, int amount)
 {
     int cells_changed = 0;
     while (cells_changed < amount)
@@ -192,9 +191,9 @@ int unknowns_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int amount)
         {
             for (int c = column - 1; c <= column + 1; c++)
             {
-                if (indexes_within_boundary(r,c) && grid[r][c] == UNK)
+                if (indexes_within_boundary(r,c,b) && b->grid[r][c] == UNK)
                 {
-                    grid[r][c] = MINE;
+                    b->grid[r][c] = MINE;
                     cells_changed++;
                 }
             }
@@ -212,7 +211,7 @@ void test(void)
     assert(is_valid_number(UNK) == false);
 
     //assets for tests
-    int test_grid[MAXSQ][MAXSQ] = {
+    int test_grid[5][5] = {
         {UNK,1,1,0,UNK},
         {1,2,3,2,1},
         {1,MINE,MINE,MINE,2},
@@ -233,23 +232,23 @@ void test(void)
     }
 
     // adjacent_mines()
-    int mines = adjacent_mines(0,0,test_grid);
+    int mines = adjacent_mines(0,0,&test_board);
     int index = 0;
     assert(mines == 0);
     for (int i = 0; i < 5; i++)
     {
         for (int j = 0; j < 5; j++)
         {
-            assert(adjacent_mines(i,j,test_grid) == test_adjacent_mines[index]);
+            assert(adjacent_mines(i,j,&test_board) == test_adjacent_mines[index]);
             index++;
         }
     }
     index = 0;
 
     // indexes_within_boundary()
-    assert(indexes_within_boundary(-1,0) == false);
-    assert(indexes_within_boundary(0,-1) == false);
-    assert(indexes_within_boundary(MAXSQ,MAXSQ) == false);
-    assert(indexes_within_boundary(0,0) == true);
-    assert(indexes_within_boundary(MAXSQ-1,MAXSQ-1) == true);
+    assert(indexes_within_boundary(-1, 0, &test_board) == false);
+    assert(indexes_within_boundary(0, -1, &test_board) == false);
+    assert(indexes_within_boundary(MAXSQ, MAXSQ, &test_board) == false);
+    assert(indexes_within_boundary(0, 0, &test_board) == true);
+    assert(indexes_within_boundary(4, 4, &test_board) == true);
 }
