@@ -289,6 +289,47 @@ void test(void)
     b1 = make_board(0,1,1,s);
     b1 = solve_board(b1);
     board2str(s, b1);
-    printf("%s\n", s);
     assert(strcmp(s, "0") == 0);
+
+    strcpy(s, "X?X?X?X?");
+    assert(syntax_check(4, 2, 4, s)==true);
+    b1 = make_board(4,2,4,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    assert(strcmp(s, "X2X3X3X2") == 0);
+
+    strcpy(s, "???????X???????");
+    assert(syntax_check(1,3,5,s)==true);
+    b1 = make_board(1,3,5,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    assert(strcmp(s, "0001111X1111000") == 0);
+
+    strcpy(s, "???????????????");
+    assert(syntax_check(0,3,5,s)==true);
+    b1 = make_board(0,3,5,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    assert(strcmp(s, "000000000000000") == 0);
+
+    strcpy(s, "X??????????????");
+    assert(syntax_check(1,3,5,s)==true);
+    b1 = make_board(1,3,5,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    assert(strcmp(s, "X10110000000000") == 0);
+
+    strcpy(s, "XXX?????????232");
+    assert(syntax_check(6,3,5,s)==true);
+    b1 = make_board(6,3,5,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    assert(strcmp(s, "XXX232232XXX232") == 0);
+
+    strcpy(s, "???????8???????");
+    assert(syntax_check(6,3,5,s)==true);
+    b1 = make_board(6,3,5,s);
+    b1 = solve_board(b1);
+    board2str(s, b1);
+    assert(strcmp(s, "232XXXX8XXXX232") == 0);
 }
