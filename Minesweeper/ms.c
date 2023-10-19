@@ -204,12 +204,6 @@ int unknowns_to_mines(int row, int column, board* b, int amount)
 
 void test(void)
 {
-    assert(is_valid_number('0') == true);
-    assert(is_valid_number('8') == true);
-    assert(is_valid_number('9') == false);
-    assert(is_valid_number(MINE) == false);
-    assert(is_valid_number(UNK) == false);
-
     //assets for tests
     int test_grid[5][5] = {
         {UNK,1,1,0,UNK},
@@ -219,6 +213,16 @@ void test(void)
         {UNK,0,1,1,1}
     };
     int test_adjacent_mines[] = {0,0,0,0,0,  1,2,3,2,1,  1,1,3,2,2,  1,2,4,2,2, 0,0,1,1,1};
+    board test_unk = make_board(0,5,5,"???000???0??0?00???0???0?");
+    board test_no_unk = make_board(0,5,5,"1234512345123451234512345");
+
+    // is_valid_number()
+    assert(is_valid_number('0') == true);
+    assert(is_valid_number('8') == true);
+    assert(is_valid_number('9') == false);
+    assert(is_valid_number(MINE) == false);
+    assert(is_valid_number(UNK) == false);
+
 
     // make_board()
     board test_board = make_board(5,5,5,"?110?123211XXX2124X2?0111");
@@ -251,4 +255,11 @@ void test(void)
     assert(indexes_within_boundary(MAXSQ, MAXSQ, &test_board) == false);
     assert(indexes_within_boundary(0, 0, &test_board) == true);
     assert(indexes_within_boundary(4, 4, &test_board) == true);
+
+    // unkowns_in_neighbourhood()
+
+    assert(unknowns_in_neighbourhood(0,1,&test_board) == 1);
+    assert(unknowns_in_neighbourhood(2,2,&test_unk) == 8);
+    assert(unknowns_in_neighbourhood(2,2,&test_no_unk) == 0);
+    
 }
