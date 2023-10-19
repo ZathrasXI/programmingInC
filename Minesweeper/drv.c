@@ -48,31 +48,25 @@ void driver(void)
   
    // Rule 1 : 3x3 with 8 mines, 1 unknown
    strcpy(str, "XXXX?XXXX");
-   printf("before str: %s\n", str);
    assert(syntax_check(8, 3, 3, str)==true);
    b = make_board(8, 3, 3, str);
    b = solve_board(b);
    board2str(str, b);
-   printf("after  str: %s\n\n", str);
    assert(strcmp(str, "XXXX8XXXX")==0);
  
    // Rule 1 : 5x5 with 3 mines, multiple unknowns
    strcpy(str, "11?0?X1111111X?11?11?X10?");
-   printf("before str: %s\n", str);
    assert(syntax_check(3, 5, 5, str)==true);
    b = make_board(3, 5, 5, str);
    b = solve_board(b);
    board2str(str, b);
-   printf("after  str: %s\n\n", str);
    assert(strcmp(str, "11000X1111111X1112111X100")==0);
 
    // Rules 1&2 : 5x5 with 3 mines, multiple unknowns
    strcpy(str, "?110?1?2101?X?1012?1?0111");
-   printf("before str: %s\n", str);
    assert(syntax_check(3, 5, 5, str)==true);
    b = make_board(3, 5, 5, str);
    b = solve_board(b);
    board2str(str, b);
-   printf("after  str: %s\n\n", str);
    assert(strcmp(str, "111001X21012X21012X100111")==0);
 }
