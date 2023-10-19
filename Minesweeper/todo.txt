@@ -1,7 +1,2 @@
-TODO: uncomment `#-Werror` from the makefile and use this flag to compile, when I have completed the project
-TODO: error handling? e.g. when char not converted successfully in is_valid_number https://www.geeksforgeeks.org/error-handling-in-c/
-
-check with Neill that testing for `is_valid_number()` is acceptable - 
-can't test cases < 0 or > 10 because it won't compile
-
+TODO: download files from Neill's repo and compile and run ms.c with those
 compile with `gcc msc. drv.c -g3 -fsanitize=address -fsanitize=undefined -o ms_val`
