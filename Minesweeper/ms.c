@@ -9,8 +9,8 @@
 int adjacent_mines(int row, int column, int grid[MAXSQ][MAXSQ]);
 bool is_valid_number(char c);
 bool indexes_within_grid(int row, int column);
-int question_marks_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
-int question_marks_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int changes);
+int unknowns_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ]);
+int unknowns_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int changes);
 
 board solve_board(board b)
 {
@@ -27,13 +27,12 @@ board solve_board(board b)
                 }
                 if (b.grid[i][j] <= MAX_DIGIT )
                 {
-                    if (indexes_within_grid(i,j) && b.grid[i][j] - question_marks_in_neighbourhood(i,j,b.grid) == adjacent_mines(i,j,b.grid))
+                    if (indexes_within_grid(i,j) && b.grid[i][j] - unknowns_in_neighbourhood(i,j,b.grid) == adjacent_mines(i,j,b.grid))
                     {
-                        int new_mines = question_marks_to_mines(i, j, b.grid, question_marks_in_neighbourhood(i,j,b.grid));
+                        int new_mines = unknowns_to_mines(i, j, b.grid, unknowns_in_neighbourhood(i,j,b.grid));
                         mines_found += new_mines;
                     }
                 }
-
             }
         }
     }
@@ -95,7 +94,6 @@ bool syntax_check(unsigned totmines, unsigned width, unsigned height, char inp[M
     {
         return false;
     }
-
     return true;
 }
 
@@ -114,8 +112,7 @@ board make_board(int totmines, int width, int height, char inp[MAXSQ*MAXSQ+1])
         {
             if(isdigit(inp[i + j]))
             {
-                int converted_successfully = sscanf((&inp[i + j]), "%1d", &new_board.grid[board_row][j]);
-                if(!converted_successfully)
+                if(!sscanf((&inp[i + j]), "%1d", &new_board.grid[board_row][j]))
                 {
                     printf("error converting %c to type int\n", inp[i+j]);
                 }
@@ -138,8 +135,7 @@ bool is_valid_number(char c)
     }
 
     int num;
-    int convert_successfully = sscanf(&c, "%d", &num);
-    if(!convert_successfully)
+    if(!sscanf(&c, "%d", &num))
     {  
         return false;
     }
@@ -175,7 +171,7 @@ bool indexes_within_grid(int row, int column)
     return row >= 0 && row < MAXSQ && column >= 0 && column < MAXSQ;
 }
 
-int question_marks_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
+int unknowns_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
 {
     int counter = 0;
     for (int i = row - 1; i <= row + 1; i++)
@@ -191,7 +187,7 @@ int question_marks_in_neighbourhood(int row, int column, int grid[MAXSQ][MAXSQ])
     return counter;
 }
 
-int question_marks_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int changes)
+int unknowns_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int changes)
 {
     int cells_changed = 0;
     while (cells_changed < changes)
@@ -210,7 +206,6 @@ int question_marks_to_mines(int row, int column, int grid[MAXSQ][MAXSQ], int cha
     }
     return cells_changed;
 }
-
 
 void test(void)
 {
