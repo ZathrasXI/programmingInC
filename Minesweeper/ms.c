@@ -17,19 +17,19 @@ board solve_board(board b)
     int mines_found = 0, attempts = 0;
     while (mines_found <= b.totmines && attempts < MAX_ATTEMPTS)
     {
-        for (int i = 0; i < b.h; i++)
+        for (int j = 0; j < b.h; j++)
         {
-            for (int j = 0; j < b.w; j++)
+            for (int i = 0; i < b.w; i++)
             {
-                if (b.grid[i][j] == MINE)
+                if (b.grid[j][i] == MINE)
                 {
                     mines_found++;
                 }
-                if (b.grid[i][j] <= MAX_DIGIT)
+                if (b.grid[j][i] <= MAX_DIGIT)
                 {
-                    if (b.grid[i][j] - unknowns_in_neighbourhood(i,j,&b) == adjacent_mines(i,j,&b))
+                    if (b.grid[j][i] - unknowns_in_neighbourhood(j,i,&b) == adjacent_mines(j,i,&b))
                     {
-                        mines_found += unknowns_to_mines(i, j, &b, unknowns_in_neighbourhood(i,j,&b));
+                        mines_found += unknowns_to_mines(j, i, &b, unknowns_in_neighbourhood(j,i,&b));
                     }
                 }
             }
@@ -37,13 +37,13 @@ board solve_board(board b)
         attempts++;
     }
 
-    for (int i = 0; i < b.h; i++)
+    for (int j = 0; j < b.h; j++)
     {
-        for (int j = 0; j < b.w; j++)
+        for (int i = 0; i < b.w; i++)
         {
-            if (b.grid[i][j] == UNK)
+            if (b.grid[j][i] == UNK)
             {
-                b.grid[i][j] = adjacent_mines(i,j,&b);
+                b.grid[j][i] = adjacent_mines(j,i,&b);
             }
         }
     }
@@ -105,21 +105,21 @@ board make_board(int totmines, int width, int height, char inp[MAXSQ*MAXSQ+1])
     };
     
     int board_row = 0;
-    for (int i = 0; i < height * width; i += width)
+    for (int j = 0; j < height * width; j += width)
     {
-        for (int j = 0; j < width; j++)
+        for (int i = 0; i < width; i++)
         {
-            if(isdigit(inp[i + j]))
+            if(isdigit(inp[j + i]))
             {
-                if(!sscanf((&inp[i + j]), "%1d", &new_board.grid[board_row][j]))
+                if(!sscanf((&inp[j + i]), "%1d", &new_board.grid[board_row][i]))
                 {
-                    fprintf(stderr,"error converting %c to type int\n", inp[i+j]);
+                    fprintf(stderr,"error converting %c to type int\n", inp[j+i]);
                     exit(EXIT_FAILURE);
                 }
             } 
             else
             {
-                new_board.grid[board_row][j] = inp[i + j];
+                new_board.grid[board_row][i] = inp[j + i];
             }
         }
         board_row++;
@@ -204,17 +204,6 @@ int unknowns_to_mines(int row, int column, board* b, int amount)
 
 void test(void)
 {
-    //assets for tests
-    int test_grid[5][5] = {
-        {UNK,1,1,0,UNK},
-        {1,2,3,2,1},
-        {1,MINE,MINE,MINE,2},
-        {1,2,4,MINE,2},
-        {UNK,0,1,1,1}
-    };
-    int test_adjacent_mines[] = {0,0,0,0,0,  1,2,3,2,1,  1,1,3,2,2,  1,2,4,2,2, 0,0,1,1,1};
-    board test_unk = make_board(0,5,5,"???000???0??0?00???0???0?");
-    board test_no_unk = make_board(0,5,5,"1234512345123451234512345");
 
     // is_valid_number()
     assert(is_valid_number('0') == true);
@@ -225,29 +214,36 @@ void test(void)
 
 
     // make_board()
+    int test_grid[5][5] = {
+        {UNK,1,1,0,UNK},
+        {1,2,3,2,1},
+        {1,MINE,MINE,MINE,2},
+        {1,2,4,MINE,2},
+        {UNK,0,1,1,1}
+    };
     board test_board = make_board(5,5,5,"?110?123211XXX2124X2?0111");
-
-    for (int i = 0; i < 5; i++)
+    for (int j = 0; j < 5; j++)
     {
-        for (int j = 0; j < 5; j++)
+        for (int i = 0; i < 5; i++)
         {
-            assert(test_board.grid[i][j] == test_grid[i][j]);
+            assert(test_board.grid[j][i] == test_grid[j][i]);
         }
     }
 
     // adjacent_mines()
+    int test_adjacent_mines[] = {0,0,0,0,0,  1,2,3,2,1,  1,1,3,2,2,  1,2,4,2,2, 0,0,1,1,1};
     int mines = adjacent_mines(0,0,&test_board);
     int index = 0;
     assert(mines == 0);
-    for (int i = 0; i < 5; i++)
+
+    for (int j = 0; j < 5; j++)
     {
-        for (int j = 0; j < 5; j++)
+        for (int i = 0; i < 5; i++)
         {
-            assert(adjacent_mines(i,j,&test_board) == test_adjacent_mines[index]);
+            assert(adjacent_mines(j,i,&test_board) == test_adjacent_mines[index]);
             index++;
         }
     }
-    index = 0;
 
     // indexes_within_boundary()
     assert(indexes_within_boundary(-1, 0, &test_board) == false);
@@ -256,17 +252,20 @@ void test(void)
     assert(indexes_within_boundary(0, 0, &test_board) == true);
     assert(indexes_within_boundary(4, 4, &test_board) == true);
 
-    // unknowns_in_neighbourhood()
+    board test_unk = make_board(0,5,5,"???000???0??0?00???0???0?");
+    board test_no_unk = make_board(0,5,5,"1234512345123451234512345");
+
+    // unknowns_in_neighbourhood() with make_board()
     assert(unknowns_in_neighbourhood(0,1,&test_board) == 1);
     assert(unknowns_in_neighbourhood(2,2,&test_unk) == 8);
     assert(unknowns_in_neighbourhood(2,2,&test_no_unk) == 0);
 
-    // unknowns_to_mines()
+    // unknowns_to_mines() with make_board()
     assert(unknowns_to_mines(0,1,&test_board,1) == 1);
     assert(unknowns_to_mines(2,2,&test_unk,8) == 8);
     assert(unknowns_to_mines(2,2,&test_no_unk,0) == 0);
 
-    // solve_board() && board2str()
+    // syntax_check(), solve_board(), board2str() and end-to-end testing
     char s[MAXSQ*MAXSQ+1];
     board b1;
 
