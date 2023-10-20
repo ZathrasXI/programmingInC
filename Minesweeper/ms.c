@@ -53,11 +53,11 @@ board solve_board(board b)
 void board2str(char s[MAXSQ*MAXSQ+1], board b)
 {
     int row_in_string = 0;
-    for(int j = 0; j < b.h; j++)
+    for (int j = 0; j < b.h; j++)
     {
-        for(int i = 0; i < b.w; i++)
+        for (int i = 0; i < b.w; i++)
         {
-            if(b.grid[j][i] >= 0 && b.grid[j][i] <= MAX_DIGIT)
+            if (b.grid[j][i] >= 0 && b.grid[j][i] <= MAX_DIGIT)
             {
                 s[row_in_string + i] = b.grid[j][i] + ASCII_CONVERSION;    
             } 
@@ -109,9 +109,9 @@ board make_board(int totmines, int width, int height, char inp[MAXSQ*MAXSQ+1])
     {
         for (int i = 0; i < width; i++)
         {
-            if(isdigit(inp[j + i]))
+            if (isdigit(inp[j + i]))
             {
-                if(!sscanf((&inp[j + i]), "%1d", &new_board.grid[board_row][i]))
+                if (!sscanf((&inp[j + i]), "%1d", &new_board.grid[board_row][i]))
                 {
                     fprintf(stderr,"error converting %c to type int\n", inp[j+i]);
                     exit(EXIT_FAILURE);
@@ -129,13 +129,13 @@ board make_board(int totmines, int width, int height, char inp[MAXSQ*MAXSQ+1])
 
 bool is_valid_number(char c)
 {
-    if(!isdigit(c))
+    if (!isdigit(c))
     {
         return false;
     }
 
     int num = c - ASCII_CONVERSION;
-    if(num < 0 || num > MAX_DIGIT)
+    if (num < 0 || num > MAX_DIGIT)
     {
         return false;
     }
