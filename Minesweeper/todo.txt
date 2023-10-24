@@ -1,2 +1,6 @@
-TODO: download files from Neill's repo and compile and run ms.c with those
-compile with `gcc msc. drv.c -g3 -fsanitize=address -fsanitize=undefined -o ms_val`
+TODO: 
+- download files from Neill's repo and compile and run ms.c with those
+- check with valgrind
+- compile with clang and gcc
+- compile with `gcc msc. drv.c -g3 -fsanitize=address -fsanitize=undefined -o ms_val`
+
