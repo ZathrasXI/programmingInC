@@ -8,11 +8,6 @@
 #define FILENAME "anagrams.txt"
 #define WORDSIZE 15
 
-//TODO should it warn me if I've imported a library and I'm not using anything from it? e.g. not using assert() from assert.h
-//TODO ask which is more efficient: function returns ul or I do more type casting?
-//TODO swap() using pointers
-//TODO don't print word if it is equal to input
-unsigned long len_without_newline_char(char str[WORDSIZE]);
 void test(void);
 bool is_anagram(const char input[], const char word[]);
 void sort(char str[WORDSIZE]);
