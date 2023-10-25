@@ -14,7 +14,7 @@
 //TODO don't print word if it is equal to input
 unsigned long len_without_newline_char(char str[WORDSIZE]);
 void test(void);
-bool is_anagram(char input[WORDSIZE], char word[WORDSIZE]);
+bool is_anagram(const char input[], const char word[]);
 void sort(char str[WORDSIZE]);
 
 int main(int argc, char* argv[])
@@ -33,7 +33,6 @@ int main(int argc, char* argv[])
     }
     char input[WORDSIZE];
     strcpy(input, argv[1]);
-    sort(input);
 
     FILE* anagram_file = fopen(FILENAME, "r");
     if (!anagram_file)
@@ -42,9 +41,8 @@ int main(int argc, char* argv[])
     }
 
     char buffer[WORDSIZE];
-    while (fgets(buffer, WORDSIZE, anagram_file) != NULL)
+    while (fscanf(anagram_file, "%s", buffer) == 1)
     {
-        
         if (is_anagram(input, buffer))
         {
             printf("%s\n", buffer);
@@ -60,19 +58,22 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-bool is_anagram(char input[WORDSIZE], char word[WORDSIZE])
+
+bool is_anagram(const char input[], const char word[])
 {
-    if (strlen(input) != len_without_newline_char(word))
+    if (strcmp(input, word) == 0)
     {
         return false;
     }
-
-    char sorted_word[WORDSIZE];
+    char sorted_word[WORDSIZE], sorted_input[WORDSIZE];
     strcpy(sorted_word, word);
+    strcpy(sorted_input, input);
     sort(sorted_word);
-    for (int i = 0; i < (int) strlen(input); i++)
+    sort(sorted_input);
+
+    for (int i = 0; i < (int) strlen(sorted_input); i++)
     {
-        if (input[i] != sorted_word[i])
+        if (sorted_input[i] != sorted_word[i])
         {
             return false;
         }
@@ -80,16 +81,6 @@ bool is_anagram(char input[WORDSIZE], char word[WORDSIZE])
     return true;
 }
 
-unsigned long len_without_newline_char(char str[WORDSIZE])
-{
-    int length = strlen(str);
-    if (str[length-1] == '\n')
-    {
-        str[length-1] = '\0';
-        return length - 1;
-    }
-    return length;
-}
 
 void sort(char str[WORDSIZE])
 {
@@ -109,16 +100,11 @@ void sort(char str[WORDSIZE])
     }
 }
 
+
 void test(void)
 {
-    char str[WORDSIZE] = "elephants\n";
-    assert(len_without_newline_char(str) == (unsigned long) 9);
-    strcpy(str, "elephants");
-    assert(len_without_newline_char(str) == (unsigned long) 9);
-
-    sort(str);
-    char sorted[WORDSIZE] = "aeehlnpst";
-    assert(strcmp(str, sorted) == 0);
-
-    assert(is_anagram(sorted, str) == true);
+    assert(is_anagram("aeelphnt", "elephant"));
+    char e[] = "elephant";
+    sort(e);
+    assert(strcmp(e, "aeehlnpt") == 0);
 }
