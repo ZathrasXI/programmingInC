@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
+#include <assert.h>
 
 #define MAX_HEIGHT 20
 #define MAX_WIDTH 20
@@ -9,10 +11,13 @@
 
 void maze_size(char input[COORD_STR], int width_height[2]);
 void create_maze_array(FILE* maze_file, char maze[MAX_HEIGHT][MAX_WIDTH], int width_height[2]);
+bool index_is_on_boundary(int row, int col, int width_height[2]);
+void test(void);
+
 
 int main(int argc, char* argv[])
 {
-
+    test();
     char maze[MAX_HEIGHT][MAX_WIDTH];
 
     if (argc != 2)
@@ -41,16 +46,19 @@ int main(int argc, char* argv[])
     create_maze_array(maze_file, maze, width_height);
 
     // print maze
-    for (int row = 0; row < width_height[1]; row++)
-    {
-        for (int col = 0; col < width_height[0]; col++)
-        {
-            printf("%c", maze[row][col]);
-        }
-    }
+    // for (int row = 0; row < width_height[1]; row++)
+    // {
+    //     for (int col = 0; col < width_height[0]; col++)
+    //     {
+    //         printf("%c", maze[row][col]);
+    //     }
+    // }
+
+    // find entrance
 
 
     fclose(maze_file);
+
 }
 
 void maze_size(char input[COORD_STR], int width_height[2])
@@ -80,4 +88,35 @@ void create_maze_array(FILE* maze_file, char maze[MAX_HEIGHT][MAX_WIDTH], int wi
             col = 0;
         }
     }
+}
+
+bool index_is_on_boundary(int row, int col, int width_height[2])
+{
+    if (row == 0 && col == 0)
+    {
+        return true;
+    }
+    if (row == 0 && col == width_height[0] - 1)
+    {
+        return true;
+    }
+    if (row == width_height[1] - 1 && col == 0)
+    {
+        return true;
+    }
+    if (row == width_height[1] - 1 && col == width_height[1] - 1 )
+    {
+        return true;
+    }
+    return false;
+}
+
+void test(void)
+{
+    int xy[] = {8,8};
+    assert(index_is_on_boundary(0,0,xy));
+    assert(index_is_on_boundary(7,7,xy));
+    assert(index_is_on_boundary(0,7,xy));
+    assert(index_is_on_boundary(7,0,xy));
+    assert(index_is_on_boundary(8,8,xy) == false);
 }
