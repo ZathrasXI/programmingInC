@@ -1,0 +1,5 @@
+open a file that contains a maze
+draw a full-stop in the path through the maze
+then print the maze
+
+use recursion
