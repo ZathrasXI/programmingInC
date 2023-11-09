@@ -1,0 +1,10 @@
+tests
+
+seperate into 2 files? *.c and *.h?
+
+compile with gcc and clang
+
+check with valgrind (compile without sanitize flags first)
+
+check against house style guide
+
