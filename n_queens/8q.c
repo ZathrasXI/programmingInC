@@ -6,13 +6,14 @@
 #include <assert.h>
 
 void test(void);
-bool parse_input(int *n, char* argv[], int argc);
+bool parse_input(int *n, char* argv[], int argc, bool *verbose);
 
 int main(int argc, char* argv[])
 {
     test();
     int n;
-    bool verbose = parse_input(&n, argv, argc);
+    bool verbose = false;
+    bool acceptable_input = parse_input(&n, argv, argc, &verbose);
 
 
     if (verbose)
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
 
 }
 
-bool parse_input(int *n, char* argv[], int argc)
+bool parse_input(int *n, char* argv[], int argc, bool *verbose)
 {
     bool verbose = false;
     for (int arg = 0; arg < argc; arg++)
@@ -31,9 +32,9 @@ bool parse_input(int *n, char* argv[], int argc)
         {
             verbose = true;
         }
-        if (isdigit(argv[arg][0]))
+        if (sscanf(argv[arg], "%d", &n) == 1)
         {
-            *n = argv[arg][0] - '0';
+            *n = argv[arg] - '0';
         }
     }
 
@@ -52,4 +53,9 @@ void test(void)
     char *test_argv[] = {"./8q", "-verbose", "3"};
     assert(parse_input(&n, test_argv, 3) == true);
     assert(n == 3);
+
+    char *test_argv1[] = {"./8q", "10", "-verbose"};
+    assert(parse_input(&n, test_argv1, 3) == true);
+    printf("n == %d\n", n);
+    assert(n == 10);
 }
