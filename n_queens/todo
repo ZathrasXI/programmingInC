@@ -8,3 +8,5 @@ check with valgrind (compile without sanitize flags first)
 
 check against house style guide
 
+ensure placing of * in pointer names is consistent, either `int* x` or `int *x`
+

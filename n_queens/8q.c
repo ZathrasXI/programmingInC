@@ -5,8 +5,22 @@
 #include <assert.h>
 #include <ctype.h>
 
+#define BOARDS 1000000
+
+// I am making an array to represent the unique locations a queen can be in. starting with 1 queen, ending on `n` queens
+
+
+typedef struct board
+{
+    int queens;
+} Board;
+
+
+// I need to add n boards with 1 queen to the array. Then find their unique children - I don't know how many there will be.
+
 void test(void);
-bool parse_args(int *n, char* argv[], int argc, bool *verbose);
+bool parse_args(int *n, char *argv[], int argc, bool *verbose);
+int add_initial_boards(Board *unique_boards, int *boards_to_add);
 
 int main(int argc, char* argv[])
 {
@@ -19,6 +33,13 @@ int main(int argc, char* argv[])
     {
         fprintf(stderr,"usage: ./8q <1-10> <optional: -verbose>\n");
         exit(EXIT_FAILURE);
+    }
+
+    Board unique_locations[BOARDS];
+    int initial_boards = add_initial_boards(unique_locations, &n);
+    for (int i = 0; i < initial_boards; i++)
+    {
+        printf("%d\n",unique_locations[i].queens);
     }
 
     if (verbose)
@@ -57,6 +78,19 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
     return true;
 }
 
+int add_initial_boards(Board *unique_boards, int *boards_to_add)
+{
+    int counter = 0;
+    unique_boards[0].queens = 0;
+    counter++;
+    for (int i = 1; i <= *boards_to_add; i++)
+    {
+        unique_boards[i].queens = 1;
+        counter++;
+    }
+    return counter;
+}
+
 void test(void)
 {
     int n_test;
@@ -78,4 +112,10 @@ void test(void)
     assert(parse_args(&n_test, test_argv2, 3, &verbose_test) == false);
     assert(n_test == 11);
     assert(verbose_test == false);
+
+
+    Board test_boards[BOARDS];
+    n_test = 10;
+    assert(add_initial_boards(test_boards, &n_test)== n_test + 1);
+    assert(add_initial_boards(test_boards, &n_test)!= n_test);
 }
