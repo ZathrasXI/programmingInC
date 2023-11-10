@@ -6,6 +6,9 @@
 #include <ctype.h>
 
 #define BOARDS 1000000
+#define MAX_SIZE 100
+#define XY 2
+#define QUEEN 1
 
 // I am making an array to represent the unique locations a queen can be in. starting with 1 queen, ending on `n` queens
 
@@ -13,6 +16,7 @@
 typedef struct board
 {
     int queens;
+    int queen_coords[MAX_SIZE][XY];
 } Board;
 
 
@@ -41,6 +45,11 @@ int main(int argc, char* argv[])
     {
         printf("%d\n",unique_locations[i].queens);
     }
+
+
+
+
+
 
     if (verbose)
     {
@@ -80,14 +89,26 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 
 int add_initial_boards(Board *unique_boards, int *boards_to_add)
 {
-    int counter = 0;
+    int counter = 0, row = 0, col = 0;
     unique_boards[0].queens = 0;
     counter++;
     for (int i = 1; i <= *boards_to_add; i++)
     {
         unique_boards[i].queens = 1;
+        unique_boards[i].queen_coords[0][0] = row;
+        unique_boards[i].queen_coords[0][1] = col;
+        col++;
         counter++;
+
+        if (col == *boards_to_add - 1)
+        {
+            col = 0;
+            row++;
+        }
     }
+
+    
+
     return counter;
 }
 
@@ -116,6 +137,22 @@ void test(void)
 
     Board test_boards[BOARDS];
     n_test = 10;
+    // correct number of boards added
     assert(add_initial_boards(test_boards, &n_test)== n_test + 1);
     assert(add_initial_boards(test_boards, &n_test)!= n_test);
+    
+    // queen on each board needs a unique location within n*n board
+    int row = 0, col = 0;
+    int boards = add_initial_boards(test_boards, &n_test);
+    for (int i = 1; i < boards; i++)
+    {
+        assert(test_boards[i].queen_coords[0][0] == col);
+        assert(test_boards[i].queen_coords[0][1] == row);
+        col++;
+        if (col == n_test -1 )
+        {
+            col = 0;
+            row++;
+        }
+    }
 }
