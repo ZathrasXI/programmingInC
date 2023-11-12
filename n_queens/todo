@@ -10,3 +10,5 @@ check against house style guide
 
 ensure placing of * in pointer names is consistent, either `int* x` or `int *x`
 
+check I haven't accidentally used EXIT_SUCCESS instead of EXIT_FAILURE, and vice versa
+
