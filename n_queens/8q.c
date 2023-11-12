@@ -6,8 +6,8 @@
 #include <ctype.h>
 
 #define BOARDS 1000000
-#define MAX_SIZE 100
-#define XY 2
+#define MAX_QUEENS 10
+#define ROW_COL 2
 #define QUEEN 1
 
 // I am making an array to represent the unique locations a queen can be in. starting with 1 queen, ending on `n` queens
@@ -16,7 +16,7 @@
 typedef struct board
 {
     int queens;
-    int queen_coords[MAX_SIZE][XY];
+    int queen_coords[MAX_QUEENS][ROW_COL];
 } Board;
 
 
@@ -39,12 +39,9 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    Board unique_locations[BOARDS];
+    static Board unique_locations[BOARDS];
     int initial_boards = add_initial_boards(unique_locations, &n);
-    for (int i = 0; i < initial_boards; i++)
-    {
-        printf("%d\n",unique_locations[i].queens);
-    }
+ 
 
 
 
@@ -53,7 +50,7 @@ int main(int argc, char* argv[])
 
     if (verbose)
     {
-        printf("n = %d verbose = %d\n", n, verbose);
+        printf("n = %d verbose = %d, initial_boards = %d\n", n, verbose, initial_boards);
     }
 
 }
@@ -89,26 +86,33 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 
 int add_initial_boards(Board *unique_boards, int *boards_to_add)
 {
-    int counter = 0, row = 0, col = 0;
     unique_boards[0].queens = 0;
-    counter++;
-    for (int i = 1; i <= *boards_to_add; i++)
+    // empty board for 0th queen
+    for (int row = 0; row < MAX_QUEENS; row++)
+    {
+        for (int col = 0; col < ROW_COL; col++)
+        {
+            unique_boards[0].queen_coords[row][0] = 0;
+            unique_boards[0].queen_coords[row][1] = 0;
+        }
+    }
+
+
+    int counter = 1, row = 0, col = 0;
+    for (int i = 1; i <= (*boards_to_add * *boards_to_add); i++)
     {
         unique_boards[i].queens = 1;
+        counter++;
+        
         unique_boards[i].queen_coords[0][0] = row;
         unique_boards[i].queen_coords[0][1] = col;
         col++;
-        counter++;
-
-        if (col == *boards_to_add - 1)
+        if (col == *boards_to_add)
         {
             col = 0;
             row++;
         }
     }
-
-    
-
     return counter;
 }
 
@@ -135,21 +139,34 @@ void test(void)
     assert(verbose_test == false);
 
 
-    Board test_boards[BOARDS];
+    static Board test_boards[BOARDS];
     n_test = 10;
-    // correct number of boards added
-    assert(add_initial_boards(test_boards, &n_test)== n_test + 1);
-    assert(add_initial_boards(test_boards, &n_test)!= n_test);
-    
-    // queen on each board needs a unique location within n*n board
-    int row = 0, col = 0;
-    int boards = add_initial_boards(test_boards, &n_test);
-    for (int i = 1; i < boards; i++)
+    // n * n + 1 boards added
+    assert(add_initial_boards(test_boards, &n_test)== n_test *n_test + 1);
+    // board[0] has 0 queens 
+    assert(test_boards[0].queens == 0);
+    for (int row = 0; row < MAX_QUEENS; row++)
     {
-        assert(test_boards[i].queen_coords[0][0] == col);
-        assert(test_boards[i].queen_coords[0][1] == row);
+        for (int col = 0; col < ROW_COL; col++)
+        {
+            assert(test_boards[0].queen_coords[row][0] == 0);
+            assert(test_boards[0].queen_coords[row][1] == 0);
+        }
+    }
+    
+    
+    // queen on each board needs a unique location within an n*n board
+    static Board test_locations[BOARDS];
+    n_test = 8;
+    int initial_boards = add_initial_boards(test_locations, &n_test);
+    int row = 0, col = 0;
+    for (int i = 1; i < initial_boards; i++)
+    {
+        assert(test_locations[i].queen_coords[0][0] == row);
+        assert(test_locations[i].queen_coords[0][1] == col);
+
         col++;
-        if (col == n_test -1 )
+        if (col == n_test)
         {
             col = 0;
             row++;
