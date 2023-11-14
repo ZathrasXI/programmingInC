@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <ctype.h>
 
-#define BOARDS 1000000
+#define BOARDS 100000000
 #define MAX_QUEENS 10
 #define QUEEN 1
 #define UNUSED -1
@@ -35,6 +35,7 @@ bool board_is_unique(Board *unique_boards, int *b, int *n);
 bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n);
 int next_available_index_in_array(Board *unique_boards);
 void append_all_children(Board *unique_boards, int index, int *n);
+bool is_unique(Board candidate, Board *unique_boards);
 
 
 int main(int argc, char* argv[])
@@ -53,26 +54,28 @@ int main(int argc, char* argv[])
     static Board unique_locations[BOARDS];
     int initial_boards = add_initial_boards(unique_locations, &n);
     
-    for (int board = 1; board < initial_boards; board++)
+    for (int board = 1; board < BOARDS; board++)
     {
-        // append children for this board (not checking for uniqueness yet)
-        for (int row = 0; row < n; row++)
-        {
-            for (int col = 0; col < n; col++)
+        // append all children, but without checking for uniqueness
+        append_all_children(unique_locations, board, &n);
+        
+
+    }
+    int counter = 0;
+    for (int i = 0; i < BOARDS; i++)
+    {
+        if (unique_locations[i].queens == n)
+        {   
+            counter++;
+            printf("#%d\n", counter);
+            for (int j = 0; j < MAX_QUEENS; j++)
             {
-                if(is_safe_space(unique_locations[board].queen_coords, row, col, &n))
-                {
-                    int index = next_available_index_in_array(unique_locations);
-                    memcpy(unique_locations[board].queen_coords, unique_locations[index].queen_coords, MAX_QUEENS * sizeof(int));
-                    unique_locations[index].queen_coords[row] = col;
-                    unique_locations[index].queens = unique_locations[board].queens + 1;
-                    unique_locations[index].in_use = true;
-                }
+                printf("row %d col %d\n", j, unique_locations[i].queen_coords[j]);
+
             }
+            printf("\n\n");
         }
     }
-
- 
 
 
 
@@ -313,8 +316,6 @@ int next_available_index_in_array(Board *unique_boards)
 
 void append_all_children(Board *unique_boards, int index, int *n)
 {
-    //append every child of board[index]to the end of the array
-    // find every child of current board
     int next_free_index = next_available_index_in_array(unique_boards);
     for (int row = 0; row < *n; row++)
     {
@@ -322,16 +323,37 @@ void append_all_children(Board *unique_boards, int index, int *n)
         {
             if (is_safe_space(unique_boards[index].queen_coords, row, col, n))
             {
-                memcpy(unique_boards[next_free_index].queen_coords, unique_boards[index].queen_coords, MAX_QUEENS * sizeof(int));
-                unique_boards[next_free_index].queen_coords[row] = col;
-                unique_boards[next_free_index].queens = unique_boards[index].queens + 1;
-                unique_boards[next_free_index].in_use = true;
-                next_free_index++;
+                Board candidate;
+                candidate.in_use = true;
+                candidate.queens = unique_boards[index].queens + 1;
+                memcpy(candidate.queen_coords, unique_boards[index].queen_coords, MAX_QUEENS * sizeof(int));
+                candidate.queen_coords[row] = col;
+                if (is_unique(candidate, unique_boards))
+                {
+                    memcpy(unique_boards[next_free_index].queen_coords, unique_boards[index].queen_coords, MAX_QUEENS * sizeof(int));
+                    unique_boards[next_free_index].queen_coords[row] = col;
+                    unique_boards[next_free_index].queens = unique_boards[index].queens + 1;
+                    unique_boards[next_free_index].in_use = true;
+                    next_free_index++;
+                }
+
             }
         }
     }
 }
 
+bool is_unique(Board candidate, Board *unique_boards)
+{
+    for (int b = 1; b < BOARDS; b++)
+    {
+        if (unique_boards[b].queens == candidate.queens && 
+        memcmp(candidate.queen_coords, unique_boards[b].queen_coords, MAX_QUEENS * sizeof(int)) == 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
 
 
 void test(void)
@@ -436,9 +458,6 @@ void test(void)
     assert(is_safe_space(queens1,3,2,&n_test));
     assert(!is_safe_space(queens1,2,3,&n_test));
 
-    // assert(!is_safe_space(queens1,3,1,&n_test));
-    // assert(!is_safe_space(queens1,3,3,&n_test));
-
     //index for next board
     static Board board_index_n_3[BOARDS];
     n_test = 3;
@@ -470,7 +489,7 @@ void test(void)
     {
         assert(memcmp(children[i], test_child_boards[parent_boards + i].queen_coords, first_children * sizeof(int)) == 0);
     }
-
+    //TODO ask in lab if there is a better way to re-write:
     test_child_boards[200].in_use = true;
     test_child_boards[200].queens = 2;
     test_child_boards[200].queen_coords[0] = 1;
@@ -486,12 +505,32 @@ void test(void)
     append_all_children(test_child_boards, 200, &n_test);
     int third_child[MAX_QUEENS] = {1,3,0,UNUSED,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};
     assert(memcmp(third_child, test_child_boards[23].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
+    assert(test_child_boards[23].in_use);
+    assert(test_child_boards[23].queens == 3);
 
     memcpy(test_child_boards[201].queen_coords, test_child_boards[200].queen_coords, MAX_QUEENS * sizeof(int));
     test_child_boards[201].queen_coords[2] = 0;
+    test_child_boards[201].queens = 3;
     append_all_children(test_child_boards, 201, &n_test);
     int fourth_child[MAX_QUEENS] = {1,3,0,2,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};    
     assert(memcmp(fourth_child, test_child_boards[26].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
+    assert(test_child_boards[26].in_use);
+    assert(test_child_boards[26].queens == 4);
+
+
+    // is board unique?
+    static Board test_uniqueness[BOARDS] = {
+        {4,{UNUSED,3,0,2,4,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS}, true},
+        {4,{3,UNUSED,0,2,4,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS}, true},
+        {4,{1,UNUSED,0,2,4,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS}, true},
+    };
+    n_test = 5;
+    Board test_unique_1 = {4,{1,2,3,4,UNUSED,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS}, true};
+    Board test_unique_2 = {4,{3,UNUSED,0,2,4,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS}, true};
+    assert(is_unique(test_unique_1, test_uniqueness));
+    assert(!is_unique(test_unique_2, test_uniqueness));    
+
+
 
 
 
