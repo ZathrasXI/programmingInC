@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <ctype.h>
 
-#define BOARDS 100000000
+#define BOARDS 7450000
 #define MAX_QUEENS 10
 #define QUEEN 1
 #define UNUSED -1
@@ -14,7 +14,7 @@
 
 // I am making an array to represent the unique locations a queen can be in. starting with 1 queen, ending on `n` queens
 
-
+// TODO will I lose marks for not using a 2D array?
 typedef struct board
 {
     int queens;
@@ -28,10 +28,10 @@ typedef struct board
 void test(void);
 bool parse_args(int *n, char *argv[], int argc, bool *verbose);
 int add_initial_boards(Board *unique_boards, int *boards_to_add);
-bool find_next_safe_location(int queen_coords[MAX_QUEENS], int *n);
+// bool find_next_safe_location(int queen_coords[MAX_QUEENS], int *n);
 bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n);
-int index_for_next_queen(int queen_coords[MAX_QUEENS], int *n);
-bool board_is_unique(Board *unique_boards, int *b, int *n);
+// int index_for_next_queen(int queen_coords[MAX_QUEENS], int *n);
+// bool board_is_unique(Board *unique_boards, int *b, int *n);
 bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n);
 int next_available_index_in_array(Board *unique_boards);
 void append_all_children(Board *unique_boards, int index, int *n);
@@ -52,6 +52,7 @@ int main(int argc, char* argv[])
     }
 
     static Board unique_locations[BOARDS];
+    // TODO refactor, return bool on success, int not needed
     int initial_boards = add_initial_boards(unique_locations, &n);
     
     for (int board = 1; board < BOARDS; board++)
@@ -61,28 +62,43 @@ int main(int argc, char* argv[])
         
 
     }
-    int counter = 0;
-    for (int i = 0; i < BOARDS; i++)
-    {
-        if (unique_locations[i].queens == n)
-        {   
-            counter++;
-            printf("#%d\n", counter);
-            for (int j = 0; j < MAX_QUEENS; j++)
-            {
-                printf("row %d col %d\n", j, unique_locations[i].queen_coords[j]);
+    // int counter = 0;
+    // for (int i = 0; i < BOARDS; i++)
+    // {
+    //     if (unique_locations[i].queens == n)
+    //     {   
+    //         counter++;
+    //         printf("#%d\n", counter);
+    //         for (int j = 0; j < MAX_QUEENS; j++)
+    //         {
+    //             printf("row %d col %d\n", j, unique_locations[i].queen_coords[j]);
 
+    //         }
+    //         printf("\n\n");
+    //     }
+    // }
+    printf("%d\n\n\n\n", initial_boards);
+
+    // TODO when printing out the column numbers +1 to value, columns start at 1 - not 0
+    int solutions_count = 0;
+    for (int b = 0; b < BOARDS; b++)
+    {
+        if(unique_locations[b].queens == n)
+        {
+            if (verbose)
+            {
+                for (int queen = 0; queen < n; queen++)
+                {
+                    printf("%d",unique_locations[b].queen_coords[queen]);
+                }
+                printf("\n");
             }
-            printf("\n\n");
+            solutions_count++;
         }
     }
 
-
-
-    if (verbose)
-    {
-        printf("n = %d verbose = %d, initial_boards = %d\n", n, verbose, initial_boards);
-    }
+    printf("%d solutions\n", solutions_count);
+    return 0;
 
 }
 
@@ -165,31 +181,31 @@ int add_initial_boards(Board *unique_boards, int *boards_to_add)
     return counter;
 }
 
-bool find_next_safe_location(int queen_coords[MAX_QUEENS], int *n)
-{
-    int queen = index_for_next_queen(queen_coords, n);
-    if (queen == ERROR)
-    {
-        fprintf(stderr, "couldn't find index to store co-ords for next queen\n");
-        exit(EXIT_FAILURE);
-    }
+// bool find_next_safe_location(int queen_coords[MAX_QUEENS], int *n)
+// {
+//     int queen = index_for_next_queen(queen_coords, n);
+//     if (queen == ERROR)
+//     {
+//         fprintf(stderr, "couldn't find index to store co-ords for next queen\n");
+//         exit(EXIT_FAILURE);
+//     }
 
-    int col_previous = queen_coords[queen - 1];
+//     int col_previous = queen_coords[queen - 1];
 
-    for (int row = 0; row < *n; row++)
-    {
-        for (int col = 0; col < *n; col++)
-        {
-            if (row != queen - 1 && col != col_previous && on_diagonals(queen - 1, col_previous, row, col, n))
-            {
-                queen_coords[queen] = col;
-                return true;
-            }
-        }
-    }
+//     for (int row = 0; row < *n; row++)
+//     {
+//         for (int col = 0; col < *n; col++)
+//         {
+//             if (row != queen - 1 && col != col_previous && on_diagonals(queen - 1, col_previous, row, col, n))
+//             {
+//                 queen_coords[queen] = col;
+//                 return true;
+//             }
+//         }
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
 bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n)
 {
@@ -239,47 +255,47 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
     return false;
 }
 
-int index_for_next_queen(int queen_coords[MAX_QUEENS], int *n)
-{
-    for (int i = 0; i < *n; i++)
-    {
-        if (queen_coords[i] == UNUSED)
-        {
-            return i;
-        }
-    }
+// int index_for_next_queen(int queen_coords[MAX_QUEENS], int *n)
+// {
+//     for (int i = 0; i < *n; i++)
+//     {
+//         if (queen_coords[i] == UNUSED)
+//         {
+//             return i;
+//         }
+//     }
     
-    return ERROR;
-}
+//     return ERROR;
+// }
 
-bool board_is_unique(Board *unique_boards, int *b, int *n)
-{
-    bool unique;
-    int matching_coords = 0;
-    for (int stored = 1; stored < *b; stored++)
-    {
-        for (int new = 0; new < *n; new++)
-        {
-            for (int stored = 0; stored < *n; stored++)
-            {
-                if (unique_boards[*b].queen_coords[new] == unique_boards[stored].queen_coords[stored])
-                {
-                    matching_coords++;
-                }
-            }
-        }
-    }
+// bool board_is_unique(Board *unique_boards, int *b, int *n)
+// {
+//     bool unique;
+//     int matching_coords = 0;
+//     for (int stored = 1; stored < *b; stored++)
+//     {
+//         for (int new = 0; new < *n; new++)
+//         {
+//             for (int stored = 0; stored < *n; stored++)
+//             {
+//                 if (unique_boards[*b].queen_coords[new] == unique_boards[stored].queen_coords[stored])
+//                 {
+//                     matching_coords++;
+//                 }
+//             }
+//         }
+//     }
                 
-    if (matching_coords == index_for_next_queen(unique_boards[*b].queen_coords, n) - 1)
-    {
-        unique = false;
-    }
-    else
-    {
-        unique = true;
-    }
-    return unique;
-}
+    // if (matching_coords == index_for_next_queen(unique_boards[*b].queen_coords, n) - 1)
+//     {
+//         unique = false;
+//     }
+//     else
+//     {
+//         unique = true;
+//     }
+//     return unique;
+// }
 
 bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n)
 {
@@ -539,9 +555,9 @@ void test(void)
     //get next available index in board.queen_coords for next queen
     // n_test = 9;
     // assert(index_for_next_queen(test_locations[1].queen_coords, &n_test) == 1);
-    // int mock_coords[MAX_QUEENS] = {1,2,3,4,5,UNUSED,UNUSED,UNUSED,UNUSED};
+    // // int mock_coords[MAX_QUEENS] = {1,2,3,4,5,UNUSED,UNUSED,UNUSED,UNUSED};
     // assert(index_for_next_queen(mock_coords, &n_test) == 5);
-    // int mock_coords2[MAX_QUEENS] = {1,2,3,4,5,6,6,6,6};
+    // // int mock_coords2[MAX_QUEENS] = {1,2,3,4,5,6,6,6,6};
     // assert(index_for_next_queen(mock_coords2, &n_test) == ERROR);
     
     // // get next safest location
@@ -569,10 +585,5 @@ void test(void)
     // queen_added = find_next_safe_location(mock_coords3, &n_test);
     // assert(queen_added && mock_coords3[next_index] == 0);
 
-
- 
-
-
-    
 
 }

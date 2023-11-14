@@ -1,4 +1,6 @@
-when printing out the column numbers +1 to value, columns start at 1 - not 0
+Ask Neill: when printing out the column numbers +1 to value, columns start at 1 - not 0
+Ask Neill: will I lose marks for not using a 2D array?
+How long should boards be when n == 10
 
 tests
 
