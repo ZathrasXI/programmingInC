@@ -9,6 +9,7 @@
 #define MAX_QUEENS 10
 #define QUEEN 1
 #define UNUSED -1
+#define OUT_OF_BOUNDS 99
 #define ERROR -2
 
 // I am making an array to represent the unique locations a queen can be in. starting with 1 queen, ending on `n` queens
@@ -74,19 +75,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-    int queen = 0;
-    for (int i = 1; i < BOARDS; i++)
-    {
-        if (unique_locations[i].in_use && unique_locations[i].queens == 1)
-        {
-            printf("board #%d queens %d\n", i,unique_locations[i].queens);
-            printf("board #%d queen %d @ %d\n\n", i,queen,unique_locations[i].queen_coords[queen]);
-        }
-        if((n -1) - i == 0)
-        {
-            queen++;
-        }
-    }
+
    
 
 
@@ -144,6 +133,23 @@ int add_initial_boards(Board *unique_boards, int *boards_to_add)
 
     for (int b = 1; b < *boards_to_add * *boards_to_add + 1; b++)
     {
+        for (int i = 0; i < MAX_QUEENS; i++)
+        {
+            if (i < *boards_to_add)
+            {
+                unique_boards[b].queen_coords[i] = UNUSED;
+            }
+            else
+            {
+                unique_boards[b].queen_coords[i] = OUT_OF_BOUNDS;
+            }
+        }
+    }
+
+    for (int b = 1; b < *boards_to_add * *boards_to_add + 1; b++)
+    {
+
+
         unique_boards[b].queen_coords[queen] = col;   
         col++;
 
@@ -358,6 +364,19 @@ void test(void)
     {
         assert(test_locations[b].queens == 1);
         assert(test_locations[b].queen_coords[queen] == col);
+
+        for (int i = 0; i < MAX_QUEENS; i++)
+        {
+            if (i < n_test && i != queen)
+            {
+                assert(test_locations[b].queen_coords[i] == UNUSED);
+            }
+            else if (i > n_test && i != queen)
+            {
+                assert(test_locations[b].queen_coords[i] == OUT_OF_BOUNDS);
+            }
+        }
+
         col++;
 
         assert(test_locations[b].in_use);
@@ -366,6 +385,7 @@ void test(void)
             col = 0;
             queen++;
         }
+
     }
 
     // can add a queen in next safe, and unique location
