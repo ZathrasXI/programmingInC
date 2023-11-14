@@ -471,6 +471,31 @@ void test(void)
         assert(memcmp(children[i], test_child_boards[parent_boards + i].queen_coords, first_children * sizeof(int)) == 0);
     }
 
+    test_child_boards[200].in_use = true;
+    test_child_boards[200].queens = 2;
+    test_child_boards[200].queen_coords[0] = 1;
+    test_child_boards[200].queen_coords[1] = 3;
+    test_child_boards[200].queen_coords[2] = UNUSED;
+    test_child_boards[200].queen_coords[3] = UNUSED;
+    test_child_boards[200].queen_coords[4] = OUT_OF_BOUNDS;
+    test_child_boards[200].queen_coords[5] = OUT_OF_BOUNDS;
+    test_child_boards[200].queen_coords[6] = OUT_OF_BOUNDS;
+    test_child_boards[200].queen_coords[7] = OUT_OF_BOUNDS;
+    test_child_boards[200].queen_coords[8] = OUT_OF_BOUNDS;
+    test_child_boards[200].queen_coords[9] = OUT_OF_BOUNDS;
+    append_all_children(test_child_boards, 200, &n_test);
+    int third_child[MAX_QUEENS] = {1,3,0,UNUSED,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};
+    assert(memcmp(third_child, test_child_boards[23].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
+
+    memcpy(test_child_boards[201].queen_coords, test_child_boards[200].queen_coords, MAX_QUEENS * sizeof(int));
+    test_child_boards[201].queen_coords[2] = 0;
+    append_all_children(test_child_boards, 201, &n_test);
+    int fourth_child[MAX_QUEENS] = {1,3,0,2,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};    
+    assert(memcmp(fourth_child, test_child_boards[26].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
+
+
+
+
 
     //get next available index in board.queen_coords for next queen
     // n_test = 9;
