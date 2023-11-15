@@ -1,9 +1,6 @@
-TODO when printing out the column numbers +1 to value, columns start at 1 - not 0
-How long should boards be when n == 10
 
 tests
 
-seperate into 2 files? *.c and *.h?
 
 compile with gcc and clang
 
@@ -19,5 +16,4 @@ check I haven't accidentally used EXIT_SUCCESS instead of EXIT_FAILURE, and vice
 
 functions that search < BOARD:
 next_available_index_in_array()
-is_unique()
 counting solutions in main()

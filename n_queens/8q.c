@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
     int n;
     bool verbose = false;
     bool valid_input = parse_args(&n, argv, argc, &verbose);
-
+    
     if (!valid_input)
     {
         fprintf(stderr,"usage: ./8q <1-10> <optional: -verbose>\n");
@@ -15,7 +15,6 @@ int main(int argc, char* argv[])
     }
 
     static Board unique_locations[BOARDS];
-    // TODO refactor, return bool on success, int not needed
     int initial_boards = add_initial_boards(unique_locations, &n);
     int index_n_queens = 0;
     if (initial_boards != n * n + 1)
@@ -24,43 +23,28 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    for (int board = 1; board < BOARDS; board++)
+    int board = 1;
+    do
     {
-        // get index of the first board where number of queens increases
         if (unique_locations[board - 1].queens == unique_locations[board].queens - 1)
         {
             index_n_queens = board;
-            // printf("board = %d   i_n_q = %d   queens = %d\n", board, index_n_queens, unique_locations[board].queens);
         }
         append_all_children(unique_locations, board, &n, &index_n_queens);
-    }
+        board++;
+    } while (unique_locations[board].in_use);
+ 
 
-    // TODO when printing out the column numbers +1 to value, columns start at 1 - not 0
-    // print 'A' instead of 10
-    int solutions_count = 0;
-    for (int b = 0; b < BOARDS; b++)
-    {
-        if(unique_locations[b].queens == n)
-        {
-            if (verbose)
-            {
-                for (int queen = 0; queen < n; queen++)
-                {
-                    printf("%d",unique_locations[b].queen_coords[queen]);
-                }
-                printf("\n");
-            }
-            solutions_count++;
-        }
-    }
-
-    printf("%d solutions\n", solutions_count);
+    print_solutions(unique_locations, &verbose, &n, &board);
     return 0;
 }
 
+
+
+
 bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 {
-    //TODO exit 1 when given non-integers
+    //TODO handle letters/strings inputted
     if (argc < 2 || argc > 3)
     {
         return false;
@@ -240,9 +224,6 @@ void append_all_children(Board *unique_boards, int current_board, int *n, int *i
 
 bool is_unique(Board candidate, Board *unique_boards, int *index_n_queens, int current_board)
 {
-    // printf("board #%d   index_n_queens %d\n", current_board, *index_n_queens);
- 
-
     for (int b = *index_n_queens; b < current_board; b++)
     {
         if (unique_boards[b].queens == candidate.queens && 
@@ -252,6 +233,36 @@ bool is_unique(Board candidate, Board *unique_boards, int *index_n_queens, int c
         }
     }
     return true;
+}
+
+void print_solutions(Board *unique_locations, bool *verbose, int *n, int *board_count)
+{
+    int solutions_count = 0;
+    for (int b = 0; b < *board_count; b++)
+    {
+        if(unique_locations[b].queens == *n)
+        {
+            if (*verbose)
+            {
+                for (int queen = 0; queen < *n; queen++)
+                {
+                    unique_locations[b].queen_coords[queen]++;
+                    if (unique_locations[b].queen_coords[queen] == 10)
+                    {
+                        printf("A");
+                    }
+                    else
+                    {
+                        printf("%d", unique_locations[b].queen_coords[queen]);
+                    }
+                }
+                printf("\n");
+            }
+            solutions_count++;
+        }
+    }
+
+    printf("%d solutions\n", solutions_count);
 }
 
 void test(void)
@@ -388,6 +399,7 @@ void test(void)
     {
         assert(memcmp(children[i], test_child_boards[parent_boards + i].queen_coords, first_children * sizeof(int)) == 0);
     }
+    
     //TODO ask in lab if there is a better way to re-write:
     test_child_boards[200].in_use = true;
     test_child_boards[200].queens = 2;

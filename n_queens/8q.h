@@ -29,3 +29,4 @@ bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n);
 int next_available_index_in_array(Board *unique_boards);
 void append_all_children(Board *unique_boards, int index, int *n, int *index_n_queens);
 bool is_unique(Board candidate, Board *unique_boards, int *index_n_queens, int current_board);
+void print_solutions(Board *unique_locations, bool *verbose, int *n, int *board_count);
