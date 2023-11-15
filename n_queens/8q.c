@@ -50,7 +50,6 @@ int main(int argc, char* argv[])
 
     printf("%d solutions\n", solutions_count);
     return 0;
-
 }
 
 bool parse_args(int *n, char* argv[], int argc, bool *verbose)
@@ -85,18 +84,14 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 
 int add_initial_boards(Board *unique_boards, int *boards_to_add)
 {
+    //TODO refactor this
     int col = 0, queen = 0;
-
-    for (int i = 0; i < *boards_to_add; i++)
-    {
-        unique_boards[0].queen_coords[i] = UNUSED;       
-    }
     unique_boards[0].queens = 0;
     unique_boards[0].in_use = true;
 
     int counter = 1;
 
-    for (int b = 1; b < *boards_to_add * *boards_to_add + 1; b++)
+    for (int b = 0; b < *boards_to_add * *boards_to_add + 1; b++)
     {
         for (int i = 0; i < MAX_QUEENS; i++)
         {
@@ -109,25 +104,23 @@ int add_initial_boards(Board *unique_boards, int *boards_to_add)
                 unique_boards[b].queen_coords[i] = OUT_OF_BOUNDS;
             }
         }
-    }
 
-    for (int b = 1; b < *boards_to_add * *boards_to_add + 1; b++)
-    {
-        unique_boards[b].queen_coords[queen] = col;   
-        col++;
-
-        unique_boards[b].in_use = true;
-        unique_boards[b].queens = 1;
-
-        if (col == *boards_to_add)
+        if (b > 0)
         {
-            col = 0;
-            queen++;
-        }
-        counter++;
-    }
+            unique_boards[b].queen_coords[queen] = col;   
+            col++;
 
-   
+            unique_boards[b].in_use = true;
+            unique_boards[b].queens = 1;
+
+            if (col == *boards_to_add)
+            {
+                col = 0;
+                queen++;
+            }
+            counter++;
+        }
+    }
     return counter;
 }
 
