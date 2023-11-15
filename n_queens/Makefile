@@ -10,7 +10,7 @@ SANITIZE := $(GENFLAGS) -g3 -fsanitize=address -fsanitize=undefined
 # In the labs you'll probably use clang, but make sure to try gcc too
 CC := clang
 
-8q: 8q.c #8q.h
+8q: 8q.c 8q.h
 	$(CC) 8q.c $(OPTIM) -o 8q
 
 8q_san: 8q.c 8q.h

@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
     static Board unique_locations[BOARDS];
     // TODO refactor, return bool on success, int not needed
     int initial_boards = add_initial_boards(unique_locations, &n);
+    int index_n_queens = 0;
     if (initial_boards != n * n + 1)
     {
         fprintf(stderr, "boards not initialised\n");
@@ -25,8 +26,13 @@ int main(int argc, char* argv[])
 
     for (int board = 1; board < BOARDS; board++)
     {
-        // append all children, but without checking for uniqueness
-        append_all_children(unique_locations, board, &n);
+        // get index of the first board where number of queens increases
+        if (unique_locations[board - 1].queens == unique_locations[board].queens - 1)
+        {
+            index_n_queens = board;
+            // printf("board = %d   i_n_q = %d   queens = %d\n", board, index_n_queens, unique_locations[board].queens);
+        }
+        append_all_children(unique_locations, board, &n, &index_n_queens);
     }
 
     // TODO when printing out the column numbers +1 to value, columns start at 1 - not 0
@@ -84,7 +90,6 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 
 int add_initial_boards(Board *unique_boards, int *boards_to_add)
 {
-    //TODO refactor this
     int col = 0, queen = 0;
     unique_boards[0].queens = 0;
     unique_boards[0].in_use = true;
@@ -206,25 +211,25 @@ int next_available_index_in_array(Board *unique_boards)
     return index;
 }
 
-void append_all_children(Board *unique_boards, int index, int *n)
+void append_all_children(Board *unique_boards, int current_board, int *n, int *index_n_queens)
 {
     int next_free_index = next_available_index_in_array(unique_boards);
     for (int row = 0; row < *n; row++)
     {
         for (int col = 0; col < *n; col++)
         {
-            if (is_safe_space(unique_boards[index].queen_coords, row, col, n))
+            if (is_safe_space(unique_boards[current_board].queen_coords, row, col, n))
             {
                 Board candidate;
                 candidate.in_use = true;
-                candidate.queens = unique_boards[index].queens + 1;
-                memcpy(candidate.queen_coords, unique_boards[index].queen_coords, MAX_QUEENS * sizeof(int));
+                candidate.queens = unique_boards[current_board].queens + 1;
+                memcpy(candidate.queen_coords, unique_boards[current_board].queen_coords, MAX_QUEENS * sizeof(int));
                 candidate.queen_coords[row] = col;
-                if (is_unique(candidate, unique_boards))
+                if (is_unique(candidate, unique_boards, index_n_queens, next_free_index))
                 {
-                    memcpy(unique_boards[next_free_index].queen_coords, unique_boards[index].queen_coords, MAX_QUEENS * sizeof(int));
+                    memcpy(unique_boards[next_free_index].queen_coords, unique_boards[current_board].queen_coords, MAX_QUEENS * sizeof(int));
                     unique_boards[next_free_index].queen_coords[row] = col;
-                    unique_boards[next_free_index].queens = unique_boards[index].queens + 1;
+                    unique_boards[next_free_index].queens = unique_boards[current_board].queens + 1;
                     unique_boards[next_free_index].in_use = true;
                     next_free_index++;
                 }
@@ -233,9 +238,12 @@ void append_all_children(Board *unique_boards, int index, int *n)
     }
 }
 
-bool is_unique(Board candidate, Board *unique_boards)
+bool is_unique(Board candidate, Board *unique_boards, int *index_n_queens, int current_board)
 {
-    for (int b = 1; b < BOARDS; b++)
+    // printf("board #%d   index_n_queens %d\n", current_board, *index_n_queens);
+ 
+
+    for (int b = *index_n_queens; b < current_board; b++)
     {
         if (unique_boards[b].queens == candidate.queens && 
         memcmp(candidate.queen_coords, unique_boards[b].queen_coords, MAX_QUEENS * sizeof(int)) == 0)
@@ -374,7 +382,8 @@ void test(void)
         {0,UNUSED,UNUSED,2,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS},
     };
     int parent_boards = add_initial_boards(test_child_boards, &n_test);
-    append_all_children(test_child_boards, 1, &n_test);
+    int n_index = 1;
+    append_all_children(test_child_boards, 1, &n_test,&n_index);
     for (int i = 0; i < first_children; i++)
     {
         assert(memcmp(children[i], test_child_boards[parent_boards + i].queen_coords, first_children * sizeof(int)) == 0);
@@ -392,7 +401,8 @@ void test(void)
     test_child_boards[200].queen_coords[7] = OUT_OF_BOUNDS;
     test_child_boards[200].queen_coords[8] = OUT_OF_BOUNDS;
     test_child_boards[200].queen_coords[9] = OUT_OF_BOUNDS;
-    append_all_children(test_child_boards, 200, &n_test);
+    int start_index_uniqueness = 0;
+    append_all_children(test_child_boards, 200, &n_test, &start_index_uniqueness);
     int third_child[MAX_QUEENS] = {1,3,0,UNUSED,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};
     assert(memcmp(third_child, test_child_boards[23].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
     assert(test_child_boards[23].in_use);
@@ -401,7 +411,7 @@ void test(void)
     memcpy(test_child_boards[201].queen_coords, test_child_boards[200].queen_coords, MAX_QUEENS * sizeof(int));
     test_child_boards[201].queen_coords[2] = 0;
     test_child_boards[201].queens = 3;
-    append_all_children(test_child_boards, 201, &n_test);
+    append_all_children(test_child_boards, 201, &n_test,&start_index_uniqueness);
     int fourth_child[MAX_QUEENS] = {1,3,0,2,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};    
     assert(memcmp(fourth_child, test_child_boards[26].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
     assert(test_child_boards[26].in_use);
@@ -417,7 +427,8 @@ void test(void)
     n_test = 5;
     Board test_unique_1 = {4,{1,2,3,4,UNUSED,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS}, true};
     Board test_unique_2 = {4,{3,UNUSED,0,2,4,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS}, true};
-    assert(is_unique(test_unique_1, test_uniqueness));
-    assert(!is_unique(test_unique_2, test_uniqueness));    
+    int x = 0;
+    assert(is_unique(test_unique_1, test_uniqueness,&x,2));
+    assert(!is_unique(test_unique_2, test_uniqueness,&x,2));    
 
 }
