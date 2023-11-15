@@ -235,7 +235,6 @@ void append_all_children(Board *unique_boards, int index, int *n)
                     unique_boards[next_free_index].in_use = true;
                     next_free_index++;
                 }
-
             }
         }
     }
