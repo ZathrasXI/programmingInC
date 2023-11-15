@@ -17,14 +17,17 @@ int main(int argc, char* argv[])
     static Board unique_locations[BOARDS];
     // TODO refactor, return bool on success, int not needed
     int initial_boards = add_initial_boards(unique_locations, &n);
-    
+    if (initial_boards != n * n + 1)
+    {
+        fprintf(stderr, "boards not initialised\n");
+        exit(EXIT_FAILURE);
+    }
+
     for (int board = 1; board < BOARDS; board++)
     {
         // append all children, but without checking for uniqueness
         append_all_children(unique_locations, board, &n);
     }
-
-    printf("%d\n\n\n\n", initial_boards);
 
     // TODO when printing out the column numbers +1 to value, columns start at 1 - not 0
     // print 'A' instead of 10
