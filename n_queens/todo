@@ -16,4 +16,3 @@ check I haven't accidentally used EXIT_SUCCESS instead of EXIT_FAILURE, and vice
 
 functions that search < BOARD:
 next_available_index_in_array()
-counting solutions in main()

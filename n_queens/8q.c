@@ -182,10 +182,10 @@ bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n)
     return true;
 }
 
-int next_available_index_in_array(Board *unique_boards)
+int next_available_index_in_array(Board *unique_boards, int current_board)
 {
     int index = ERROR;
-    for (int i = 0; i < BOARDS; i++)
+    for (int i = current_board; i < BOARDS; i++)
     {
         if (!unique_boards[i].in_use)
         {
@@ -197,7 +197,7 @@ int next_available_index_in_array(Board *unique_boards)
 
 void append_all_children(Board *unique_boards, int current_board, int *n, int *index_n_queens)
 {
-    int next_free_index = next_available_index_in_array(unique_boards);
+    int next_free_index = next_available_index_in_array(unique_boards, current_board);
     for (int row = 0; row < *n; row++)
     {
         for (int col = 0; col < *n; col++)
@@ -371,13 +371,13 @@ void test(void)
     static Board board_index_n_3[BOARDS];
     n_test = 3;
     int initiate_boards = add_initial_boards(board_index_n_3, &n_test);
-    int next_index = next_available_index_in_array(board_index_n_3);
+    int next_index = next_available_index_in_array(board_index_n_3,0);
     assert(next_index == initiate_boards);
 
     static Board board_index_n_10[BOARDS];
     n_test = 10;
     initiate_boards = add_initial_boards(board_index_n_10, &n_test);
-    next_index = next_available_index_in_array(board_index_n_10);
+    next_index = next_available_index_in_array(board_index_n_10,0);
     assert(next_index == initiate_boards);
 
     //append children
@@ -401,29 +401,29 @@ void test(void)
     }
     
     //TODO ask in lab if there is a better way to re-write:
-    test_child_boards[200].in_use = true;
-    test_child_boards[200].queens = 2;
-    test_child_boards[200].queen_coords[0] = 1;
-    test_child_boards[200].queen_coords[1] = 3;
-    test_child_boards[200].queen_coords[2] = UNUSED;
-    test_child_boards[200].queen_coords[3] = UNUSED;
-    test_child_boards[200].queen_coords[4] = OUT_OF_BOUNDS;
-    test_child_boards[200].queen_coords[5] = OUT_OF_BOUNDS;
-    test_child_boards[200].queen_coords[6] = OUT_OF_BOUNDS;
-    test_child_boards[200].queen_coords[7] = OUT_OF_BOUNDS;
-    test_child_boards[200].queen_coords[8] = OUT_OF_BOUNDS;
-    test_child_boards[200].queen_coords[9] = OUT_OF_BOUNDS;
+    test_child_boards[17].in_use = true;
+    test_child_boards[17].queens = 2;
+    test_child_boards[17].queen_coords[0] = 1;
+    test_child_boards[17].queen_coords[1] = 3;
+    test_child_boards[17].queen_coords[2] = UNUSED;
+    test_child_boards[17].queen_coords[3] = UNUSED;
+    test_child_boards[17].queen_coords[4] = OUT_OF_BOUNDS;
+    test_child_boards[17].queen_coords[5] = OUT_OF_BOUNDS;
+    test_child_boards[17].queen_coords[6] = OUT_OF_BOUNDS;
+    test_child_boards[17].queen_coords[7] = OUT_OF_BOUNDS;
+    test_child_boards[17].queen_coords[8] = OUT_OF_BOUNDS;
+    test_child_boards[17].queen_coords[9] = OUT_OF_BOUNDS;
     int start_index_uniqueness = 0;
-    append_all_children(test_child_boards, 200, &n_test, &start_index_uniqueness);
+    append_all_children(test_child_boards, 17, &n_test, &start_index_uniqueness);
     int third_child[MAX_QUEENS] = {1,3,0,UNUSED,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};
     assert(memcmp(third_child, test_child_boards[23].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
     assert(test_child_boards[23].in_use);
     assert(test_child_boards[23].queens == 3);
 
-    memcpy(test_child_boards[201].queen_coords, test_child_boards[200].queen_coords, MAX_QUEENS * sizeof(int));
-    test_child_boards[201].queen_coords[2] = 0;
-    test_child_boards[201].queens = 3;
-    append_all_children(test_child_boards, 201, &n_test,&start_index_uniqueness);
+    memcpy(test_child_boards[18].queen_coords, test_child_boards[17].queen_coords, MAX_QUEENS * sizeof(int));
+    test_child_boards[18].queen_coords[2] = 0;
+    test_child_boards[18].queens = 3;
+    append_all_children(test_child_boards, 18, &n_test,&start_index_uniqueness);
     int fourth_child[MAX_QUEENS] = {1,3,0,2,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};    
     assert(memcmp(fourth_child, test_child_boards[26].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
     assert(test_child_boards[26].in_use);
