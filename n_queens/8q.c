@@ -80,6 +80,7 @@ int main(int argc, char* argv[])
     printf("%d\n\n\n\n", initial_boards);
 
     // TODO when printing out the column numbers +1 to value, columns start at 1 - not 0
+    // print 'A' instead of 10
     int solutions_count = 0;
     for (int b = 0; b < BOARDS; b++)
     {
@@ -104,6 +105,7 @@ int main(int argc, char* argv[])
 
 bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 {
+    //TODO exit 1 when given non-integers
     if (argc < 2 || argc > 3)
     {
         return false;
