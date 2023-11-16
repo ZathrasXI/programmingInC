@@ -1,3 +1,11 @@
+ask: does our program need to be able to handle non-integer input?
+ask: can we have a header file for extension.c
+todo: refactor code within that is executed after is_unique()
+todo 8q.c within is_safe_space(), change:
+    if (queen_coords[queen] != UNUSED && row == queen)
+    to
+    if (queen_coords[queen] != UNUSED && row == queen_coords[queen])
+
 
 tests
 
@@ -14,5 +22,3 @@ check I haven't accidentally used EXIT_SUCCESS instead of EXIT_FAILURE, and vice
 
 
 
-functions that search < BOARD:
-next_available_index_in_array()

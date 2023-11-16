@@ -14,10 +14,8 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    // I need a start of the list `f`, and a pointer(s) for the location - maybe current_board, and last_board
-    Board *current = NULL;
+    Board *start = NULL;
     Board f;
-    f.in_use = true;
     f.queens = 0;
     for (int q = 0; q < MAX_QUEENS; q++)
     {
@@ -30,42 +28,43 @@ int main(int argc, char* argv[])
             f.queen_coords[q] = OUT_OF_BOUNDS;
         }
     }
+    add_new_board(&start,f);
 
-    add_new_board(&current,f);
-
-
-    static Board unique_locations[BOARDS];
-    int initial_boards = add_initial_boards(&current,unique_locations, &n);
-    // Board *e = end_of_board(&current);
-    // for (int q = 0; q < MAX_QUEENS; q++)
-    // {
-    //     printf("%d \n", e->queen_coords[q]);
-    // }
-    // printf("\n\n");
-    
-    print_list(current);
-    exit(EXIT_SUCCESS);
-    int index_n_queens = 0;
-    // if (initial_boards != n * n + 1)
-    // {
-    //     fprintf(stderr, "boards not initialised\n");
-    //     exit(EXIT_FAILURE);
-    // }
-
-    int board = 1;
-    do
+    int initial_boards = add_initial_boards(&start, &n);
+    if (initial_boards != n * n + 1)
     {
-        if (unique_locations[board - 1].queens == unique_locations[board].queens - 1)
-        {
-            index_n_queens = board;
-        }
-        append_all_children(&current, unique_locations, board, &n, &index_n_queens);
-        board++;
-    } while (unique_locations[board].in_use);
- 
+        fprintf(stderr, "%d boards not initialised\n", initial_boards);
+        exit(EXIT_FAILURE);
+    }
 
-    print_solutions(unique_locations, &verbose, &n, &board);
-    return 0;
+    Board *current = start;
+    while (current != NULL)
+    {
+        append_all_children(&current, &start, &n);
+        current = current->next;
+    }
+
+    print_solved_nodes(start, &n);
+    // print_list(start);
+}
+
+void print_solved_nodes(Board *start, int *n)
+{
+    int counter = 0;
+    while (start != NULL)
+    {
+        if (start->queens == *n)
+        {
+            // for (int q = 0; q < MAX_QUEENS; q++)
+            // {
+            //     printf("%d ", start->queen_coords[q]);
+            // }
+            // printf("\n");
+            counter++;
+        }
+        start = start->next;
+    }
+    printf("counter = %d\n", counter);
 }
 
 Board *create_new_board(Board b)
@@ -78,9 +77,6 @@ Board *create_new_board(Board b)
     }
 
     new->queens = b.queens;
-    new->in_use = b.in_use;
-    //why doesn't this work?
-    // memcpy(new->queen_coords, b.queen_coords, MAX_QUEENS * sizeof(Board));
     for (int i = 0; i < MAX_QUEENS; i++)
     {
         new->queen_coords[i] = b.queen_coords[i];
@@ -123,7 +119,6 @@ void print_list(Board *location)
     printf("end.\n");
 }
 
-
 bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 {
     //TODO handle letters/strings inputted
@@ -154,13 +149,10 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
     return true;
 }
 
-int add_initial_boards(Board **start, Board *unique_boards, int *boards_to_add)
+int add_initial_boards(Board **start, int *boards_to_add)
 {
     int col = 0, queen = 0;
-    unique_boards[0].queens = 0;
-    unique_boards[0].in_use = true;
-
-    int counter = 1;
+    int counter = 0;
 
     Board temp;
 
@@ -179,24 +171,27 @@ int add_initial_boards(Board **start, Board *unique_boards, int *boards_to_add)
         }
 
         temp.queen_coords[queen] = col;   
-        col++;
 
-        temp.in_use = true;
         temp.queens = 1;
 
+        //TODO refactor this
+        if (col < *boards_to_add)
+        {
+            add_new_board(start, temp);
+        }
+        counter++;
+        col++;
         if (col == *boards_to_add && queen < *boards_to_add - 1)
         {
             col = 0;
             queen++;
         }
-        counter++;
-        add_new_board(start, temp);
 
     }
     return counter;
 }
 
-Board *end_of_board(Board **location)
+Board *end_of_list(Board **location)
 {
     Board *end = *location;
     while (end->next != NULL)
@@ -274,97 +269,48 @@ bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n)
     return true;
 }
 
-int next_available_index_in_array(Board *unique_boards, int current_board)
+void append_all_children(Board **current, Board **start, int *n)
 {
-    int index = ERROR;
-    for (int i = current_board; i < BOARDS; i++)
-    {
-        if (!unique_boards[i].in_use)
-        {
-            return i;
-        }
-    }
-    return index;
-}
-
-void append_all_children(Board **current, Board *unique_boards, int current_board, int *n, int *index_n_queens)
-{
-    Board *parent = *current;
-    Board *end_board = *current;
-    int next_free_index = next_available_index_in_array(unique_boards, current_board);
+    Board *head = *current;
+    Board *start_of_list = *start;
+    Board *end_board = end_of_list(current);
     for (int row = 0; row < *n; row++)
     {
         for (int col = 0; col < *n; col++)
         {
-            // if (is_safe_space(unique_boards[current_board].queen_coords, row, col, n))
-            if (is_safe_space(end_board->queen_coords, row, col, n))
+            if (is_safe_space(head->queen_coords, row, col, n))
             {
-                printf("safe?  %d\n", is_safe_space(end_board->queen_coords, row, col, n));
-                exit(EXIT_SUCCESS);
                 Board candidate;
-                candidate.in_use = true;
-                candidate.queens = unique_boards[current_board].queens + 1;
-                memcpy(candidate.queen_coords, unique_boards[current_board].queen_coords, MAX_QUEENS * sizeof(int));
-                candidate.queen_coords[row] = col;
-                if (is_unique(candidate, unique_boards, index_n_queens, next_free_index))
+                candidate.queens = head->queens + 1;
+                for (int q = 0; q < MAX_QUEENS; q++)
                 {
-                    // memcpy(unique_boards[next_free_index].queen_coords, unique_boards[current_board].queen_coords, MAX_QUEENS * sizeof(int));
-                    // unique_boards[next_free_index].queen_coords[row] = col;
-                    // unique_boards[next_free_index].queens = unique_boards[current_board].queens + 1;
-                    // unique_boards[next_free_index].in_use = true;
-                    // next_free_index++;
-                    add_new_board(current,candidate);
-                    //TODO move `end_board` pointer along to keep it pointing at the final board
-
-
+                    candidate.queen_coords[q] = head->queen_coords[q];
+                }
+                candidate.queen_coords[row] = col;
+                if (is_unique(candidate, &start_of_list))
+                {
+                    add_new_board(&end_board,candidate);
                 }
             }
         }
     }
 }
 
-bool is_unique(Board candidate, Board *unique_boards, int *index_n_queens, int current_board)
+bool is_unique(Board candidate, Board **start)
 {
-    for (int b = *index_n_queens; b < current_board; b++)
+    Board *s = *start;
+    while ( s != NULL)
     {
-        if (unique_boards[b].queens == candidate.queens && 
-        memcmp(candidate.queen_coords, unique_boards[b].queen_coords, MAX_QUEENS * sizeof(int)) == 0)
+        if (s->queens == candidate.queens
+        && memcmp(s->queen_coords, candidate.queen_coords, MAX_QUEENS * sizeof(int)) == 0)
         {
             return false;
         }
+        s = s->next;
     }
     return true;
 }
 
-void print_solutions(Board *unique_locations, bool *verbose, int *n, int *board_count)
-{
-    int solutions_count = 0;
-    for (int b = 0; b < *board_count; b++)
-    {
-        if(unique_locations[b].queens == *n)
-        {
-            if (*verbose)
-            {
-                for (int queen = 0; queen < *n; queen++)
-                {
-                    unique_locations[b].queen_coords[queen]++;
-                    if (unique_locations[b].queen_coords[queen] == 10)
-                    {
-                        printf("A");
-                    }
-                    else
-                    {
-                        printf("%d", unique_locations[b].queen_coords[queen]);
-                    }
-                }
-                printf("\n");
-            }
-            solutions_count++;
-        }
-    }
-
-    printf("%d solutions\n", solutions_count);
-}
 
 // void test(void)
 // {
