@@ -33,3 +33,4 @@ void print_solutions(Board *unique_locations, bool *verbose, int *n, int *board_
 void add_new_board(Board** last_board, Board candidate);
 Board *create_new_board(Board b);
 void print_list(Board *location);
+Board *end_of_board(Board **location);

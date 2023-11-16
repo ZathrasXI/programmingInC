@@ -33,39 +33,24 @@ int main(int argc, char* argv[])
 
     add_new_board(&current,f);
 
-    // Board f1;
-    // f1.in_use = true;
-    // f1.queens = 1;
-    // f1.queen_coords[0] = 0;
-    // f1.queen_coords[1] = UNUSED;
-    // Board f2;
-    // f2.in_use = true;
-    // f2.queens = 2;
-    // f2.queen_coords[0] = 1;
-    // f2.queen_coords[1] = UNUSED;
-    // add_new_board(&current,f1);
-    // add_new_board(&current,f2);
-
-    // print_list(current);
-
-    // exit(EXIT_SUCCESS);
-
 
     static Board unique_locations[BOARDS];
     int initial_boards = add_initial_boards(&current,unique_locations, &n);
-    print_list(current);
-    // for (int i = 0; i < MAX_QUEENS; i++)
+    // Board *e = end_of_board(&current);
+    // for (int q = 0; q < MAX_QUEENS; q++)
     // {
-    //     printf("%d ", current->next->queen_coords[i]);
+    //     printf("%d \n", e->queen_coords[q]);
     // }
-    // printf("\n");
+    // printf("\n\n");
+    
+    print_list(current);
     exit(EXIT_SUCCESS);
     int index_n_queens = 0;
-    if (initial_boards != n * n + 1)
-    {
-        fprintf(stderr, "boards not initialised\n");
-        exit(EXIT_FAILURE);
-    }
+    // if (initial_boards != n * n + 1)
+    // {
+    //     fprintf(stderr, "boards not initialised\n");
+    //     exit(EXIT_FAILURE);
+    // }
 
     int board = 1;
     do
@@ -193,27 +178,33 @@ int add_initial_boards(Board **start, Board *unique_boards, int *boards_to_add)
             }
         }
 
-        // if (b > 0)
-        // {
-            temp.queen_coords[queen] = col;   
-            col++;
+        temp.queen_coords[queen] = col;   
+        col++;
 
-            temp.in_use = true;
-            temp.queens = 1;
+        temp.in_use = true;
+        temp.queens = 1;
 
-            if (col == *boards_to_add)
-            {
-                col = 0;
-                queen++;
-            }
-            counter++;
-        // }
+        if (col == *boards_to_add && queen < *boards_to_add - 1)
+        {
+            col = 0;
+            queen++;
+        }
+        counter++;
         add_new_board(start, temp);
 
     }
     return counter;
 }
 
+Board *end_of_board(Board **location)
+{
+    Board *end = *location;
+    while (end->next != NULL)
+    {
+        end = end->next;
+    }
+    return end;
+}
 
 bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n)
 {
@@ -305,8 +296,11 @@ void append_all_children(Board **current, Board *unique_boards, int current_boar
     {
         for (int col = 0; col < *n; col++)
         {
-            if (is_safe_space(unique_boards[current_board].queen_coords, row, col, n))
+            // if (is_safe_space(unique_boards[current_board].queen_coords, row, col, n))
+            if (is_safe_space(end_board->queen_coords, row, col, n))
             {
+                printf("safe?  %d\n", is_safe_space(end_board->queen_coords, row, col, n));
+                exit(EXIT_SUCCESS);
                 Board candidate;
                 candidate.in_use = true;
                 candidate.queens = unique_boards[current_board].queens + 1;
