@@ -44,27 +44,36 @@ int main(int argc, char* argv[])
         current = current->next;
     }
 
-    print_solved_nodes(start, &n);
-    // print_list(start);
+    print_solved_nodes(start, n, verbose);
 }
 
-void print_solved_nodes(Board *start, int *n)
+void print_solved_nodes(Board *start, int n, bool verbose)
 {
     int counter = 0;
     while (start != NULL)
     {
-        if (start->queens == *n)
+        if (start->queens == n)
         {
-            // for (int q = 0; q < MAX_QUEENS; q++)
-            // {
-            //     printf("%d ", start->queen_coords[q]);
-            // }
-            // printf("\n");
+            if (verbose)
+            {
+                for (int q = 0; q < n; q++)
+                {
+                    if (start->queen_coords[q] + 1 == 10)
+                    {
+                        printf("A");
+                    }
+                    else
+                    {
+                        printf("%d", start->queen_coords[q] + 1);
+                    }
+                }
+                printf("\n");
+            }
             counter++;
         }
         start = start->next;
     }
-    printf("counter = %d\n", counter);
+    printf("%d solutions\n", counter);
 }
 
 Board *create_new_board(Board b)

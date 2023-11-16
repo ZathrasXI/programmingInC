@@ -31,4 +31,4 @@ void add_new_board(Board **last_board, Board candidate);
 Board *create_new_board(Board b);
 void print_list(Board *location);
 Board *end_of_list(Board **location);
-void print_solved_nodes(Board *start, int *n);
+void print_solved_nodes(Board *start, int n, bool verbose);
