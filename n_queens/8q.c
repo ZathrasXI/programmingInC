@@ -211,10 +211,9 @@ void append_all_children(Board *unique_boards, int current_board, int *n, int *i
                 candidate.queen_coords[row] = col;
                 if (is_unique(candidate, unique_boards, index_n_queens, next_free_index))
                 {
-                    memcpy(unique_boards[next_free_index].queen_coords, unique_boards[current_board].queen_coords, MAX_QUEENS * sizeof(int));
-                    unique_boards[next_free_index].queen_coords[row] = col;
-                    unique_boards[next_free_index].queens = unique_boards[current_board].queens + 1;
-                    unique_boards[next_free_index].in_use = true;
+                    memcpy(unique_boards[next_free_index].queen_coords, candidate.queen_coords, MAX_QUEENS * sizeof(int));
+                    unique_boards[next_free_index].queens = candidate.queens;
+                    unique_boards[next_free_index].in_use = candidate.in_use;
                     next_free_index++;
                 }
             }

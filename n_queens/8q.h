@@ -12,7 +12,6 @@
 #define OUT_OF_BOUNDS 99
 #define ERROR -2
 
-// TODO will I lose marks for not using a 2D array?
 typedef struct board
 {
     int queens;
