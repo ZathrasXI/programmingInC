@@ -403,4 +403,22 @@ void test(void)
     assert(is_safe_space(queens1,3,2,n_test));
     assert(!is_safe_space(queens1,2,3,n_test));
 
+    Board *start = NULL;
+    Board one = {0};
+    Board two = {0}; 
+    Board three = {0};
+    add_new_board(&start,one);
+    add_new_board(&start,two);
+    add_new_board(&start,three);
+    
+    int counter = 0;
+    Board *current = start;
+    while (current != NULL)
+    {
+        counter++;
+        current = current->next;
+    }
+    bool list_freed = free_list(start);
+    assert(counter == 3);
+    assert(list_freed);
 }
