@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <ctype.h>
 
-#define BOARDS 1000000
 #define MAX_QUEENS 10
 #define QUEEN 1
 #define UNUSED -1

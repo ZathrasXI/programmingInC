@@ -373,7 +373,6 @@ void test(void)
 
     // the space is not safe if there is already a queen on the diagonal
     n_test = 9;
-
     assert(on_diagonals(0,1,1,2,n_test));
     assert(on_diagonals(0,1,2,3,n_test));
     assert(!on_diagonals(4,4,2,3,n_test));

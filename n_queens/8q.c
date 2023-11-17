@@ -405,7 +405,7 @@ void test(void)
         assert(memcmp(children[i], test_child_boards[parent_boards + i].queen_coords, first_children * sizeof(int)) == 0);
     }
     
-    //TODO ask in lab if there is a better way to re-write:
+    
     test_child_boards[17].in_use = true;
     test_child_boards[17].queens = 2;
     test_child_boards[17].queen_coords[0] = 1;
