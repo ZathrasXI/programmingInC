@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     }
 
     static Board unique_locations[BOARDS];
-    int initial_boards = add_initial_boards(unique_locations, &n);
+    int initial_boards = add_initial_boards(unique_locations, n);
     int index_n_queens = 0;
     if (initial_boards != n * n + 1)
     {
@@ -23,19 +23,19 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    int board = 1;
+    int f = 1;
     do
     {
-        if (unique_locations[board - 1].queens == unique_locations[board].queens - 1)
+        if (unique_locations[f - 1].queens == unique_locations[f].queens - 1)
         {
-            index_n_queens = board;
+            index_n_queens = f;
         }
-        append_all_children(unique_locations, board, &n, &index_n_queens);
-        board++;
-    } while (unique_locations[board].in_use);
+        append_all_children(unique_locations, f, n, &index_n_queens);
+        f++;
+    } while (unique_locations[f].in_use);
  
 
-    print_solutions(unique_locations, &verbose, &n, &board);
+    print_solutions(unique_locations, verbose, n, f, index_n_queens);
     return 0;
 }
 
@@ -50,7 +50,7 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
         return false;
     }
 
-    for (int i = 0; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
         if (sscanf(argv[i], "%d", n) == 1)
         {
@@ -72,7 +72,7 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
     return true;
 }
 
-int add_initial_boards(Board *unique_boards, int *boards_to_add)
+int add_initial_boards(Board *unique_boards, int n)
 {
     int col = 0, queen = 0;
     unique_boards[0].queens = 0;
@@ -80,11 +80,11 @@ int add_initial_boards(Board *unique_boards, int *boards_to_add)
 
     int counter = 1;
 
-    for (int b = 0; b < *boards_to_add * *boards_to_add + 1; b++)
+    for (int b = 0; b < n * n + 1; b++)
     {
         for (int i = 0; i < MAX_QUEENS; i++)
         {
-            if (i < *boards_to_add)
+            if (i < n)
             {
                 unique_boards[b].queen_coords[i] = UNUSED;
             }
@@ -102,7 +102,7 @@ int add_initial_boards(Board *unique_boards, int *boards_to_add)
             unique_boards[b].in_use = true;
             unique_boards[b].queens = 1;
 
-            if (col == *boards_to_add)
+            if (col == n)
             {
                 col = 0;
                 queen++;
@@ -113,8 +113,7 @@ int add_initial_boards(Board *unique_boards, int *boards_to_add)
     return counter;
 }
 
-
-bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n)
+bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int n)
 {
     // to top left
     int r1 = row_start, c1 = col_start;
@@ -129,7 +128,7 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
 
     // to bottom right
     int r2 = row_start, c2 = col_start;
-    while (r2 <= *n && c2 <= *n)
+    while (r2 <= n && c2 <= n)
     {
         if (r2 == row_new && c2 == col_new)
         {
@@ -140,7 +139,7 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
 
     // to top right
     int r3 = row_start, c3 = col_start;
-    while (r3 >= 0 && c3 <= *n)
+    while (r3 >= 0 && c3 <= n)
     {
         if (r3 == row_new && c3 == col_new)
         {
@@ -151,7 +150,7 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
 
     // to bottom left
     int r4 = row_start, c4 = col_start;
-    while (r4 <= *n && c4 >= 0)
+    while (r4 <= n && c4 >= 0)
     {
         if (r4 == row_new && c4 == col_new)
         {
@@ -162,9 +161,9 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
     return false;
 }
 
-bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n)
+bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int n)
 {
-    for (int queen = 0; queen < *n; queen++)
+    for (int queen = 0; queen < n; queen++)
     {
         if (col == queen_coords[queen])
         {
@@ -195,25 +194,27 @@ int next_available_index_in_array(Board *unique_boards, int current_board)
     return index;
 }
 
-void append_all_children(Board *unique_boards, int current_board, int *n, int *index_n_queens)
+void append_all_children(Board *unique_boards, int current_board, int n, int *index_n_queens)
 {
     int next_free_index = next_available_index_in_array(unique_boards, current_board);
-    for (int row = 0; row < *n; row++)
+    if (next_free_index == ERROR)
     {
-        for (int col = 0; col < *n; col++)
+        fprintf(stderr, "next available index not found");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int row = 0; row < n; row++)
+    {
+        for (int col = 0; col < n; col++)
         {
             if (is_safe_space(unique_boards[current_board].queen_coords, row, col, n))
             {
-                Board candidate;
-                candidate.in_use = true;
-                candidate.queens = unique_boards[current_board].queens + 1;
-                memcpy(candidate.queen_coords, unique_boards[current_board].queen_coords, MAX_QUEENS * sizeof(int));
+                Board candidate = unique_boards[current_board];
+                candidate.queens++;
                 candidate.queen_coords[row] = col;
                 if (is_unique(candidate, unique_boards, index_n_queens, next_free_index))
                 {
-                    memcpy(unique_boards[next_free_index].queen_coords, candidate.queen_coords, MAX_QUEENS * sizeof(int));
-                    unique_boards[next_free_index].queens = candidate.queens;
-                    unique_boards[next_free_index].in_use = candidate.in_use;
+                    unique_boards[next_free_index] = candidate;
                     next_free_index++;
                 }
             }
@@ -234,16 +235,16 @@ bool is_unique(Board candidate, Board *unique_boards, int *index_n_queens, int c
     return true;
 }
 
-void print_solutions(Board *unique_locations, bool *verbose, int *n, int *board_count)
+void print_solutions(Board *unique_locations, bool verbose, int n, int board_count, int first_index_nth_queen)
 {
     int solutions_count = 0;
-    for (int b = 0; b < *board_count; b++)
+    for (int b = first_index_nth_queen; b < board_count; b++)
     {
-        if(unique_locations[b].queens == *n)
+        if(unique_locations[b].queens == n)
         {
-            if (*verbose)
+            if (verbose)
             {
-                for (int queen = 0; queen < *n; queen++)
+                for (int queen = 0; queen < n; queen++)
                 {
                     unique_locations[b].queen_coords[queen]++;
                     if (unique_locations[b].queen_coords[queen] == 10)
@@ -289,7 +290,7 @@ void test(void)
 
     static Board test_boards[BOARDS];
     n_test = 10;
-    assert(add_initial_boards(test_boards, &n_test)== n_test *n_test + 1);
+    assert(add_initial_boards(test_boards, n_test)== n_test *n_test + 1);
     assert(test_boards[0].queens == 0);
     assert(test_boards[0].in_use);
     for (int row = 0; row < MAX_QUEENS; row++)
@@ -298,10 +299,10 @@ void test(void)
     }
     
     
-    // queen on each board needs a unique location within an n*n board
+    // queen on each board needs a unique location within an nn board
     static Board test_locations[BOARDS];
     n_test = 8;
-    int initial_boards = add_initial_boards(test_locations, &n_test);
+    int initial_boards = add_initial_boards(test_locations, n_test);
     int col = 0, queen = 0;
     for (int b = 1; b < initial_boards; b++)
     {
@@ -336,46 +337,46 @@ void test(void)
     n_test = 9;
     assert(test_locations[1].queen_coords[0] == 0);
 
-    assert(on_diagonals(0,1,1,2,&n_test));
-    assert(on_diagonals(0,1,2,3,&n_test));
-    assert(!on_diagonals(4,4,2,3,&n_test));
-    assert(!on_diagonals(4,4,2,5,&n_test));
-    assert(!on_diagonals(4,4,6,3,&n_test));
-    assert(!on_diagonals(4,4,6,5,&n_test));
-    assert(on_diagonals(4,4,0,0,&n_test));
-    assert(on_diagonals(4,4,0,8,&n_test));
-    assert(on_diagonals(4,4,8,8,&n_test));
-    assert(on_diagonals(4,4,8,0,&n_test));
+    assert(on_diagonals(0,1,1,2,n_test));
+    assert(on_diagonals(0,1,2,3,n_test));
+    assert(!on_diagonals(4,4,2,3,n_test));
+    assert(!on_diagonals(4,4,2,5,n_test));
+    assert(!on_diagonals(4,4,6,3,n_test));
+    assert(!on_diagonals(4,4,6,5,n_test));
+    assert(on_diagonals(4,4,0,0,n_test));
+    assert(on_diagonals(4,4,0,8,n_test));
+    assert(on_diagonals(4,4,8,8,n_test));
+    assert(on_diagonals(4,4,8,0,n_test));
 
     //is safe space
     int queens[MAX_QUEENS] = {1,UNUSED,UNUSED,UNUSED};
     int queens1[MAX_QUEENS] = {1,3,0,UNUSED};
     n_test = 4;
     // row
-    assert(!is_safe_space(queens,0,2,&n_test));
-    assert(!is_safe_space(queens,0,0,&n_test));
-    assert(is_safe_space(queens,1,3,&n_test));
+    assert(!is_safe_space(queens,0,2,n_test));
+    assert(!is_safe_space(queens,0,0,n_test));
+    assert(is_safe_space(queens,1,3,n_test));
     //column
-    assert(!is_safe_space(queens,0,1,&n_test));
-    assert(!is_safe_space(queens,2,1,&n_test));
-    assert(!is_safe_space(queens,3,1,&n_test));
-    assert(is_safe_space(queens,3,2,&n_test));
+    assert(!is_safe_space(queens,0,1,n_test));
+    assert(!is_safe_space(queens,2,1,n_test));
+    assert(!is_safe_space(queens,3,1,n_test));
+    assert(is_safe_space(queens,3,2,n_test));
     //diagonal
-    assert(!is_safe_space(queens,2,3,&n_test));
-    assert(!is_safe_space(queens,1,2,&n_test));
-    assert(is_safe_space(queens1,3,2,&n_test));
-    assert(!is_safe_space(queens1,2,3,&n_test));
+    assert(!is_safe_space(queens,2,3,n_test));
+    assert(!is_safe_space(queens,1,2,n_test));
+    assert(is_safe_space(queens1,3,2,n_test));
+    assert(!is_safe_space(queens1,2,3,n_test));
 
     //index for next board
     static Board board_index_n_3[BOARDS];
     n_test = 3;
-    int initiate_boards = add_initial_boards(board_index_n_3, &n_test);
+    int initiate_boards = add_initial_boards(board_index_n_3, n_test);
     int next_index = next_available_index_in_array(board_index_n_3,0);
     assert(next_index == initiate_boards);
 
     static Board board_index_n_10[BOARDS];
     n_test = 10;
-    initiate_boards = add_initial_boards(board_index_n_10, &n_test);
+    initiate_boards = add_initial_boards(board_index_n_10, n_test);
     next_index = next_available_index_in_array(board_index_n_10,0);
     assert(next_index == initiate_boards);
 
@@ -391,9 +392,9 @@ void test(void)
         {0,UNUSED,UNUSED,1,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS},
         {0,UNUSED,UNUSED,2,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS},
     };
-    int parent_boards = add_initial_boards(test_child_boards, &n_test);
+    int parent_boards = add_initial_boards(test_child_boards, n_test);
     int n_index = 1;
-    append_all_children(test_child_boards, 1, &n_test,&n_index);
+    append_all_children(test_child_boards, 1, n_test,&n_index);
     for (int i = 0; i < first_children; i++)
     {
         assert(memcmp(children[i], test_child_boards[parent_boards + i].queen_coords, first_children * sizeof(int)) == 0);
@@ -413,7 +414,7 @@ void test(void)
     test_child_boards[17].queen_coords[8] = OUT_OF_BOUNDS;
     test_child_boards[17].queen_coords[9] = OUT_OF_BOUNDS;
     int start_index_uniqueness = 0;
-    append_all_children(test_child_boards, 17, &n_test, &start_index_uniqueness);
+    append_all_children(test_child_boards, 17, n_test, &start_index_uniqueness);
     int third_child[MAX_QUEENS] = {1,3,0,UNUSED,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};
     assert(memcmp(third_child, test_child_boards[23].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
     assert(test_child_boards[23].in_use);
@@ -422,7 +423,7 @@ void test(void)
     memcpy(test_child_boards[18].queen_coords, test_child_boards[17].queen_coords, MAX_QUEENS * sizeof(int));
     test_child_boards[18].queen_coords[2] = 0;
     test_child_boards[18].queens = 3;
-    append_all_children(test_child_boards, 18, &n_test,&start_index_uniqueness);
+    append_all_children(test_child_boards, 18, n_test,&start_index_uniqueness);
     int fourth_child[MAX_QUEENS] = {1,3,0,2,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS,OUT_OF_BOUNDS};    
     assert(memcmp(fourth_child, test_child_boards[26].queen_coords, MAX_QUEENS * sizeof(int)) == 0);
     assert(test_child_boards[26].in_use);
