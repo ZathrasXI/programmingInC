@@ -350,6 +350,7 @@ bool free_list(Board *start)
 void test(void)
 {
     int n_test;
+    // only accept an int 1-10, and "-verbose", these can be in any order
     bool verbose_test = false;
 
     char *test_argv[] = {"./8q", "-verbose", "3"};
@@ -370,54 +371,8 @@ void test(void)
     assert(verbose_test == false);
 
 
-//     static Board test_boards[BOARDS];
-//     n_test = 10;
-//     assert(add_initial_boards(test_boards, &n_test)== n_test *n_test + 1);
-//     assert(test_boards[0].queens == 0);
-//     assert(test_boards[0].in_use);
-//     for (int row = 0; row < MAX_QUEENS; row++)
-//     {
-//         assert(test_boards[0].queen_coords[row] == UNUSED);
-//     }
-    
-    
-//     // queen on each board needs a unique location within an n*n board
-//     static Board test_locations[BOARDS];
-//     n_test = 8;
-//     int initial_boards = add_initial_boards(test_locations, &n_test);
-//     int col = 0, queen = 0;
-//     for (int b = 1; b < initial_boards; b++)
-//     {
-//         assert(test_locations[b].queens == 1);
-//         assert(test_locations[b].queen_coords[queen] == col);
-
-//         for (int i = 0; i < MAX_QUEENS; i++)
-//         {
-//             if (i < n_test && i != queen)
-//             {
-//                 assert(test_locations[b].queen_coords[i] == UNUSED);
-//             }
-//             else if (i > n_test && i != queen)
-//             {
-//                 assert(test_locations[b].queen_coords[i] == OUT_OF_BOUNDS);
-//             }
-//         }
-
-//         col++;
-
-//         assert(test_locations[b].in_use);
-//         if (col == n_test)
-//         {
-//             col = 0;
-//             queen++;
-//         }
-
-//     }
-
-//     // can add a queen in next safe, and unique location
-//     // check starting location
+    // the space is not safe if there is already a queen on the diagonal
     n_test = 9;
-    // assert(test_locations[1].queen_coords[0] == 0);
 
     assert(on_diagonals(0,1,1,2,n_test));
     assert(on_diagonals(0,1,2,3,n_test));
@@ -430,24 +385,24 @@ void test(void)
     assert(on_diagonals(4,4,8,8,n_test));
     assert(on_diagonals(4,4,8,0,n_test));
 
-//     //is safe space
-    // int queens[MAX_QUEENS] = {1,UNUSED,UNUSED,UNUSED};
-    // int queens1[MAX_QUEENS] = {1,3,0,UNUSED};
-//     n_test = 4;
-//     // row
-//     assert(!is_safe_space(queens,0,2,n_test));
-//     assert(!is_safe_space(queens,0,0,n_test));
-//     assert(is_safe_space(queens,1,3,n_test));
-//     //column
-//     assert(!is_safe_space(queens,0,1,n_test));
-//     assert(!is_safe_space(queens,2,1,n_test));
-//     assert(!is_safe_space(queens,3,1,n_test));
-//     assert(is_safe_space(queens,3,2,n_test));
-//     //diagonal
-    // assert(!is_safe_space(queens,2,3,n_test));
-    // assert(!is_safe_space(queens,1,2,n_test));
-    // assert(is_safe_space(queens1,3,2,n_test));
-    // assert(!is_safe_space(queens1,2,3,n_test));
+    //is safe space
+    int queens[MAX_QUEENS] = {1,UNUSED,UNUSED,UNUSED};
+    int queens1[MAX_QUEENS] = {1,3,0,UNUSED};
+    n_test = 4;
+    // row
+    assert(!is_safe_space(queens,0,2,n_test));
+    assert(!is_safe_space(queens,0,0,n_test));
+    assert(is_safe_space(queens,1,3,n_test));
+    //column
+    assert(!is_safe_space(queens,0,1,n_test));
+    assert(!is_safe_space(queens,2,1,n_test));
+    assert(!is_safe_space(queens,3,1,n_test));
+    assert(is_safe_space(queens,3,2,n_test));
+    //diagonal
+    assert(!is_safe_space(queens,2,3,n_test));
+    assert(!is_safe_space(queens,1,2,n_test));
+    assert(is_safe_space(queens1,3,2,n_test));
+    assert(!is_safe_space(queens1,2,3,n_test));
 
 //     //index for next board
 //     static Board board_index_n_3[BOARDS];
