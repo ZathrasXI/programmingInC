@@ -45,6 +45,14 @@ int main(int argc, char* argv[])
     }
 
     print_solved_nodes(start, n, verbose);
+
+    if (!free_list(start))
+    {
+        fprintf(stderr, "error freeing allocated memory for the linked list\n");
+        exit(EXIT_FAILURE);
+    }
+
+    return 0;
 }
 
 void print_solved_nodes(Board *start, int n, bool verbose)
@@ -325,6 +333,20 @@ bool is_unique(Board candidate, Board **start)
     return true;
 }
 
+bool free_list(Board *start)
+{
+    if (start)
+    {
+        Board *delete = start;
+        while (delete != NULL)
+        {
+            Board *tmp = delete->next;
+            free(delete);
+            delete = tmp;
+        }
+    }
+    return true;
+}
 
 // void test(void)
 // {
