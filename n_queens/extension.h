@@ -22,10 +22,10 @@ typedef struct board
 
 void test(void);
 bool parse_args(int *n, char *argv[], int argc, bool *verbose);
-int add_initial_boards(Board** start, int *boards_to_add);
-bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n);
-bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n);
-void append_all_children(Board **current,Board **start, int *n);
+int add_initial_boards(Board** start, int n);
+bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int n);
+bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int n);
+void append_all_children(Board **current,Board **start, int n);
 bool is_unique(Board candidate, Board **start);
 void add_new_board(Board **last_board, Board candidate);
 Board *create_new_board(Board b);

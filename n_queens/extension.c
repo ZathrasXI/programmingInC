@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[])
 {
-    // test();
+    test();
     int n;
     bool verbose = false;
     bool valid_input = parse_args(&n, argv, argc, &verbose);
@@ -15,22 +15,22 @@ int main(int argc, char* argv[])
     }
 
     Board *start = NULL;
-    Board f;
-    f.queens = 0;
+    Board zero;
+    zero.queens = 0;
     for (int q = 0; q < MAX_QUEENS; q++)
     {
         if (q < n)
         {
-            f.queen_coords[q] = UNUSED;
+            zero.queen_coords[q] = UNUSED;
         }
         else
         {
-            f.queen_coords[q] = OUT_OF_BOUNDS;
+            zero.queen_coords[q] = OUT_OF_BOUNDS;
         }
     }
-    add_new_board(&start,f);
+    add_new_board(&start,zero);
 
-    int initial_boards = add_initial_boards(&start, &n);
+    int initial_boards = add_initial_boards(&start, n);
     if (initial_boards != n * n + 1)
     {
         fprintf(stderr, "%d boards not initialised\n", initial_boards);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     Board *current = start;
     while (current != NULL)
     {
-        append_all_children(&current, &start, &n);
+        append_all_children(&current, &start, n);
         current = current->next;
     }
 
@@ -171,18 +171,18 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
     return true;
 }
 
-int add_initial_boards(Board **start, int *boards_to_add)
+int add_initial_boards(Board **start, int n)
 {
     int col = 0, queen = 0;
     int counter = 0;
 
     Board temp;
 
-    for (int b = 0; b < *boards_to_add * *boards_to_add + 1; b++)
+    for (int b = 0; b < n * n + 1; b++)
     {
         for (int i = 0; i < MAX_QUEENS; i++)
         {
-            if (i < *boards_to_add)
+            if (i < n)
             {
                 temp.queen_coords[i] = UNUSED;
             }
@@ -196,14 +196,13 @@ int add_initial_boards(Board **start, int *boards_to_add)
 
         temp.queens = 1;
 
-        //TODO refactor this
-        if (col < *boards_to_add)
+        if (col < n)
         {
             add_new_board(start, temp);
         }
         counter++;
         col++;
-        if (col == *boards_to_add && queen < *boards_to_add - 1)
+        if (col == n && queen < n - 1)
         {
             col = 0;
             queen++;
@@ -223,7 +222,7 @@ Board *end_of_list(Board **location)
     return end;
 }
 
-bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n)
+bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int n)
 {
     // to top left
     int r1 = row_start, c1 = col_start;
@@ -238,7 +237,7 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
 
     // to bottom right
     int r2 = row_start, c2 = col_start;
-    while (r2 <= *n && c2 <= *n)
+    while (r2 <= n && c2 <= n)
     {
         if (r2 == row_new && c2 == col_new)
         {
@@ -249,7 +248,7 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
 
     // to top right
     int r3 = row_start, c3 = col_start;
-    while (r3 >= 0 && c3 <= *n)
+    while (r3 >= 0 && c3 <= n)
     {
         if (r3 == row_new && c3 == col_new)
         {
@@ -260,7 +259,7 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
 
     // to bottom left
     int r4 = row_start, c4 = col_start;
-    while (r4 <= *n && c4 >= 0)
+    while (r4 <= n && c4 >= 0)
     {
         if (r4 == row_new && c4 == col_new)
         {
@@ -271,9 +270,9 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int *n
     return false;
 }
 
-bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n)
+bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int n)
 {
-    for (int queen = 0; queen < *n; queen++)
+    for (int queen = 0; queen < n; queen++)
     {
         if (col == queen_coords[queen])
         {
@@ -291,14 +290,14 @@ bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int *n)
     return true;
 }
 
-void append_all_children(Board **current, Board **start, int *n)
+void append_all_children(Board **current, Board **start, int n)
 {
     Board *head = *current;
     Board *start_of_list = *start;
     Board *end_board = end_of_list(current);
-    for (int row = 0; row < *n; row++)
+    for (int row = 0; row < n; row++)
     {
-        for (int col = 0; col < *n; col++)
+        for (int col = 0; col < n; col++)
         {
             if (is_safe_space(head->queen_coords, row, col, n))
             {
@@ -323,8 +322,8 @@ bool is_unique(Board candidate, Board **start)
     Board *s = *start;
     while ( s != NULL)
     {
-        if (s->queens == candidate.queens
-        && memcmp(s->queen_coords, candidate.queen_coords, MAX_QUEENS * sizeof(int)) == 0)
+        if (s->queens == candidate.queens &&
+            memcmp(s->queen_coords, candidate.queen_coords, MAX_QUEENS * sizeof(int)) == 0)
         {
             return false;
         }
@@ -348,27 +347,27 @@ bool free_list(Board *start)
     return true;
 }
 
-// void test(void)
-// {
-//     int n_test;
-//     bool verbose_test = false;
+void test(void)
+{
+    int n_test;
+    bool verbose_test = false;
 
-//     char *test_argv[] = {"./8q", "-verbose", "3"};
-//     assert(parse_args(&n_test, test_argv, 3, &verbose_test) == true);
-//     assert(n_test == 3);
-//     assert(verbose_test = true);
+    char *test_argv[] = {"./8q", "-verbose", "3"};
+    assert(parse_args(&n_test, test_argv, 3, &verbose_test) == true);
+    assert(n_test == 3);
+    assert(verbose_test = true);
 
-//     verbose_test = false;
-//     char *test_argv1[] = {"./8q", "10", "-verbose"};
-//     assert(parse_args(&n_test, test_argv1, 3, &verbose_test) == true);
-//     assert(n_test == 10);
-//     assert(verbose_test = true);
+    verbose_test = false;
+    char *test_argv1[] = {"./8q", "10", "-verbose"};
+    assert(parse_args(&n_test, test_argv1, 3, &verbose_test) == true);
+    assert(n_test == 10);
+    assert(verbose_test = true);
 
-//     verbose_test = false;
-//     char *test_argv2[] = {"./8q", "11"};
-//     assert(parse_args(&n_test, test_argv2, 3, &verbose_test) == false);
-//     assert(n_test == 11);
-//     assert(verbose_test == false);
+    verbose_test = false;
+    char *test_argv2[] = {"./8q", "11"};
+    assert(parse_args(&n_test, test_argv2, 3, &verbose_test) == false);
+    assert(n_test == 11);
+    assert(verbose_test == false);
 
 
 //     static Board test_boards[BOARDS];
@@ -417,38 +416,38 @@ bool free_list(Board *start)
 
 //     // can add a queen in next safe, and unique location
 //     // check starting location
-//     n_test = 9;
-//     assert(test_locations[1].queen_coords[0] == 0);
+    n_test = 9;
+    // assert(test_locations[1].queen_coords[0] == 0);
 
-//     assert(on_diagonals(0,1,1,2,&n_test));
-//     assert(on_diagonals(0,1,2,3,&n_test));
-//     assert(!on_diagonals(4,4,2,3,&n_test));
-//     assert(!on_diagonals(4,4,2,5,&n_test));
-//     assert(!on_diagonals(4,4,6,3,&n_test));
-//     assert(!on_diagonals(4,4,6,5,&n_test));
-//     assert(on_diagonals(4,4,0,0,&n_test));
-//     assert(on_diagonals(4,4,0,8,&n_test));
-//     assert(on_diagonals(4,4,8,8,&n_test));
-//     assert(on_diagonals(4,4,8,0,&n_test));
+    assert(on_diagonals(0,1,1,2,n_test));
+    assert(on_diagonals(0,1,2,3,n_test));
+    assert(!on_diagonals(4,4,2,3,n_test));
+    assert(!on_diagonals(4,4,2,5,n_test));
+    assert(!on_diagonals(4,4,6,3,n_test));
+    assert(!on_diagonals(4,4,6,5,n_test));
+    assert(on_diagonals(4,4,0,0,n_test));
+    assert(on_diagonals(4,4,0,8,n_test));
+    assert(on_diagonals(4,4,8,8,n_test));
+    assert(on_diagonals(4,4,8,0,n_test));
 
 //     //is safe space
-//     int queens[MAX_QUEENS] = {1,UNUSED,UNUSED,UNUSED};
-//     int queens1[MAX_QUEENS] = {1,3,0,UNUSED};
+    // int queens[MAX_QUEENS] = {1,UNUSED,UNUSED,UNUSED};
+    // int queens1[MAX_QUEENS] = {1,3,0,UNUSED};
 //     n_test = 4;
 //     // row
-//     assert(!is_safe_space(queens,0,2,&n_test));
-//     assert(!is_safe_space(queens,0,0,&n_test));
-//     assert(is_safe_space(queens,1,3,&n_test));
+//     assert(!is_safe_space(queens,0,2,n_test));
+//     assert(!is_safe_space(queens,0,0,n_test));
+//     assert(is_safe_space(queens,1,3,n_test));
 //     //column
-//     assert(!is_safe_space(queens,0,1,&n_test));
-//     assert(!is_safe_space(queens,2,1,&n_test));
-//     assert(!is_safe_space(queens,3,1,&n_test));
-//     assert(is_safe_space(queens,3,2,&n_test));
+//     assert(!is_safe_space(queens,0,1,n_test));
+//     assert(!is_safe_space(queens,2,1,n_test));
+//     assert(!is_safe_space(queens,3,1,n_test));
+//     assert(is_safe_space(queens,3,2,n_test));
 //     //diagonal
-//     assert(!is_safe_space(queens,2,3,&n_test));
-//     assert(!is_safe_space(queens,1,2,&n_test));
-//     assert(is_safe_space(queens1,3,2,&n_test));
-//     assert(!is_safe_space(queens1,2,3,&n_test));
+    // assert(!is_safe_space(queens,2,3,n_test));
+    // assert(!is_safe_space(queens,1,2,n_test));
+    // assert(is_safe_space(queens1,3,2,n_test));
+    // assert(!is_safe_space(queens1,2,3,n_test));
 
 //     //index for next board
 //     static Board board_index_n_3[BOARDS];
@@ -526,4 +525,4 @@ bool free_list(Board *start)
 //     assert(is_unique(test_unique_1, test_uniqueness,&x,2));
 //     assert(!is_unique(test_unique_2, test_uniqueness,&x,2));    
 
-// }
+}
