@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
 
     if (!valid_input)
     {
-        fprintf(stderr,"usage: ./8q <1-10> <optional: -verbose>\n");
+        fprintf(stderr,"usage: ./ext <1-10> <optional: -verbose>\n");
         exit(EXIT_FAILURE);
     }
 
@@ -130,25 +130,30 @@ void print_list(Board *location)
 
 bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 {
-    //TODO handle letters/strings inputted
+    // args can be in any order, only int 1-10 and -verbose are allowed
     if (argc < 2 || argc > 3)
     {
         return false;
     }
 
-    for (int i = 0; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
-        if (sscanf(argv[i], "%d", n) == 1)
+        if (strcmp(argv[i], "-verbose") == 0)
+        {
+            *verbose = true;
+        }
+        else if (sscanf(argv[i], "%d", n) == 1)
         {
            if (*n < 1 || *n > 10)
            {
                 return false;
            } 
         }
-        if (strcmp(argv[i], "-verbose") == 0)
+        else
         {
-            *verbose = true;
+            return false;
         }
+        
     }
 
     if (argc == 3 && *verbose == false)
