@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 
 bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 {
-    //TODO handle letters/strings inputted
+    // args can be in any order, only int 1-10 and -verbose are allowed
     if (argc < 2 || argc > 3)
     {
         return false;
@@ -52,17 +52,22 @@ bool parse_args(int *n, char* argv[], int argc, bool *verbose)
 
     for (int i = 1; i < argc; i++)
     {
-        if (sscanf(argv[i], "%d", n) == 1)
+        if (strcmp(argv[i], "-verbose") == 0)
+        {
+            *verbose = true;
+        }
+        else if (sscanf(argv[i], "%d", n) == 1)
         {
            if (*n < 1 || *n > 10)
            {
                 return false;
            } 
         }
-        if (strcmp(argv[i], "-verbose") == 0)
+        else
         {
-            *verbose = true;
+            return false;
         }
+        
     }
 
     if (argc == 3 && *verbose == false)
@@ -163,17 +168,17 @@ bool on_diagonals(int row_start, int col_start, int row_new, int col_new, int n)
 
 bool is_safe_space(int queen_coords[MAX_QUEENS], int row, int col, int n)
 {
-    for (int queen = 0; queen < n; queen++)
+    for (int queen_i = 0; queen_i < n; queen_i++)
     {
-        if (col == queen_coords[queen])
+        if (col == queen_coords[queen_i])
         {
             return false;
         }
-        if (queen_coords[queen] != UNUSED && row == queen)
+        if (queen_coords[queen_i] != UNUSED && row == queen_i)
         {
             return false;
         }
-        if (queen_coords[queen] != UNUSED && on_diagonals(queen, queen_coords[queen], row, col, n))
+        if (queen_coords[queen_i] != UNUSED && on_diagonals(queen_i, queen_coords[queen_i], row, col, n))
         {
             return false;
         }
