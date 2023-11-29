@@ -6,52 +6,44 @@
 
 #define INITIAL_SIZE 1
 
-typedef uint8_t boolarr[INITIAL_SIZE];
+typedef uint8_t boolarr;
 
 boolarr *boolarr_init(void);
-boolarr *boolarr_initstr(const char* str);
+// boolarr *boolarr_initstr(const char* str);
 void test(void);
 
 
 int main(void)
 {
     test();
-    uint8_t c = 2;
-    printf("%d\n",c );
+    boolarr *b = boolarr_init();
+    printf("%d\n", b[0]);
     return 0;
 }
 
 boolarr *boolarr_init(void)
 {
-    int *b = calloc(8,sizeof(int));
+    boolarr *b = calloc(INITIAL_SIZE,sizeof(boolarr));
     if (b == NULL)
     {
         fprintf(stderr, "failed to allocate memory\n");
         exit(EXIT_FAILURE);
     }
-    for (int i = 0; i < 8; i++)
-    {
-        if (b[i] == 0)
-        {
-            printf("0 ");
-        }
-    }
-    boolarr *c = NULL;
-    return c;
+    return b;
 }
 
 boolarr* boolarr_initstr(const char* str)
 {
-    //TODO handle strings with more than 8 chars
-    
     boolarr *b = boolarr_init();
     int len = strlen(str);
-    for (int i = len; i > 0; i--)
+    int bit = 0;
+    for (int i = len - 1; i >= 0; i--)
     {
         if (str[i] == '1')
         {
-            *b[0] |= (1 << i);
+            b[0] |= (1 << bit);
         }
+        bit++;
     }
     return b;
 }
@@ -59,12 +51,25 @@ boolarr* boolarr_initstr(const char* str)
 
 void test(void)
 {
-    // boolarr *b = boolarr_init();
-    // assert(b[0]);
-    // free(b);
+    boolarr *b = boolarr_init();
+    assert(b[0] == 0);
+    free(b);
 
-    boolarr *s = boolarr_initstr("00000001");
-    free(s);
+    boolarr *s1 = boolarr_initstr("00000001");
+    assert(s1[0] == 1);
+    free(s1);
+
+    boolarr *s2 = boolarr_initstr("00000010");
+    assert(s2[0] == 2);
+    free(s2);
+
+    boolarr *s3 = boolarr_initstr("00000011");
+    assert(s3[0] == 3);
+    free(s3);
+
+    boolarr *s4 = boolarr_initstr("10000000");
+    assert(s4[0] == 128);
+    free(s4);
 }
 
 
