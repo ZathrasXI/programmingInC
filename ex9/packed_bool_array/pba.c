@@ -15,7 +15,7 @@ typedef struct boolarr {
 
 boolarr *boolarr_init(void);
 boolarr *boolarr_initstr(const char* str);
-// boolarr* boolarr_clone(const boolarr* ba);
+boolarr* boolarr_clone(const boolarr* ba);
 void test(void);
 
 
@@ -61,18 +61,21 @@ boolarr* boolarr_initstr(const char* str)
     return b;
 }
 
-// boolarr* boolarr_clone(const boolarr* ba)
-// {
-//     boolarr deep_copy;
-//     memcpy(deep_copy, ba, sizeof(boolarr) * );
-//     return deep_copy;
-// }
+boolarr* boolarr_clone(const boolarr* ba)
+{
+    boolarr *deep_copy = boolarr_init();
+    deep_copy->capacity = ba->capacity;
+    deep_copy->size = ba->size;
+    memcpy(deep_copy->arr, ba->arr, sizeof(uint8_t) * ba->size);
+
+    return deep_copy;
+}
 
 
 void test(void)
 {
     boolarr *b = boolarr_init();
-    assert(b->arr[1000] == 0);
+    assert(b->arr[0] == 0);
     assert(b->capacity == 1);
     assert(b->size == 1);
 
@@ -87,6 +90,19 @@ void test(void)
 
     boolarr *s129 = boolarr_initstr("10000001");
     assert(s129->arr[0] == 129);
+
+    boolarr *ba = boolarr_initstr("00000001");
+    boolarr *deep_copy = boolarr_clone(ba);
+    assert(deep_copy->size == ba->size);
+    assert(deep_copy->capacity == ba->capacity);
+    assert(memcmp(deep_copy->arr, ba->arr, sizeof(uint8_t) * ba->size) == 0);
+
+    boolarr *ba1 = boolarr_initstr("11111111");
+    boolarr *deep_copy1 = boolarr_clone(ba1);
+    assert(deep_copy1->size == ba1->size);
+    assert(deep_copy1->capacity == ba1->capacity);
+    assert(memcmp(deep_copy1->arr, ba1->arr, sizeof(uint8_t) * ba1->size) == 0);
+
 
 }
 
