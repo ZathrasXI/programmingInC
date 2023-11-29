@@ -6,18 +6,23 @@
 
 #define INITIAL_SIZE 1
 
-typedef uint8_t boolarr;
+typedef struct boolarr {
+    int size;
+    int capacity;
+    uint8_t *arr;
+} boolarr;
+
 
 boolarr *boolarr_init(void);
-// boolarr *boolarr_initstr(const char* str);
+boolarr *boolarr_initstr(const char* str);
+// boolarr* boolarr_clone(const boolarr* ba);
 void test(void);
 
 
 int main(void)
 {
     test();
-    boolarr *b = boolarr_init();
-    printf("%d\n", b[0]);
+    // boolarr *b = boolarr_init();
     return 0;
 }
 
@@ -29,6 +34,14 @@ boolarr *boolarr_init(void)
         fprintf(stderr, "failed to allocate memory\n");
         exit(EXIT_FAILURE);
     }
+    b->arr = (uint8_t*) calloc(1, sizeof(uint8_t));
+    if (b->arr == NULL)
+    {
+        fprintf(stderr, "failed to allocate memory\n");
+        exit(EXIT_FAILURE);
+    }
+    b->size = 1;
+    b->capacity = 1;
     return b;
 }
 
@@ -41,35 +54,40 @@ boolarr* boolarr_initstr(const char* str)
     {
         if (str[i] == '1')
         {
-            b[0] |= (1 << bit);
+            b->arr[0] |= (1 << bit);
         }
         bit++;
     }
     return b;
 }
 
+// boolarr* boolarr_clone(const boolarr* ba)
+// {
+//     boolarr deep_copy;
+//     memcpy(deep_copy, ba, sizeof(boolarr) * );
+//     return deep_copy;
+// }
+
 
 void test(void)
 {
     boolarr *b = boolarr_init();
-    assert(b[0] == 0);
-    free(b);
+    assert(b->arr[1000] == 0);
+    assert(b->capacity == 1);
+    assert(b->size == 1);
 
     boolarr *s1 = boolarr_initstr("00000001");
-    assert(s1[0] == 1);
-    free(s1);
+    assert(s1->arr[0] == 1);
 
     boolarr *s2 = boolarr_initstr("00000010");
-    assert(s2[0] == 2);
-    free(s2);
+    assert(s2->arr[0] == 2);
 
     boolarr *s3 = boolarr_initstr("00000011");
-    assert(s3[0] == 3);
-    free(s3);
+    assert(s3->arr[0] == 3);
 
-    boolarr *s4 = boolarr_initstr("10000000");
-    assert(s4[0] == 128);
-    free(s4);
+    boolarr *s129 = boolarr_initstr("10000001");
+    assert(s129->arr[0] == 129);
+
 }
 
 
