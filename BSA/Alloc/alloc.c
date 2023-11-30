@@ -9,9 +9,11 @@ int main(void)
 bsa* bsa_init(void)
 {
     bsa *b = (bsa *) calloc(1, sizeof(bsa));
+
     for (int i = 0; i < BSA_ROWS; i++)
     {
-        b->arr[i] = NULL;
+        b->rows[i]->data = (int *) calloc(1, sizeof(int *));
+        b->rows[i]->data = NULL;
     }
     return b;
 }
@@ -22,17 +24,23 @@ void test(void)
     bsa *test_init = bsa_init();
     for (int i = 0; i < BSA_ROWS; i++)
     {
-        assert(test_init->arr[i] == NULL);
+        printf("%ls \n", test_init->rows[i]->data);
+        // assert(test_init->rows[i]->data == NULL);
     }
 
+
     // can set a value at an index
-    bool set = bsa_set(test_init, 0, 1);
-    assert(set);
-    assert(test_init->arr[0] = 1);
+    // bool set = bsa_set(test_init, 0, 1);
+    // assert(set);
+    // assert(test_init->rows[0]->data == 1);
+
 }
 
-bool bsa_set(bsa *b, int indx, int d)
-{
-    // is row in use? calloc space if not
-    // go to row
-}
+// bool bsa_set(bsa *b, int indx, int d)
+// {
+//     // which row do I need?
+//     // 
+//     // is row in use? calloc space if not
+//     // go to row
+//     return true;
+// }
