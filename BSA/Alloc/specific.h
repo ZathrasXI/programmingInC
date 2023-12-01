@@ -1,6 +1,8 @@
 #include "../bsa.h"
 #include <assert.h>
 
+#define INITIAL_SIZE 1
+
 typedef struct row
 {
     int *data;
