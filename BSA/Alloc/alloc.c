@@ -84,8 +84,21 @@ bool bsa_set(bsa *b, int indx, int d)
     return true;
 }
 
+int *bsa_get(bsa *b, int index)
+{
+    int row = _get_row(index);
+    int relative_index = _get_index_in_row(index, row);
+    if (b->rows[row]->data == NULL)
+    {
+        return NULL;
+    }
+    return (b->rows[row]->data + relative_index);
+}
+
 void test(void)
 {   
+    int zeroth_index_final_row = 536870911;
+    int final_index = 536870911 * 2;
     /*
     bitwise i ** 2
     */
@@ -155,11 +168,11 @@ void test(void)
     assert(bsa_set(test_set, 6, 36));
     assert(*(test_set->rows[2]->data + 3) == 36);
 
-    assert(bsa_set(test_set,536870911,1));
+    assert(bsa_set(test_set,zeroth_index_final_row,1));
     assert(*(test_set->rows[29]->data + 0) == 1);
 
-    assert(bsa_set(test_set,536870911 * 2, 99));
-    assert(*(test_set->rows[29]->data + 536870911) == 99);
+    assert(bsa_set(test_set, final_index, 99));
+    assert(*(test_set->rows[29]->data + zeroth_index_final_row) == 99);
 
     // free bsa *test_set after test
     for (int i = 0; i < BSA_ROWS; i++)
@@ -167,6 +180,30 @@ void test(void)
         free(test_set->rows[i]->data);
     }
     free(test_set);
+
+
+    /*
+    can get value of requested index
+    */
+
+    bsa *test_get = bsa_init();
+
+    assert(bsa_get(test_get, 0) == NULL);
+    assert(bsa_get(test_get, 1) == NULL);
+    assert(bsa_get(test_get, zeroth_index_final_row) == NULL);
+    assert(bsa_get(test_get, final_index) == NULL);
+
+    assert(bsa_set(test_get, 0, 0));
+    assert(*bsa_get(test_get, 0) == 0);
+
+    assert(bsa_set(test_get, 1, 1));
+    assert(*bsa_get(test_get, 1) == 1);
+
+    assert(bsa_set(test_get, zeroth_index_final_row, 10));
+    assert(*bsa_get(test_get, zeroth_index_final_row) == 10);
+
+    assert(bsa_set(test_get, final_index, 99));
+    assert(*bsa_get(test_get, final_index) == 99);
 }
 
 
