@@ -71,7 +71,9 @@ bool bsa_set(bsa *b, int indx, int d)
     if (b->rows[row]->data == NULL)
     {
         b->rows[row]->data = (int *) calloc(b->rows[row]->length, sizeof(int));
-        if (b->rows[row]->data == NULL)
+        b->rows[row]->in_use = (bool *) calloc(b->rows[row]->length, sizeof(bool));
+
+        if (b->rows[row]->data == NULL || b->rows[row]->in_use == NULL)
         {
             fprintf(stderr, "error allocating memory for unset row #%d\n", row);
             return false;
@@ -80,6 +82,8 @@ bool bsa_set(bsa *b, int indx, int d)
 
     int i = _get_index_in_row(indx, row);
     *(b->rows[row]->data + i) = d;
+    *(b->rows[row]->in_use + i) = true;
+
 
     return true;
 }
@@ -93,6 +97,51 @@ int *bsa_get(bsa *b, int index)
         return NULL;
     }
     return (b->rows[row]->data + relative_index);
+}
+
+bool bsa_delete(bsa *b, int indx)
+{
+    // todo return false when value not deleted
+    int row = _get_row(indx);
+    int relative_index = _get_index_in_row(indx, row);
+    if (*(b->rows[row]->in_use + relative_index) == true)
+    {
+        *(b->rows[row]->in_use + relative_index) = false;
+    }
+
+    bool row_empty = true;
+    int i = 0;
+    while(*(b->rows[row]->in_use + i) == false &&
+            i < b->rows[row]->length)
+    {
+        if (*(b->rows[row]->in_use + i) == true)
+        {
+            row_empty = false;
+        }
+        i++;
+    }
+    // printf("empty row? %d row %d\n", row_empty, row);
+    if (row_empty)
+    {
+        // printf("len %d\n", b->rows[row]->length);
+        // for (int i = b->rows[row]->length - 1; i >= 0; i--)
+        // {
+        //     printf("i %d  data %d  in_use %d\n", i, *(b->rows[row]->data + i), *(b->rows[row]->in_use + i));
+        //     free((b->rows[row]->data + i));    
+        //     printf("after data free\n");
+        //     free((b->rows[row]->in_use + i)); 
+        //     printf("after in_use free\n\n");
+
+        // }
+
+        //TODO check that I don't need to free ->data and ->in_use
+        free(b->rows[row]->data);
+        free(b->rows[row]->in_use);
+        free(b->rows[row]);
+        b->rows[row] = NULL;
+    }
+
+    return true;
 }
 
 void test(void)
@@ -112,7 +161,7 @@ void test(void)
     all pointers in array are set to NULL, 
     length = i^^2
     */
-    
+
     bsa *test_bsa = bsa_init();
     for (int i = 0; i < BSA_ROWS; i++)
     {
@@ -161,18 +210,25 @@ void test(void)
     bsa *test_set = bsa_init();
     assert(bsa_set(test_set,0,0));
     assert(*test_set->rows[0]->data == 0);
+    assert(*test_set->rows[0]->in_use);
+
 
     assert(bsa_set(test_set,2,1));
     assert(*(test_set->rows[1]->data + 1) == 1);
+    assert(*(test_set->rows[1]->in_use + 1));
+
 
     assert(bsa_set(test_set, 6, 36));
     assert(*(test_set->rows[2]->data + 3) == 36);
+    assert(*(test_set->rows[2]->in_use + 3));
 
     assert(bsa_set(test_set,zeroth_index_final_row,1));
-    assert(*(test_set->rows[29]->data + 0) == 1);
+    assert(*test_set->rows[29]->data == 1);
+    assert(*test_set->rows[29]->in_use);
 
     assert(bsa_set(test_set, final_index, 99));
     assert(*(test_set->rows[29]->data + zeroth_index_final_row) == 99);
+    assert(*(test_set->rows[29]->in_use + zeroth_index_final_row));
 
     // free bsa *test_set after test
     for (int i = 0; i < BSA_ROWS; i++)
@@ -185,7 +241,6 @@ void test(void)
     /*
     can get value of requested index
     */
-
     bsa *test_get = bsa_init();
 
     assert(bsa_get(test_get, 0) == NULL);
@@ -204,6 +259,24 @@ void test(void)
 
     assert(bsa_set(test_get, final_index, 99));
     assert(*bsa_get(test_get, final_index) == 99);
+
+    /*
+    can delete value
+    when last value deleted, then row is free()'d
+    */
+    bsa *test_delete = bsa_init();
+    assert(bsa_set(test_delete, 0, 1));
+    assert(test_delete->rows[0]->in_use);
+    assert(bsa_delete(test_delete, 0));
+    assert(test_delete->rows[0] == NULL);
+
+    assert(bsa_set(test_delete, 1, 1));
+    row = _get_row(1);
+    assert(*test_delete->rows[row]->data == 1);
+    assert(test_delete->rows[row]->in_use);
+    assert(bsa_delete(test_delete, 1));
+    assert(test_delete->rows[row] == NULL);
+
 }
 
 

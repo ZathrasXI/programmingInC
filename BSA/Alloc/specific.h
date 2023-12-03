@@ -9,6 +9,7 @@ int _get_index_in_row(int i, int row);
 typedef struct row
 {
     int *data;
+    bool *in_use;
     int index;
     int length;
 } row;
