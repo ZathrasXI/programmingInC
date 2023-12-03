@@ -3,7 +3,8 @@
 
 #define INITIAL_SIZE 1
 
-int pow_2(int x);
+int _pow_2(int x);
+int _get_row_index(int cell_index);
 
 typedef struct row
 {

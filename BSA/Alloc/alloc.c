@@ -14,17 +14,15 @@ bsa* bsa_init(void)
     for (int i = 0; i < BSA_ROWS; i++)
     {
         b->rows[i] = (row *) calloc(INITIAL_SIZE, sizeof(row));
-        b->rows[i]->length = 1;
-        b->rows[i]->length <<= i;
+        b->rows[i]->length = _pow_2(i);
     }
     b->max_index = bsa_maxindex(b);
     return b;
 }
 
-int pow_2(int x)
+int _pow_2(int x)
 {
-    int one = 1;
-    return one << x;
+    return 1 << x;
 }
 
 int bsa_maxindex(bsa *b)
@@ -48,13 +46,24 @@ int bsa_maxindex(bsa *b)
     }
 }
 
+int _get_row_index(int cell_index)
+{
+    int row = 0;
+    cell_index++;
+    while (cell_index >>= 1)
+    {
+        row++;
+    }
+    return row;
+}
+
 void test(void)
 {   
     //bitwise i ** 2
-    assert(pow_2(0) == 1);
-    assert(pow_2(1) == 2);
-    assert(pow_2(2) == 4);
-    assert(pow_2(29) == 536870912);
+    assert(_pow_2(0) == 1);
+    assert(_pow_2(1) == 2);
+    assert(_pow_2(2) == 4);
+    assert(_pow_2(29) == 536870912);
 
     /*
     can init a BSA, 
@@ -66,7 +75,7 @@ void test(void)
     for (int i = 0; i < BSA_ROWS; i++)
     {
         assert(test_bsa->rows[i]->data == NULL);
-        assert(test_bsa->rows[i]->length == pow_2(i));
+        assert(test_bsa->rows[i]->length == _pow_2(i));
     }
 
     // bsa_maxindex() returns -1 when given a NULL BSA
@@ -79,6 +88,13 @@ void test(void)
         free(test_bsa->rows[i]->data);
     }
     free(test_bsa);
+
+    // can get index of row based on index given
+    assert(_get_row_index(0) == 0);
+    assert(_get_row_index(1) == 1);
+    assert(_get_row_index(2) == 1);
+    assert(_get_row_index(29) == 4);
+    assert(_get_row_index(536870912) == 29);
 
 }
 
