@@ -1,5 +1,6 @@
 #include "specific.h"
-//TODO NO MAGIC NUMBERS ANYWHERE
+//TODO NO MAGIC NUMBERS ANYWHERE e.g. -1
+//TODO ask about fprintf error message - is it appropriate? would I lose marks?
 
 int main(void)
 {
@@ -35,7 +36,6 @@ int _get_index_in_row(int index, int row)
 
 int bsa_maxindex(bsa *b)
 {
-    //TODO return maxindex for when a row has been written to
     bool bsa_in_use = false;
     for (int i = 0; i < BSA_ROWS; i++)
     {
@@ -142,38 +142,39 @@ bool bsa_delete(bsa *b, int indx)
     return true;
 }
 
-int _get_current_index(int row, int rel_index)
+int _get_actual_index(int row, int rel_index)
 {
     return _pow_2(row) - 1 + rel_index;
 }
 
 void _next_lowest_max_index(bsa* b)
 {
-        bool new_max_index_found = false;
-        int max_row = _get_row(b->max_index);
+    bool new_max_index_found = false;
+    int max_row = _get_row(b->max_index);
 
-        while (!new_max_index_found && max_row >= 0)
+    while (!new_max_index_found && max_row >= 0)
+    {
+        if (b->rows[max_row]->data != NULL)
         {
-            if (b->rows[max_row]->data != NULL)
+            for (int i = b->rows[max_row]->length - 1; i >= 0; i--)
             {
-                for (int i = b->rows[max_row]->length - 1; i >= 0; i--)
-                {
-                    if (
-                        _get_current_index(max_row, i) < b->max_index && 
-                        *(b->rows[max_row]->in_use + i)
-                        )
-                        {
-                            new_max_index_found = true;
-                            b->max_index = _get_current_index(max_row, i);
-                        }
-                }
+                if (
+                    _get_actual_index(max_row, i) < b->max_index && 
+                    *(b->rows[max_row]->in_use + i) &&
+                    !new_max_index_found
+                    )
+                    {
+                        new_max_index_found = true;
+                        b->max_index = _get_actual_index(max_row, i);
+                    }
             }
-            max_row--;
         }
-        if (!new_max_index_found)
-        {
-            b->max_index = -1;
-        }
+        max_row--;
+    }
+    if (!new_max_index_found)
+    {
+        b->max_index = -1;
+    }
 }
 
 void test(void)
@@ -348,10 +349,10 @@ void test(void)
     /*
     get index based on row and relative index
     */
-    assert(_get_current_index(0,0) == 0);
-    assert(_get_current_index(1,1) == 2);
-    assert(_get_current_index(3,3) == 10);
-    assert(_get_current_index(29,3) == 536870914);
+    assert(_get_actual_index(0,0) == 0);
+    assert(_get_actual_index(1,1) == 2);
+    assert(_get_actual_index(3,3) == 10);
+    assert(_get_actual_index(29,3) == 536870914);
 
     /*
     _next_lowest_max_index() 
@@ -391,11 +392,41 @@ void test(void)
     free(test_next_index->rows[4]->data);
     free(test_next_index->rows[4]->in_use);
 
+    /*
+    bsa_maxindex() returns max index, unless
+    all rows are NULL, then returns -1
+    */
+    //max index is -1 after init
+    bsa *test_max = bsa_init();
+    assert(bsa_maxindex(test_max) == -1);
 
+    //max index updates when greater index is used
+    assert(bsa_set(test_max, 1,10));    
+    assert(bsa_maxindex(test_max) == 1);
 
+    assert(bsa_set(test_max, 2,20));    
+    assert(bsa_maxindex(test_max) == 2);
 
+    assert(bsa_set(test_max, 3,30));    
+    assert(bsa_maxindex(test_max) == 3);
 
+    assert(bsa_set(test_max, 4,40));    
+    assert(bsa_maxindex(test_max) == 4);
 
+    assert(bsa_set(test_max, 5,50));    
+    assert(bsa_maxindex(test_max) == 5);
+
+    //max index updates when greatest index is no longer in use
+    assert(bsa_delete(test_max, 5));
+    assert(bsa_maxindex(test_max) == 4);
+    assert(bsa_delete(test_max, 4));
+    assert(bsa_maxindex(test_max) == 3);
+    assert(bsa_delete(test_max, 2));
+    assert(bsa_maxindex(test_max) == 3);
+    assert(bsa_delete(test_max, 3));
+    assert(bsa_maxindex(test_max) == 1);
+    assert(bsa_delete(test_max, 1));
+    assert(bsa_maxindex(test_max) == -1);
 
 
 }   
