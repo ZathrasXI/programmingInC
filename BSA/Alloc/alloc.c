@@ -35,21 +35,21 @@ int _get_index_in_row(int index, int row)
 int bsa_maxindex(bsa *b)
 {
     //TODO return maxindex for when a row has been written to
-    bool written_to = false;
+    bool bsa_in_use = false;
     for (int i = 0; i < BSA_ROWS; i++)
     {
         if (b->rows[i]->data != NULL)
         {
-            written_to = true;
+            bsa_in_use = true;
         }
     }
-    if (!written_to)
+    if (!bsa_in_use)
     {
         return -1;
     }
     else
     {
-        return 0;
+        return b->max_index;
     }
 }
 
@@ -75,7 +75,7 @@ bool bsa_set(bsa *b, int indx, int d)
 
         if (b->rows[row]->data == NULL || b->rows[row]->in_use == NULL)
         {
-            fprintf(stderr, "error allocating memory for unset row #%d\n", row);
+            fprintf(stderr, "index not set: error allocating memory for unset row #%d\n", row);
             return false;
         }
     }
@@ -83,6 +83,10 @@ bool bsa_set(bsa *b, int indx, int d)
     int i = _get_index_in_row(indx, row);
     *(b->rows[row]->data + i) = d;
     *(b->rows[row]->in_use + i) = true;
+    if (indx > b->max_index)
+    {
+        b->max_index = indx;
+    }
 
     return true;
 }
@@ -91,7 +95,7 @@ int *bsa_get(bsa *b, int index)
 {
     int row = _get_row(index);
     int relative_index = _get_index_in_row(index, row);
-    if (b->rows[row]->data == NULL)
+    if (b->rows[row]->data == NULL || *(b->rows[row]->in_use + relative_index) == false)
     {
         return NULL;
     }
@@ -102,16 +106,16 @@ bool bsa_delete(bsa *b, int indx)
 {
     int row = _get_row(indx);
     int relative_index = _get_index_in_row(indx, row);
-
-    if (*(b->rows[row]->in_use + relative_index))
-    {
-        *(b->rows[row]->in_use + relative_index) = false;
-    }
-    else
+    if (b->rows[row]->in_use == NULL)
     {
         fprintf(stderr, "index #%d already deleted\n", indx);
         return false;
     }
+    else if (*(b->rows[row]->in_use + relative_index))
+    {
+        *(b->rows[row]->in_use + relative_index) = false;
+    }
+
     bool row_empty = true;
     for (int i = 0; i < b->rows[row]->length; i++)
     {
@@ -121,15 +125,56 @@ bool bsa_delete(bsa *b, int indx)
         }
     }
     
+    // if (indx == b->max_index)
+    // {
+    //     _next_lowest_max_index(b);
+    // }
+
     if (row_empty)
     {
         free(b->rows[row]->data);
+        b->rows[row]->data = NULL;
         free(b->rows[row]->in_use);
-        free(b->rows[row]);
-        b->rows[row] = NULL;
+        b->rows[row]->in_use = NULL;
+        // free(b->rows[row]);
+        // b->rows[row] = NULL;
     }
 
     return true;
+}
+
+int _get_current_index(int row, int rel_index)
+{
+    return _pow_2(row) - 1 + rel_index;
+}
+
+void _next_lowest_max_index(bsa* b)
+{
+        bool new_max_index_found = false;
+        int max_row = _get_row(b->max_index);
+
+        while (!new_max_index_found && max_row >= 0)
+        {
+            if (b->rows[max_row]->data != NULL)
+            {
+                for (int i = b->rows[max_row]->length - 1; i >= 0; i--)
+                {
+                    if (
+                        _get_current_index(max_row, i) < b->max_index && 
+                        *(b->rows[max_row]->in_use + i)
+                        )
+                        {
+                            new_max_index_found = true;
+                            b->max_index = _get_current_index(max_row, i);
+                        }
+                }
+            }
+            max_row--;
+        }
+        if (!new_max_index_found)
+        {
+            b->max_index = -1;
+        }
 }
 
 void test(void)
@@ -154,6 +199,7 @@ void test(void)
     for (int i = 0; i < BSA_ROWS; i++)
     {
         assert(test_bsa->rows[i]->data == NULL);
+        assert(test_bsa->rows[i]->in_use == NULL);
         assert(test_bsa->rows[i]->length == _pow_2(i));
     }
 
@@ -196,33 +242,38 @@ void test(void)
     assert(_get_index_in_row(30, row) == 15);
 
     /*
-    can set value of requested index
-    row is marked as in use
+    bsa_set()
+    can store value in index
+    max_index is updated when new index is greater
+    matching index in `in_use` is set to true when index is used
     */
     bsa *test_set = bsa_init();
     assert(bsa_set(test_set,0,0));
     assert(*test_set->rows[0]->data == 0);
     assert(*test_set->rows[0]->in_use);
-
+    assert(test_set->max_index == 0);
 
     assert(bsa_set(test_set,2,1));
     assert(*(test_set->rows[1]->data + 1) == 1);
     assert(*(test_set->rows[1]->in_use + 1));
-
+    assert(test_set->max_index == 2);
 
     assert(bsa_set(test_set, 6, 36));
     assert(*(test_set->rows[2]->data + 3) == 36);
     assert(*(test_set->rows[2]->in_use + 3));
+    assert(test_set->max_index == 6);
 
     assert(bsa_set(test_set,zeroth_index_final_row,1));
     assert(*test_set->rows[29]->data == 1);
     assert(*test_set->rows[29]->in_use);
+    assert(test_set->max_index == zeroth_index_final_row);
 
     assert(bsa_set(test_set, final_index, 99));
     assert(*(test_set->rows[29]->data + zeroth_index_final_row) == 99);
     assert(*(test_set->rows[29]->in_use + zeroth_index_final_row));
+    assert(test_set->max_index == final_index);
 
-    // free bsa *test_set after test
+    // clean up
     for (int i = 0; i < BSA_ROWS; i++)
     {
         free(test_set->rows[i]->data);
@@ -255,29 +306,55 @@ void test(void)
     assert(bsa_set(test_get, final_index, 99));
     assert(*bsa_get(test_get, final_index) == 99);
 
+    //clean up
+    free(test_get->rows[0]->data);
+    free(test_get->rows[0]->in_use);
+    free(test_get->rows[1]->data);
+    free(test_get->rows[1]->in_use);
+    free(test_get->rows[29]->data);
+    free(test_get->rows[29]->in_use);
+    free(test_get);
+
     /*
     can delete value
     when last value deleted, then row is free()'d
     */
+   //TODO return false when element not deleted, e.g. index already not in use
     bsa *test_delete = bsa_init();
     assert(bsa_set(test_delete, 0, 1));
     assert(bsa_delete(test_delete, 0));
-    assert(test_delete->rows[0] == NULL);
+    assert(test_delete->rows[0]->data == NULL);
+    assert(test_delete->rows[0]->in_use == NULL);
 
-    assert(bsa_set(test_delete, 1, 11));
-    assert(bsa_set(test_delete, 2, 12));
-    assert(bsa_delete(test_delete, 1));
-    assert(test_delete->rows[1] != NULL);
-    assert(bsa_delete(test_delete, 2));
-    assert(test_delete->rows[1] == NULL);
+    assert(bsa_set(test_delete, 15, 99));
+    assert(bsa_set(test_delete, 30, 100));
+    assert(bsa_delete(test_delete, 15));
+    assert(test_delete->rows[4]->data != NULL);
+    assert(test_delete->rows[4]->in_use != NULL);
+    assert(bsa_delete(test_delete, 30));
+    assert(test_delete->rows[4]->data == NULL);
+    assert(test_delete->rows[4]->in_use == NULL);
 
-    assert(bsa_set(test_delete, zeroth_index_final_row, 99));
-    assert(bsa_set(test_delete, final_index, 100));
-    assert(bsa_delete(test_delete, zeroth_index_final_row));
-    assert(test_delete->rows[29] != NULL);
-    assert(bsa_delete(test_delete, final_index));
-    assert(test_delete->rows[29] == NULL);
+    assert(bsa_set(test_delete, 15, 1));
+    assert(bsa_delete(test_delete, 15));
+    assert(!bsa_delete(test_delete, 15));
+    
+    //clean up
+    free(test_delete);
 
-}
+    /*
+    get index based on row and relative index
+    */
+    assert(_get_current_index(0,0) == 0);
+    assert(_get_current_index(1,1) == 2);
+    assert(_get_current_index(3,3) == 10);
+    assert(_get_current_index(29,3) == 536870914);
+
+    /*
+    _next_lowest_max_index() 
+    */
+
+
+}   
 
 
