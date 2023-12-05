@@ -106,7 +106,8 @@ bool bsa_delete(bsa *b, int indx)
 {
     int row = _get_row(indx);
     int relative_index = _get_index_in_row(indx, row);
-    if (b->rows[row]->in_use == NULL)
+    if (b->rows[row]->in_use == NULL || 
+        *(b->rows[row]->in_use + relative_index) == false)
     {
         fprintf(stderr, "index #%d already deleted\n", indx);
         return false;
@@ -336,9 +337,14 @@ void test(void)
     assert(test_delete->rows[4]->in_use == NULL);
 
     assert(bsa_set(test_delete, 15, 1));
+    assert(bsa_set(test_delete, 30, 1));
     assert(bsa_delete(test_delete, 15));
     assert(!bsa_delete(test_delete, 15));
-    
+    assert(bsa_delete(test_delete, 30));
+    assert(!bsa_delete(test_delete, 30));
+    assert(test_delete->rows[4]->data == NULL);
+    assert(test_delete->rows[4]->in_use == NULL);
+
     //clean up
     free(test_delete);
 
