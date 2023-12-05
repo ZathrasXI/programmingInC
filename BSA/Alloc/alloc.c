@@ -1,4 +1,5 @@
 #include "specific.h"
+//TODO NO MAGIC NUMBERS ANYWHERE
 
 int main(void)
 {
@@ -126,10 +127,10 @@ bool bsa_delete(bsa *b, int indx)
         }
     }
     
-    // if (indx == b->max_index)
-    // {
-    //     _next_lowest_max_index(b);
-    // }
+    if (indx == b->max_index)
+    {
+        _next_lowest_max_index(b);
+    }
 
     if (row_empty)
     {
@@ -137,10 +138,7 @@ bool bsa_delete(bsa *b, int indx)
         b->rows[row]->data = NULL;
         free(b->rows[row]->in_use);
         b->rows[row]->in_use = NULL;
-        // free(b->rows[row]);
-        // b->rows[row] = NULL;
     }
-
     return true;
 }
 
@@ -320,7 +318,6 @@ void test(void)
     can delete value
     when last value deleted, then row is free()'d
     */
-   //TODO return false when element not deleted, e.g. index already not in use
     bsa *test_delete = bsa_init();
     assert(bsa_set(test_delete, 0, 1));
     assert(bsa_delete(test_delete, 0));
@@ -359,6 +356,46 @@ void test(void)
     /*
     _next_lowest_max_index() 
     */
+    bsa *test_next_index = bsa_init();
+    //2 indexes, on same row
+    assert(bsa_set(test_next_index, 15, 3));
+    assert(bsa_set(test_next_index, 30, 10));
+    *(test_next_index->rows[4]->in_use + 15) = false;
+    _next_lowest_max_index(test_next_index);
+    assert(test_next_index->max_index == 15);
+    //clean up
+    assert(bsa_delete(test_next_index, 15));
+    assert(test_next_index->rows[4]->data == NULL);
+    assert(test_next_index->rows[4]->in_use == NULL);
+
+    //2 indexes, on different rows
+    assert(bsa_set(test_next_index, 14, 7));
+    assert(bsa_set(test_next_index, 30, 15));
+    *(test_next_index->rows[4]->in_use + 15) = false;
+    _next_lowest_max_index(test_next_index);
+    assert(test_next_index->max_index == 14);
+    //clean up
+    assert(bsa_delete(test_next_index, 14));
+
+    //delete both indexes
+    assert(bsa_set(test_next_index, 14, 7));
+    assert(bsa_set(test_next_index, 30, 15));
+    *(test_next_index->rows[4]->in_use + 15) = false;
+    _next_lowest_max_index(test_next_index);
+    *(test_next_index->rows[3]->in_use + 7) = false;
+    _next_lowest_max_index(test_next_index);
+    assert(test_next_index->max_index == -1);
+    //clean up
+    free(test_next_index->rows[3]->data);
+    free(test_next_index->rows[3]->in_use);
+    free(test_next_index->rows[4]->data);
+    free(test_next_index->rows[4]->in_use);
+
+
+
+
+
+
 
 
 }   
