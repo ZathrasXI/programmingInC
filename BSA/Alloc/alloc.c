@@ -67,13 +67,12 @@ int _get_row(int cell_index)
 
 bool bsa_set(bsa *b, int indx, int d)
 {
-    //TODO check that I have understood when to return false
     int row = _get_row(indx);
     if (b->rows[row]->data == NULL)
     {
         b->rows[row]->data = (int *) calloc(b->rows[row]->length, sizeof(int));
         b->rows[row]->in_use = (bool *) calloc(b->rows[row]->length, sizeof(bool));
-
+        //TODO check that value is correct size to be held in an int
         if (b->rows[row]->data == NULL || b->rows[row]->in_use == NULL)
         {
             fprintf(stderr, "index not set: error allocating memory for unset row #%d\n", row);
@@ -179,7 +178,6 @@ void _next_lowest_max_index(bsa* b)
 
 bool bsa_free(bsa *b)
 {
-    // TODO check that return false condition is correct 
     if (b == NULL)
     {
         return false;
@@ -196,7 +194,6 @@ bool bsa_free(bsa *b)
         }
     }
     free(b);
-    b = NULL;
     return true;
 }
 
@@ -531,8 +528,6 @@ void test(void)
     assert(bsa_set(test_free, zeroth_index_final_row, 99));
     assert(bsa_set(test_free, final_index, 100));
     assert(bsa_free(test_free));
-    // TODO is it possible to set pointer to null without changing signature to bsa **
-    // assert(test_free == NULL);
 
 
     /*
@@ -557,8 +552,6 @@ void test(void)
 
     assert(bsa_delete(test_in_use_count, 6));
     assert(_in_use_count(test_in_use_count, 2) == -1);
-
-
 
     /*
     bsa_tostring()
@@ -595,6 +588,24 @@ void test(void)
     assert(strcmp(str, "{}{[1]=2 [2]=4}{[3]=6 [4]=8 [5]=10 [6]=12}") == 0);
     //clean up
     strcpy(str, "");  
+    bsa_delete(test_str,1);
+    bsa_delete(test_str,2);
+    bsa_delete(test_str,3);
+    bsa_delete(test_str,4);
+    bsa_delete(test_str,5);
+    bsa_delete(test_str,6);
+
+    // string spanning many rows
+    assert(bsa_set(test_str, 0, 1));
+    assert(bsa_set(test_str, 1, 2));
+    assert(bsa_set(test_str, 2, 6));
+    assert(bsa_set(test_str, 30, 300));
+    assert(bsa_set(test_str, 254, 254));
+    assert(bsa_tostring(test_str, str));
+    assert(strcmp(str, "{[0]=1}{[1]=2 [2]=6}{}{}{[30]=300}{}{}{[254]=254}") == 0);
+    //clean up
+    strcpy(str, "");  
+    bsa_free(test_str);
 
 
 
