@@ -177,6 +177,29 @@ void _next_lowest_max_index(bsa* b)
     }
 }
 
+bool bsa_free(bsa *b)
+{
+    // TODO check that return false condition is correct 
+    if (b == NULL)
+    {
+        return false;
+    }
+    for (int i = 0; i < BSA_ROWS; i++)
+    {
+        if (b->max_index != -1)
+        {
+            if (b->rows[i]->data != NULL)
+            {
+                free(b->rows[i]->data);
+                free(b->rows[i]->in_use);
+            }
+        }
+    }
+    free(b);
+    b = NULL;
+    return true;
+}
+
 void test(void)
 {   
     int zeroth_index_final_row = 536870911;
@@ -427,6 +450,35 @@ void test(void)
     assert(bsa_maxindex(test_max) == 1);
     assert(bsa_delete(test_max, 1));
     assert(bsa_maxindex(test_max) == -1);
+
+    for (int i = 0; i < BSA_ROWS; i++)
+    {
+        assert(test_max->rows[i]->data == NULL);
+        assert(test_max->rows[i]->in_use == NULL);
+    }
+
+    /*
+    bsa_free() frees all space used
+    */
+    //returns false when already is a NULL pointer
+    bsa *test_free = NULL;
+    assert(!bsa_free(test_free));
+
+    //returns true when it has free()'d memory
+    test_free = bsa_init();
+    assert(bsa_set(test_free, 0, 0));
+    assert(bsa_set(test_free, 2, 2));
+    assert(bsa_set(test_free, 4, 4));
+    assert(bsa_set(test_free, 6, 6));
+    assert(bsa_set(test_free, 8, 8));
+    assert(bsa_set(test_free, 10, 10));
+    assert(bsa_set(test_free, 12, 12));
+    assert(bsa_set(test_free, zeroth_index_final_row, 99));
+    assert(bsa_set(test_free, final_index, 100));
+    assert(bsa_free(test_free));
+    // TODO is it possible to set pointer to null without changing signature to bsa **
+    // assert(test_free == NULL);
+
 
 
 }   
