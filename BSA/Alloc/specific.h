@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #define INITIAL_SIZE 1
+#define STR_LEN 1000
 
 int _pow_2(int x);
 int _get_index_in_row(int i, int row);

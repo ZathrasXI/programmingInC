@@ -200,6 +200,37 @@ bool bsa_free(bsa *b)
     return true;
 }
 
+bool bsa_tostring(bsa *b, char *str)
+{
+    if (b->max_index == -1)
+    {
+        return false;
+    }
+
+    int max_row = _get_row(b->max_index);
+    for (int row = 0; row <= max_row; row++)
+    {
+        strcat(str,"{");
+        if (b->rows[row]->data != NULL)
+        {
+            for (int d = 0; d < b->rows[row]->length; d++)
+            {
+                if (*(b->rows[row]->data + d))
+                {
+
+                    char tmp[100];
+                    sprintf(tmp,"[%d]=%d", _get_actual_index(row, d), *(b->rows[row]->in_use + d));
+                    strcat(str, tmp);
+                }
+                
+            }
+        }
+        strcat(str,"}");
+    }
+    printf("inside str %s\n\n", str);
+    return true;
+}
+
 void test(void)
 {   
     int zeroth_index_final_row = 536870911;
@@ -479,6 +510,21 @@ void test(void)
     // TODO is it possible to set pointer to null without changing signature to bsa **
     // assert(test_free == NULL);
 
+
+    /*
+    bsa_tostring()
+    creates string from structure
+    */
+    bsa *test_str = bsa_init();
+    char str[STR_LEN] = "";
+    // false when bsa is not in use - max_index == -1
+    assert(!bsa_tostring(test_str, str));
+
+    //basic string
+    assert(bsa_set(test_str, 0, 0));
+    assert(bsa_tostring(test_str, str));
+    printf("str == %s\n", str);
+    assert(strcmp(str, "{[0]=0}") == 0);
 
 
 }   
