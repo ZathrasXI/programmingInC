@@ -1,14 +1,16 @@
 #include "specific.h"
 //TODO NO MAGIC NUMBERS ANYWHERE e.g. -1
 //TODO ask about fprintf error message - is it appropriate? would I lose marks?
+//TODO error handling for each calloc()
 
-// int main(void)
-// {
-//     test();
-//     bsa *b = bsa_init();
-//     printf("%d\n", b->max_index);
-//     return 0;
-// }
+int main(void)
+{
+    test();
+    bsa *b = bsa_init();
+    printf("%d\n", b->max_index);
+    assert(bsa_free(b));
+    return 0;
+}
 
 bsa* bsa_init(void)
 {
@@ -16,6 +18,8 @@ bsa* bsa_init(void)
     for (int i = 0; i < BSA_ROWS; i++)
     {
         b->rows[i] = (row *) calloc(INITIAL_SIZE, sizeof(row));
+        b->rows[i]->data = NULL;
+        b->rows[i]->in_use = NULL;
         b->rows[i]->length = _pow_2(i);
     }
     b->max_index = bsa_maxindex(b);
@@ -36,6 +40,11 @@ int _get_index_in_row(int index, int row)
 
 int bsa_maxindex(bsa *b)
 {
+    if(b == NULL)
+    {
+        return -1;
+    }
+
     bool bsa_in_use = false;
     for (int i = 0; i < BSA_ROWS; i++)
     {
@@ -109,7 +118,6 @@ bool bsa_delete(bsa *b, int indx)
     if (b->rows[row]->in_use == NULL || 
         *(b->rows[row]->in_use + relative_index) == false)
     {
-        fprintf(stderr, "index #%d already deleted\n", indx);
         return false;
     }
     else if (*(b->rows[row]->in_use + relative_index))
@@ -182,16 +190,12 @@ bool bsa_free(bsa *b)
     {
         return false;
     }
+
     for (int i = 0; i < BSA_ROWS; i++)
     {
-        if (b->max_index != -1)
-        {
-            if (b->rows[i]->data != NULL)
-            {
-                free(b->rows[i]->data);
-                free(b->rows[i]->in_use);
-            }
-        }
+        free(b->rows[i]->data);
+        free(b->rows[i]->in_use);
+        free(b->rows[i]);
     }
     free(b);
     return true;
@@ -199,7 +203,7 @@ bool bsa_free(bsa *b)
 
 bool bsa_tostring(bsa *b, char *str)
 {
-    if (b->max_index == -1)
+    if (b == NULL || b->max_index == -1)
     {
         return false;
     }
@@ -306,6 +310,8 @@ void test(void)
     for (int i = 0; i < BSA_ROWS; i++)
     {
         free(test_bsa->rows[i]->data);
+        free(test_bsa->rows[i]->in_use);
+        free(test_bsa->rows[i]);
     }
     free(test_bsa);
 
@@ -367,11 +373,12 @@ void test(void)
     assert(test_set->max_index == final_index);
 
     // clean up
-    for (int i = 0; i < BSA_ROWS; i++)
-    {
-        free(test_set->rows[i]->data);
-    }
-    free(test_set);
+    assert(bsa_free(test_set));
+    // for (int i = 0; i < BSA_ROWS; i++)
+    // {
+    //     free(test_set->rows[i]->data);
+    // }
+    // free(test_set);
 
 
     /*
@@ -400,13 +407,7 @@ void test(void)
     assert(*bsa_get(test_get, final_index) == 99);
 
     //clean up
-    free(test_get->rows[0]->data);
-    free(test_get->rows[0]->in_use);
-    free(test_get->rows[1]->data);
-    free(test_get->rows[1]->in_use);
-    free(test_get->rows[29]->data);
-    free(test_get->rows[29]->in_use);
-    free(test_get);
+    assert(bsa_free(test_get));
 
     /*
     can delete value
@@ -437,7 +438,7 @@ void test(void)
     assert(test_delete->rows[4]->in_use == NULL);
 
     //clean up
-    free(test_delete);
+    assert(bsa_free(test_delete));
 
     /*
     get index based on row and relative index
@@ -480,10 +481,7 @@ void test(void)
     _next_lowest_max_index(test_next_index);
     assert(test_next_index->max_index == -1);
     //clean up
-    free(test_next_index->rows[3]->data);
-    free(test_next_index->rows[3]->in_use);
-    free(test_next_index->rows[4]->data);
-    free(test_next_index->rows[4]->in_use);
+    assert(bsa_free(test_next_index));
 
     /*
     bsa_maxindex() returns max index, unless
@@ -526,6 +524,8 @@ void test(void)
         assert(test_max->rows[i]->data == NULL);
         assert(test_max->rows[i]->in_use == NULL);
     }
+    //clean up
+    assert(bsa_free(test_max));
 
     /*
     bsa_free() frees all space used
@@ -570,6 +570,8 @@ void test(void)
 
     assert(bsa_delete(test_in_use_count, 6));
     assert(_in_use_count(test_in_use_count, 2) == -1);
+    //clean up
+    assert(bsa_free(test_in_use_count));
 
     /*
     bsa_tostring()

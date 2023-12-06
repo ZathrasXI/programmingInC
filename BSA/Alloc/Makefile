@@ -6,4 +6,4 @@ VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 
 alloc: alloc.c specific.h
-	$(CC) $(COMMON) alloc.c specific.h -o alloc
+	$(CC) $(SANITIZE) alloc.c specific.h -o alloc
