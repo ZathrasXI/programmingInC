@@ -1,23 +1,29 @@
 #include "specific.h"
-//TODO NO MAGIC NUMBERS ANYWHERE e.g. -1
-//TODO ask about fprintf error message - is it appropriate? would I lose marks?
-//TODO error handling for each calloc()
 
-int main(void)
-{
-    test();
-    bsa *b = bsa_init();
-    printf("%d\n", b->max_index);
-    assert(bsa_free(b));
-    return 0;
-}
+// int main(void)
+// {
+//     test();
+//     bsa *b = bsa_init();
+//     printf("%d\n", b->max_index);
+//     assert(bsa_free(b));
+//     return 0;
+// }
 
 bsa* bsa_init(void)
 {
     bsa *b = (bsa *) calloc(INITIAL_SIZE, sizeof(bsa));
+    if (b == NULL)
+    {
+        fprintf(stderr, "error allocating space for bsa\n");
+        exit(EXIT_FAILURE);
+    }
     for (int i = 0; i < BSA_ROWS; i++)
     {
         b->rows[i] = (row *) calloc(INITIAL_SIZE, sizeof(row));
+        if (b->rows[i] == NULL)
+        {
+            fprintf(stderr, "error allocating space for row #%d\n", i);
+        }
         b->rows[i]->data = NULL;
         b->rows[i]->in_use = NULL;
         b->rows[i]->length = _pow_2(i);
@@ -42,7 +48,7 @@ int bsa_maxindex(bsa *b)
 {
     if(b == NULL)
     {
-        return -1;
+        return NO_CELLS_WRITTEN;
     }
 
     bool bsa_in_use = false;
@@ -55,7 +61,7 @@ int bsa_maxindex(bsa *b)
     }
     if (!bsa_in_use)
     {
-        return -1;
+        return NO_CELLS_WRITTEN;
     }
     else
     {
@@ -76,17 +82,22 @@ int _get_row(int cell_index)
 
 bool bsa_set(bsa *b, int indx, int d)
 {
+    if (indx < MIN_INDEX || indx > MAX_INDEX)
+    {
+        return false;
+    }
+
     int row = _get_row(indx);
     if (b->rows[row]->data == NULL)
     {
-        b->rows[row]->data = (int *) calloc(b->rows[row]->length, sizeof(int));
-        b->rows[row]->in_use = (bool *) calloc(b->rows[row]->length, sizeof(bool));
+        int len = b->rows[row]->length;
+        b->rows[row]->data = (int *) calloc(len, sizeof(int));
+        b->rows[row]->in_use = (bool *) calloc(len, sizeof(bool));
         if (b->rows[row]->data == NULL || b->rows[row]->in_use == NULL)
         {
-            fprintf(stderr, "index not set: error allocating memory for unset row #%d\n", row);
+            fprintf(stderr, "index not set: error allocating memory for row #%d\n", row);
             exit(EXIT_FAILURE);
         }
-        //TODO return false when value is not correct size to be held in an int
     }
 
     int i = _get_index_in_row(indx, row);
@@ -104,7 +115,8 @@ int *bsa_get(bsa *b, int index)
 {
     int row = _get_row(index);
     int relative_index = _get_index_in_row(index, row);
-    if (b->rows[row]->data == NULL || *(b->rows[row]->in_use + relative_index) == false)
+    if (b->rows[row]->data == NULL || 
+        *(b->rows[row]->in_use + relative_index) == false)
     {
         return NULL;
     }
@@ -149,7 +161,7 @@ bool bsa_delete(bsa *b, int indx)
     return true;
 }
 
-int _get_actual_index(int row, int rel_index)
+int _get_global_index(int row, int rel_index)
 {
     return _pow_2(row) - 1 + rel_index;
 }
@@ -166,13 +178,13 @@ void _next_lowest_max_index(bsa* b)
             for (int i = b->rows[max_row]->length - 1; i >= 0; i--)
             {
                 if (
-                    _get_actual_index(max_row, i) < b->max_index && 
+                    _get_global_index(max_row, i) < b->max_index && 
                     *(b->rows[max_row]->in_use + i) &&
                     !new_max_index_found
                     )
                     {
                         new_max_index_found = true;
-                        b->max_index = _get_actual_index(max_row, i);
+                        b->max_index = _get_global_index(max_row, i);
                     }
             }
         }
@@ -180,7 +192,7 @@ void _next_lowest_max_index(bsa* b)
     }
     if (!new_max_index_found)
     {
-        b->max_index = -1;
+        b->max_index = NO_CELLS_WRITTEN;
     }
 }
 
@@ -203,9 +215,14 @@ bool bsa_free(bsa *b)
 
 bool bsa_tostring(bsa *b, char *str)
 {
-    if (b == NULL || b->max_index == -1)
+    strcpy(str, "");
+    if (b == NULL)
     {
         return false;
+    }
+    if (b->max_index == NO_CELLS_WRITTEN)
+    {
+        return true;
     }
 
     int max_row = _get_row(b->max_index);
@@ -222,7 +239,7 @@ bool bsa_tostring(bsa *b, char *str)
                 {
 
                     char tmp[100];
-                    sprintf(tmp,"[%d]=%d", _get_actual_index(row, d), *(b->rows[row]->data + d));
+                    sprintf(tmp,"[%d]=%d", _get_global_index(row, d), *(b->rows[row]->data + d));
                     strcat(str, tmp);
                     if (spaces < spaces_total)
                     {
@@ -230,7 +247,6 @@ bool bsa_tostring(bsa *b, char *str)
                         spaces++;
                     }
                 }
-                
             }
         }
         strcat(str,"}");
@@ -240,11 +256,6 @@ bool bsa_tostring(bsa *b, char *str)
 
 int _in_use_count(bsa *b, int row)
 {
-    if (b->rows[row]->in_use == NULL)
-    {
-        return -1;
-    }
-
     int count = 0;
     for (int i = 0; i < b->rows[row]->length; i++)
     {
@@ -301,10 +312,11 @@ void test(void)
     }
 
     /*
-    bsa_maxindex() returns -1 when given a NULL BSA
+    bsa_maxindex() returns -1/NO_CELLS_WRITTEN 
+    when given a NULL BSA
     */
-    assert(test_bsa->max_index == -1);
-    assert(bsa_maxindex(test_bsa) == -1);
+    assert(test_bsa->max_index == NO_CELLS_WRITTEN);
+    assert(bsa_maxindex(test_bsa) == NO_CELLS_WRITTEN);
 
     // free bsa *test_bsa after test
     for (int i = 0; i < BSA_ROWS; i++)
@@ -347,6 +359,9 @@ void test(void)
     matching index in `in_use` is set to true when index is used
     */
     bsa *test_set = bsa_init();
+    assert(!bsa_set(test_set, -1, 2));
+    assert(!bsa_set(test_set, final_index + 1, 2));
+
     assert(bsa_set(test_set,0,0));
     assert(*test_set->rows[0]->data == 0);
     assert(*test_set->rows[0]->in_use);
@@ -374,12 +389,6 @@ void test(void)
 
     // clean up
     assert(bsa_free(test_set));
-    // for (int i = 0; i < BSA_ROWS; i++)
-    // {
-    //     free(test_set->rows[i]->data);
-    // }
-    // free(test_set);
-
 
     /*
     can get value of requested index
@@ -443,10 +452,10 @@ void test(void)
     /*
     get index based on row and relative index
     */
-    assert(_get_actual_index(0,0) == 0);
-    assert(_get_actual_index(1,1) == 2);
-    assert(_get_actual_index(3,3) == 10);
-    assert(_get_actual_index(29,3) == 536870914);
+    assert(_get_global_index(0,0) == 0);
+    assert(_get_global_index(1,1) == 2);
+    assert(_get_global_index(3,3) == 10);
+    assert(_get_global_index(29,3) == 536870914);
 
     /*
     _next_lowest_max_index() 
@@ -479,17 +488,19 @@ void test(void)
     _next_lowest_max_index(test_next_index);
     *(test_next_index->rows[3]->in_use + 7) = false;
     _next_lowest_max_index(test_next_index);
-    assert(test_next_index->max_index == -1);
+    assert(test_next_index->max_index == NO_CELLS_WRITTEN);
     //clean up
     assert(bsa_free(test_next_index));
 
     /*
     bsa_maxindex() returns max index, unless
-    all rows are NULL, then returns -1
+    all rows are NULL, then returns 
+    -1/NO_CELLS_WRITTEN
     */
-    //max index is -1 after init
+
+    //max index is -1/NO_CELLS_WRITTEN after init
     bsa *test_max = bsa_init();
-    assert(bsa_maxindex(test_max) == -1);
+    assert(bsa_maxindex(test_max) == NO_CELLS_WRITTEN);
 
     //max index updates when greater index is used
     assert(bsa_set(test_max, 1,10));    
@@ -517,7 +528,7 @@ void test(void)
     assert(bsa_delete(test_max, 3));
     assert(bsa_maxindex(test_max) == 1);
     assert(bsa_delete(test_max, 1));
-    assert(bsa_maxindex(test_max) == -1);
+    assert(bsa_maxindex(test_max) == NO_CELLS_WRITTEN);
 
     for (int i = 0; i < BSA_ROWS; i++)
     {
@@ -530,6 +541,7 @@ void test(void)
     /*
     bsa_free() frees all space used
     */
+
     //returns false when already is a NULL pointer
     bsa *test_free = NULL;
     assert(!bsa_free(test_free));
@@ -550,7 +562,7 @@ void test(void)
 
     /*
     _in_use_count() returns total of indexes in use
-    else returns -1
+    else returns -1/NO_CELLS_WRITTEN
     */
     bsa *test_in_use_count = bsa_init();
     assert(bsa_set(test_in_use_count,3,3));
@@ -568,8 +580,6 @@ void test(void)
     assert(bsa_delete(test_in_use_count, 3));
     assert(_in_use_count(test_in_use_count, 2) == 1);
 
-    assert(bsa_delete(test_in_use_count, 6));
-    assert(_in_use_count(test_in_use_count, 2) == -1);
     //clean up
     assert(bsa_free(test_in_use_count));
 
@@ -579,8 +589,9 @@ void test(void)
     */
     bsa *test_str = bsa_init();
     char str[STR_LEN] = "";
-    // false when bsa is not in use - max_index == -1
-    assert(!bsa_tostring(test_str, str));
+    // false when bsa is not in use - 
+    // max_index == -1/NO_CELLS_WRITTEN
+    // assert(!bsa_tostring(test_str, str));
 
     //basic string
     assert(bsa_set(test_str, 0, 0));
@@ -627,8 +638,24 @@ void test(void)
     strcpy(str, "");  
     bsa_free(test_str);
 
-
-
+    // when all are deleted str is empty
+    bsa *test_str2 = bsa_init();
+    assert(bsa_set(test_str2, 1, 2));
+    assert(bsa_set(test_str2, 2, 4));
+    assert(bsa_set(test_str2, 3, 6));
+    assert(bsa_set(test_str2, 4, 8));
+    assert(bsa_set(test_str2, 5, 10));
+    assert(bsa_set(test_str2, 6, 12));
+    assert(bsa_delete(test_str2,1));
+    assert(bsa_delete(test_str2,2));
+    assert(bsa_delete(test_str2,3));
+    assert(bsa_delete(test_str2,4));
+    assert(bsa_delete(test_str2,5));
+    assert(bsa_delete(test_str2,6));
+    assert(bsa_tostring(test_str2, str));
+    assert(strcmp(str, "") == 0);
+    //clean up
+    assert(bsa_free(test_str2));
 }   
 
 
