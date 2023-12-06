@@ -2,13 +2,13 @@
 //TODO NO MAGIC NUMBERS ANYWHERE e.g. -1
 //TODO ask about fprintf error message - is it appropriate? would I lose marks?
 
-int main(void)
-{
-    test();
-    bsa *b = bsa_init();
-    printf("%d\n", b->max_index);
-    return 0;
-}
+// int main(void)
+// {
+//     test();
+//     bsa *b = bsa_init();
+//     printf("%d\n", b->max_index);
+//     return 0;
+// }
 
 bsa* bsa_init(void)
 {
@@ -72,12 +72,12 @@ bool bsa_set(bsa *b, int indx, int d)
     {
         b->rows[row]->data = (int *) calloc(b->rows[row]->length, sizeof(int));
         b->rows[row]->in_use = (bool *) calloc(b->rows[row]->length, sizeof(bool));
-        //TODO check that value is correct size to be held in an int
         if (b->rows[row]->data == NULL || b->rows[row]->in_use == NULL)
         {
             fprintf(stderr, "index not set: error allocating memory for unset row #%d\n", row);
-            return false;
+            exit(EXIT_FAILURE);
         }
+        //TODO return false when value is not correct size to be held in an int
     }
 
     int i = _get_index_in_row(indx, row);
@@ -250,6 +250,24 @@ int _in_use_count(bsa *b, int row)
         }
     }
     return count;
+}
+
+void bsa_foreach(void (*func)(int *p, int *n), bsa *b, int *acc)
+{
+    
+    for (int row = 0; row < BSA_ROWS; row++)
+    {
+        if (b->rows[row]->data != NULL)
+        {
+            for (int i = 0; i < b->rows[row]->length; i++)
+            {
+                if (*(b->rows[row]->in_use + i))
+                {
+                    func((b->rows[row]->data + i), acc);
+                }
+            }
+        }
+    }
 }
 
 void test(void)
