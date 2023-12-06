@@ -213,22 +213,46 @@ bool bsa_tostring(bsa *b, char *str)
         strcat(str,"{");
         if (b->rows[row]->data != NULL)
         {
+            int spaces_total = _in_use_count(b, row) - 1;
+            int spaces = 0;
             for (int d = 0; d < b->rows[row]->length; d++)
             {
-                if (*(b->rows[row]->data + d))
+                if (*(b->rows[row]->in_use + d))
                 {
 
                     char tmp[100];
-                    sprintf(tmp,"[%d]=%d", _get_actual_index(row, d), *(b->rows[row]->in_use + d));
+                    sprintf(tmp,"[%d]=%d", _get_actual_index(row, d), *(b->rows[row]->data + d));
                     strcat(str, tmp);
+                    if (spaces < spaces_total)
+                    {
+                        strcat(str, " ");
+                        spaces++;
+                    }
                 }
                 
             }
         }
         strcat(str,"}");
     }
-    printf("inside str %s\n\n", str);
     return true;
+}
+
+int _in_use_count(bsa *b, int row)
+{
+    if (b->rows[row]->in_use == NULL)
+    {
+        return -1;
+    }
+
+    int count = 0;
+    for (int i = 0; i < b->rows[row]->length; i++)
+    {
+        if (*(b->rows[row]->in_use + i))
+        {
+            count++;
+        }
+    }
+    return count;
 }
 
 void test(void)
@@ -512,6 +536,31 @@ void test(void)
 
 
     /*
+    _in_use_count() returns total of indexes in use
+    else returns -1
+    */
+    bsa *test_in_use_count = bsa_init();
+    assert(bsa_set(test_in_use_count,3,3));
+    assert(bsa_set(test_in_use_count,4,3));
+    assert(bsa_set(test_in_use_count,5,3));
+    assert(bsa_set(test_in_use_count,6,3));
+    assert(_in_use_count(test_in_use_count, 2) == 4);
+
+    assert(bsa_delete(test_in_use_count, 4));
+    assert(_in_use_count(test_in_use_count, 2) == 3);
+
+    assert(bsa_delete(test_in_use_count, 5));
+    assert(_in_use_count(test_in_use_count, 2) == 2);
+
+    assert(bsa_delete(test_in_use_count, 3));
+    assert(_in_use_count(test_in_use_count, 2) == 1);
+
+    assert(bsa_delete(test_in_use_count, 6));
+    assert(_in_use_count(test_in_use_count, 2) == -1);
+
+
+
+    /*
     bsa_tostring()
     creates string from structure
     */
@@ -523,8 +572,30 @@ void test(void)
     //basic string
     assert(bsa_set(test_str, 0, 0));
     assert(bsa_tostring(test_str, str));
-    printf("str == %s\n", str);
     assert(strcmp(str, "{[0]=0}") == 0);
+    //clean up
+    strcpy(str, "");
+
+    assert(bsa_set(test_str, 1, 1));
+    assert(bsa_set(test_str, 2, 2));
+    assert(bsa_tostring(test_str, str));
+    assert(strcmp(str, "{[0]=0}{[1]=1 [2]=2}") == 0);
+    //clean up
+    strcpy(str, "");
+    assert(bsa_delete(test_str, 0));
+
+    // spaces between values on same row
+    assert(bsa_set(test_str, 1, 2));
+    assert(bsa_set(test_str, 2, 4));
+    assert(bsa_set(test_str, 3, 6));
+    assert(bsa_set(test_str, 4, 8));
+    assert(bsa_set(test_str, 5, 10));
+    assert(bsa_set(test_str, 6, 12));
+    assert(bsa_tostring(test_str, str));
+    assert(strcmp(str, "{}{[1]=2 [2]=4}{[3]=6 [4]=8 [5]=10 [6]=12}") == 0);
+    //clean up
+    strcpy(str, "");  
+
 
 
 }   
