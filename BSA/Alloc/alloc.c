@@ -1,13 +1,5 @@
 #include "specific.h"
 
-// int main(void)
-// {
-//     test();
-//     bsa *b = bsa_init();
-//     printf("%d\n", b->max_index);
-//     assert(bsa_free(b));
-//     return 0;
-// }
 
 bsa* bsa_init(void)
 {
