@@ -66,7 +66,6 @@ bool bsa_set(bsa *b, int indx, int d)
         b->root->left->data = d;
         b->root->left->left = NULL;
         b->root->left->right = NULL;
-        b->max_index = indx;
         return true;
     }
     return false;
@@ -90,16 +89,19 @@ void test()
     */
     bsa *test_set = bsa_init();
     //set root
-    assert(bsa_set(test_set, 10,10));
+    assert(bsa_set(test_set, 10,1));
     assert(test_set->root->index == 10);
-    assert(test_set->root->data == 10);
+    assert(test_set->root->data == 1);
     assert(test_set->root->height == 0);
     assert(test_set->root->left == NULL);
     assert(test_set->root->right == NULL);
     assert(test_set->max_index == 10);
 
     //can set left child
-    assert(bsa_set(test_set,9, 9));
+    assert(bsa_set(test_set,9, 0));
+    assert(test_set->root->left->index == 9);
+    assert(test_set->root->left->data == 0);
+    assert(test_set->max_index == 10);
 
     //clean up
     free(test_set->root->left);
