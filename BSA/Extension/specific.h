@@ -16,6 +16,6 @@ typedef struct node
 
 struct bsa
 {
-    Node *root;
+    Node *head[BSA_ROWS];
     int max_index;
 };
