@@ -74,7 +74,11 @@ Node *_insert(Node *root, int i, int d)
     {
         root->left = _insert(root->left, i, d);
     }
-    
+    else 
+    {
+        root->value = d;
+    }
+
     return root;
 }
 
@@ -121,6 +125,22 @@ void test(void)
     assert(bsa_set(set_test, 11, 21));
     assert(set_test->head[row]->right->index == 11); 
     assert(set_test->head[row]->right->value == 21);
+    //can create grandchild
+    assert(bsa_set(set_test, 13, 23));
+    assert(set_test->head[row]->right->right->index == 13); 
+    assert(set_test->head[row]->right->right->value == 23);
+    //can update first node
+    assert(bsa_set(set_test, 10, 200));
+    assert(set_test->head[row]->index == 10);
+    assert(set_test->head[row]->value == 200);
+    //can update child
+    assert(bsa_set(set_test, 11, 211));
+    assert(set_test->head[row]->right->index == 11); 
+    assert(set_test->head[row]->right->value == 211);
+    //can update grandchild
+    assert(bsa_set(set_test, 13, 233));
+    assert(set_test->head[row]->right->right->index == 13); 
+    assert(set_test->head[row]->right->right->value == 233);  
 
     _free_tree(set_test->head[row]);
     free(set_test);
