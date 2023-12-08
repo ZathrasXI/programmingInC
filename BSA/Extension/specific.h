@@ -3,7 +3,7 @@
 
 #define INIT_SIZE 1
 #define NOT_SET -1
-
+#define MIN_INDEX 0
 
 typedef struct node
 {
@@ -11,7 +11,6 @@ typedef struct node
     int value;
     struct node *left;
     struct node *right;
-    int height;
 } Node;
 
 struct bsa
@@ -19,3 +18,6 @@ struct bsa
     Node *head[BSA_ROWS];
     int max_index;
 };
+
+int _get_row(int index);
+Node *_new_node(int i, int d);
