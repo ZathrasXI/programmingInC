@@ -21,3 +21,5 @@ struct bsa
 
 int _get_row(int index);
 Node *_new_node(int i, int d);
+Node *_insert(Node *, int i, int d);
+void _free_tree(Node *n);

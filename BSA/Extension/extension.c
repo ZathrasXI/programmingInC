@@ -30,11 +30,7 @@ bool bsa_set(bsa *b, int indx, int d)
     }
 
     int row = _get_row(indx);
-    if (b->head[row] == NULL)
-    {
-        b->head[row] = _new_node(indx, d);
-    }
-
+    b->head[row] = _insert(b->head[row], indx, d);
     return true;
 }
 
@@ -64,6 +60,35 @@ Node *_new_node(int i, int d)
     return new;
 }
 
+Node *_insert(Node *root, int i, int d)
+{
+    if (root == NULL)
+    {
+        root = _new_node(i, d);
+    }
+    else if (i > root->index)
+    {
+        root->right = _insert(root->right, i, d);
+    }
+    else if (i < root->index)
+    {
+        root->left = _insert(root->left, i, d);
+    }
+    
+    return root;
+}
+
+void _free_tree(Node *n)
+{
+    if (n == NULL)
+    {
+        return;
+    }
+    _free_tree(n->left);
+    _free_tree(n->right);
+    free(n);
+}
+
 void test(void)
 {
     /*
@@ -81,7 +106,23 @@ void test(void)
     can insert value at index
     */
     bsa *set_test = bsa_init();
+    //false when index out of bounds
     assert(!bsa_set(set_test, -1, 0));
+    //can set node to NULL head 
+    int row = _get_row(10);
+    assert(bsa_set(set_test, 10, 20));
+    assert(set_test->head[row]->index == 10);
+    assert(set_test->head[row]->value == 20);
+    //can create node with smaller index in same row
+    assert(bsa_set(set_test, 9, 19));
+    assert(set_test->head[row]->left->index == 9);
+    assert(set_test->head[row]->left->value == 19);
+    //can create node with larger index in same row
+    assert(bsa_set(set_test, 11, 21));
+    assert(set_test->head[row]->right->index == 11); 
+    assert(set_test->head[row]->right->value == 21);
+
+    _free_tree(set_test->head[row]);
     free(set_test);
 
     /*
