@@ -93,6 +93,62 @@ void _free_tree(Node *n)
     free(n);
 }
 
+void _rm_node(Node **n, int i)
+{
+
+    //find node
+    // if (i < n->index)
+    // {
+    //     n->left = _rm_node(n, i);
+    //     return n;
+    // }
+    // else if (i > n->index)
+    // {
+    //     n->right = _rm_node(n, i);
+    //     return n;
+    // }
+
+    //no children
+    if ((*n)->left == NULL && (*n)->right == NULL)
+    {
+        free(*n);
+        *n = NULL;
+    }
+    // only left child
+    else if ((*n)->left != NULL && (*n)->right == NULL)
+    {
+        Node *tmp = *n;
+        *n = (*n)->left;
+        free(tmp);
+    }
+    // only right child
+    else if ((*n)->left == NULL && (*n)->right != NULL)
+    {
+        Node *tmp = *n;
+        *n = (*n)->right;
+        free(tmp);
+    }
+    printf(" end %d\n", i);
+
+}
+
+void _reset_row(Node **n)
+{
+    _free_tree((*n));
+    *n = NULL;
+}
+
+bool bsa_delete(bsa *b, int indx)
+{
+    int row = _get_row(indx);
+    if (b->head[row] == NULL)
+    {
+        return false;
+    }
+    _rm_node(&b->head[row], indx);
+    return true;
+}
+
 void test(void)
 {
     /*
@@ -140,9 +196,14 @@ void test(void)
     //can update grandchild
     assert(bsa_set(set_test, 13, 233));
     assert(set_test->head[row]->right->right->index == 13); 
-    assert(set_test->head[row]->right->right->value == 233);  
-
-    _free_tree(set_test->head[row]);
+    assert(set_test->head[row]->right->right->value == 233); 
+    //send same value to same index
+    assert(bsa_set(set_test, 13, 233));
+    assert(set_test->head[row]->right->right->index == 13); 
+    assert(set_test->head[row]->right->right->value == 233);
+    //clean up
+    _reset_row(&set_test->head[row]);
+    assert(set_test->head[row] == NULL);
     free(set_test);
 
     /*
@@ -164,4 +225,45 @@ void test(void)
     assert(new->right == NULL);
     free(new);
 
+    /*
+    can reset row to NULL
+    */
+    bsa *reset_test = bsa_init();
+    assert(bsa_set(reset_test, 8,18));
+    assert(bsa_set(reset_test, 9,19));
+    assert(bsa_set(reset_test, 7,17));
+    row = _get_row(7);
+    _reset_row(&reset_test->head[row]);
+    assert(reset_test->head[row] == NULL);
+    free(reset_test);
+
+    /*
+    can delete node from tree
+    */
+    bsa *delete_test = bsa_init();
+    //returns false if row == NULL
+    assert(!bsa_delete(delete_test, 0));
+    //when final node is deleted, row points to NULL
+    assert(bsa_set(delete_test, 22, 2));
+    assert(bsa_delete(delete_test, 22));
+    assert(delete_test->head[4] == NULL);
+    //can delete node with left child
+    assert(bsa_set(delete_test, 23, 3));
+    assert(bsa_set(delete_test, 22, 2));
+    assert(bsa_delete(delete_test, 23));
+    assert(delete_test->head[4]->index == 22);
+    assert(delete_test->head[4]->value == 2);
+    _reset_row(&delete_test->head[4]);
+    assert(delete_test->head[4] == NULL);
+
+    //can delete node with right child
+    assert(bsa_set(delete_test, 22, 2));
+    assert(bsa_set(delete_test, 23, 3));
+    assert(bsa_delete(delete_test, 22));
+    assert(delete_test->head[4]->index == 23);
+    assert(delete_test->head[4]->value == 3);
+    _reset_row(&delete_test->head[4]);
+    assert(delete_test->head[4] == NULL);
+
+    free(delete_test);
 }
