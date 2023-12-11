@@ -1,0 +1,44 @@
+The Abstract Data Type (ADT) that I created for the extension is built upon a fixed array of Binary Search Trees (BSTs). It supports all of the same operations as the Binary Sparse Array (BSA), except for the bsa_tostring() function. 
+
+The resulting ADT is a compromise between: what I liked about the BSA, improvements that I thought could be made to the BSA, and my limitations as a programmer.
+
+Strengths of the BSA
+It is more memory efficient than an array when it comes to storing sparse data because only the rows that are in use are allocated memory, as opposed to a regular array whereby the entire array would need to be allocated.
+Similarly to an array, the insertion time is O(1) if you know the index, this is because the rows are contiguous blocks of memory.
+
+Improvements
+The BSA could be made more memory efficient if it stored only the indexes that were in use. In the BSA the memory for an entire row is allocated for a single piece of data, resulting in unused allocated memory. The length of the rows double in size as the indexes increase - the 0th array has a length of 1 and the 30th array has a length of 2^29=536870912. In the worst case, it means that to store one int at an index between 536870911 and 1073741822, array with the length of 536870912 would need to be allocated.
+
+Limitations as a programmer
+Given the task of creating a rival ADT to the BSA, I knew I needed to create something based on a Data Structure that is both memory efficient, and has acceptable time complexity for the specified operations. Initially, a self-balancing BST seemed like the ideal solution, they only allocate memory for the data that they are given, and insertion/deletion/retrieval is O(log n). After researching red-black, and Adelson-Velsky and Landis (AVL) trees, I decided to try implementing an AVL tree because the basis for the rotation felt more intuitive to me. However, I found it too challenging to write the functions for insertion and deletion, so the actual implmentation is a simpler solution.
+
+End result
+I'm aware that non-self-balancing BSTs become Linked Lists when the data inputted into them is either consecutively ascending or descending, which results in slower, O(n), retrieval and deletion. My approach to reducing the impact of this, was to create an array of 30 BSTs, where the root of the tree is index `2^i - 1`, where `i` is the row number, same as the BSA. This means it is possible to skip many indexes before searching a BST, and reduces the size of the BST. 
+Compared to the BSA, I believe my rival is more memory efficient - as mentioned above, the nature of a BST means it only allocates memory for the data that it is given. With regards to performance, it seems like my extension is slightly slower than the BSA for fibmemo, and similar to BSA for sieve, (all compiled using the PRODUCTION flags):
+
+`time ./fibmemo` vs `time ./extfibmemo`
+fibmemo:
+real 	0m0.97s
+user	0m0.97s
+sys	0m0.000s
+
+extfibmemo:
+real 0m0.109s
+user 0m0.109s
+sys 0m0.000s
+
+`time ./sieve_s` vs `time ./sieve_ext` 
+sieve_s
+real	0m0.002s
+user	0m0.000s
+sys	0m0.001s
+
+sieve_ext
+real 	0m0.002s
+user	0m0.001s
+sys	0m0.000s
+
+I expect that using bigger data sets would highlight the differences in performance more clearly.
+
+I am happy with what I have created for this assignment, working on it has significantly increased my confidence and understanding of BSTs, which seem like rich a data structure, with many unique strenghts. I am looking forward to creating and using an AVL tree. 
+
