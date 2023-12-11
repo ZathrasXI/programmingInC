@@ -314,9 +314,22 @@ void _run_func(void (*func)(int *p, int *n), Node *n, int *acc)
     {
         return;
     }
-    func(&n->value, acc);
     _run_func(func, n->left, acc);
     _run_func(func, n->right, acc);
+    func(&n->value, acc);
+}
+
+//ToDO delete this function
+void PrintInOrder(Node *n)
+{
+    if (!n)
+    {
+        return;
+    }
+
+    PrintInOrder(n->left);
+    printf("%d\n", n->value);
+    PrintInOrder(n->right);
 }
 
 void test(void)
@@ -559,20 +572,20 @@ void test(void)
     assert(bsa_free(free_test));
     //returns true and frees populated bsa
     bsa *free_test_1 = bsa_init();
-    assert(bsa_set(free_test_1, 31, 3));
     assert(bsa_set(free_test_1, 40, 4));
+    assert(bsa_set(free_test_1, 37, 9));
     assert(bsa_set(free_test_1, 35, 8));
-    assert(bsa_set(free_test_1, 34, 7));
     assert(bsa_set(free_test_1, 36, 9));
     assert(bsa_set(free_test_1, 51, 6));
     assert(bsa_set(free_test_1, 50, 5));
+    assert(bsa_set(free_test_1, 34, 7));
     assert(bsa_set(free_test_1, 52, 8));
     assert(bsa_set(free_test_1, 32, 5));
-    assert(bsa_set(free_test_1, 37, 9));
+    assert(bsa_set(free_test_1, 31, 3));
     assert(bsa_set(free_test_1, 0, 3));
     assert(bsa_set(free_test_1, 1, 4));
     assert(bsa_set(free_test_1, 3, 8));
     assert(bsa_set(free_test_1, 7, 7));
-
+    // PrintInOrder(free_test_1->head[5]);
     assert(bsa_free(free_test_1));
 }

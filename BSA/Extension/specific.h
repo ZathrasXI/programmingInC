@@ -11,12 +11,14 @@ typedef struct node
     int value;
     struct node *left;
     struct node *right;
+    int *tree_size;
 } Node;
 
 struct bsa
 {
     Node *head[BSA_ROWS];
     int max_index;
+    int tree_sizes[BSA_ROWS];
 };
 
 int _get_row(int index);
