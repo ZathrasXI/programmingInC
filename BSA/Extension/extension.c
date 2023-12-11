@@ -1,10 +1,10 @@
 #include "specific.h"
 
-int main(void)
-{
-    test();
-    return 0;
-}
+// int main(void)
+// {
+//     test();
+//     return 0;
+// }
 
 bsa *bsa_init(void)
 {
@@ -139,26 +139,8 @@ void _rm_node(Node **n, int i)
         //2 children, replace n with inorder successor
         //right tree's leftmost/lowest index
         {
-            // Node *tmp = *n;
-            // Node *successor = (*n)->right;
-            // while (successor->left)
-            // {
-            //     successor = successor->left;
-            // }
-            // *n = successor;
-            // (*n)->left = tmp->left;
-            // if (tmp->right->index != successor->index)
-            // {
-            //     (*n)->right = tmp->right;
-            // }
-            // else
-            // {
-            //     (*n)->right = NULL;
-            // }
-            // free(tmp);
             Node *prev = *n;
             Node *successor = (*n)->right;
-            // for(; successor->left; prev = successor, successor = successor->left);
             while (successor->left)
             {
                 prev = successor;
@@ -171,7 +153,6 @@ void _rm_node(Node **n, int i)
             else
                 prev->left = successor->right;
             free(successor);
-
         }
     }
 }
@@ -196,16 +177,6 @@ bool bsa_delete(bsa *b, int indx)
         _update_max_index(b, indx);
     }
     return true;
-}
-
-void PrintTree(Node *t)
-{
-    if (t == NULL)
-    {
-        return;
-    }
-    PrintTree(t->left);
-    PrintTree(t->right);
 }
 
 int *bsa_get(bsa *b, int indx)
@@ -323,6 +294,29 @@ bool bsa_free(bsa *b)
         free(b);
         return true;
     }
+}
+
+void bsa_foreach(void (*func)(int *p, int *n), bsa *b, int *acc)
+{
+    int max_row = _get_row(b->max_index);
+    for (int row = max_row; row >= 0; row--)
+    {
+        if (b->head[row])
+        {
+            _run_func(func, b->head[row], acc);
+        }
+    }
+}
+
+void _run_func(void (*func)(int *p, int *n), Node *n, int *acc)
+{
+    if (!n)
+    {
+        return;
+    }
+    func(&n->value, acc);
+    _run_func(func, n->left, acc);
+    _run_func(func, n->right, acc);
 }
 
 void test(void)

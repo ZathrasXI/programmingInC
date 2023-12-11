@@ -25,6 +25,7 @@ Node *_insert(Node *, int i, int d);
 void _free_tree(Node *n);
 void _reset_row(Node **n);
 void _rm_node(Node **n, int i);
-void PrintTree(Node *t);
 void _update_max_index(bsa *b, int indx);
+void _run_func(void (*func)(int *p, int *n), Node *n, int *acc);
+
 
