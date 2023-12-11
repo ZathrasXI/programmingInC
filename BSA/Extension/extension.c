@@ -1,10 +1,5 @@
 #include "specific.h"
 
-// int main(void)
-// {
-//     test();
-//     return 0;
-// }
 
 bsa *bsa_init(void)
 {
@@ -244,8 +239,7 @@ void _update_max_index(bsa *b, int indx)
 
     while (!new_max_found)
     {
-        //TODO is this a magic number?
-        if (row == 0 && !b->head[row])
+        if (row == MIN_INDEX && !b->head[row])
         {
             b->max_index = NOT_SET;
             new_max_found = true;
@@ -299,7 +293,7 @@ bool bsa_free(bsa *b)
 void bsa_foreach(void (*func)(int *p, int *n), bsa *b, int *acc)
 {
     int max_row = _get_row(b->max_index);
-    for (int row = max_row; row >= 0; row--)
+    for (int row = 0; row <= max_row; row++)
     {
         if (b->head[row])
         {
@@ -315,21 +309,8 @@ void _run_func(void (*func)(int *p, int *n), Node *n, int *acc)
         return;
     }
     _run_func(func, n->left, acc);
-    _run_func(func, n->right, acc);
     func(&n->value, acc);
-}
-
-//ToDO delete this function
-void PrintInOrder(Node *n)
-{
-    if (!n)
-    {
-        return;
-    }
-
-    PrintInOrder(n->left);
-    printf("%d\n", n->value);
-    PrintInOrder(n->right);
+    _run_func(func, n->right, acc);
 }
 
 void test(void)
@@ -423,13 +404,12 @@ void test(void)
     /*
     _rm_node()
     */
-
-   bsa *rm_test = bsa_init();
-   assert(bsa_set(rm_test, 20, 2));
-   assert(rm_test->head[4]->index == 20);
-   _rm_node(&rm_test->head[4], 20);
-   assert(rm_test->head[4] == NULL);
-   free(rm_test);
+    bsa *rm_test = bsa_init();
+    assert(bsa_set(rm_test, 20, 2));
+    assert(rm_test->head[4]->index == 20);
+    _rm_node(&rm_test->head[4], 20);
+    assert(rm_test->head[4] == NULL);
+    free(rm_test);
 
     /*
     can delete node from tree
@@ -586,6 +566,5 @@ void test(void)
     assert(bsa_set(free_test_1, 1, 4));
     assert(bsa_set(free_test_1, 3, 8));
     assert(bsa_set(free_test_1, 7, 7));
-    // PrintInOrder(free_test_1->head[5]);
     assert(bsa_free(free_test_1));
 }
