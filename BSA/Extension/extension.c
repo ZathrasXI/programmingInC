@@ -95,41 +95,80 @@ void _free_tree(Node *n)
 
 void _rm_node(Node **n, int i)
 {
-
-    //find node
-    // if (i < n->index)
-    // {
-    //     n->left = _rm_node(n, i);
-    //     return n;
-    // }
-    // else if (i > n->index)
-    // {
-    //     n->right = _rm_node(n, i);
-    //     return n;
-    // }
-
-    //no children
-    if ((*n)->left == NULL && (*n)->right == NULL)
+    if (*n == NULL)
     {
-        free(*n);
-        *n = NULL;
+        return;
     }
-    // only left child
-    else if ((*n)->left != NULL && (*n)->right == NULL)
-    {
-        Node *tmp = *n;
-        *n = (*n)->left;
-        free(tmp);
-    }
-    // only right child
-    else if ((*n)->left == NULL && (*n)->right != NULL)
-    {
-        Node *tmp = *n;
-        *n = (*n)->right;
-        free(tmp);
-    }
-    printf(" end %d\n", i);
 
+    if (i < (*n)->index)
+    {
+        _rm_node(&(*n)->left, i);
+    }
+    else if (i > (*n)->index)
+    {
+        _rm_node(&(*n)->right, i);
+    }
+    else
+    {
+        // no children
+        if ((*n)->left == NULL && (*n)->right == NULL)
+        {
+            free(*n);
+            *n = NULL;
+        }
+        //only left child
+        else if ((*n)->left && (*n)->right == NULL)
+        {
+            Node *tmp = *n;
+            *n = (*n)->left;
+            free(tmp);
+        }
+        //only right child
+        else if ((*n)->left == NULL && (*n)->right)
+        {
+            Node *tmp = *n;
+            *n = (*n)->right;
+            free(tmp);
+        }
+        else
+        //2 children, replace n with inorder successor
+        //right tree's leftmost/lowest index
+        {
+            // Node *tmp = *n;
+            // Node *successor = (*n)->right;
+            // while (successor->left)
+            // {
+            //     successor = successor->left;
+            // }
+            // *n = successor;
+            // (*n)->left = tmp->left;
+            // if (tmp->right->index != successor->index)
+            // {
+            //     (*n)->right = tmp->right;
+            // }
+            // else
+            // {
+            //     (*n)->right = NULL;
+            // }
+            // free(tmp);
+            Node *prev = *n;
+            Node *successor = (*n)->right;
+            // for(; successor->left; prev = successor, successor = successor->left);
+            while (successor->left)
+            {
+                prev = successor;
+                successor = successor->left;
+            }
+            (*n)->index = successor->index;
+            (*n)->value = successor->value;
+            if(prev == *n)
+                prev->right = successor->right;
+            else
+                prev->left = successor->right;
+            free(successor);
+
+        }
+    }
 }
 
 void _reset_row(Node **n)
@@ -147,6 +186,35 @@ bool bsa_delete(bsa *b, int indx)
     }
     _rm_node(&b->head[row], indx);
     return true;
+}
+
+void PrintTree(Node *t)
+{
+    if (t == NULL)
+    {
+        return;
+    }
+    printf("tree %d\n", t->index);
+    PrintTree(t->left);
+    PrintTree(t->right);
+}
+
+int *bsa_get(bsa *b, int indx)
+{
+    int row = _get_row(indx);
+    Node *ptr = b->head[row];
+    while (b->head[row]->index != indx)
+    {
+        if (indx > ptr->index)
+        {
+            ptr = ptr->right;
+        }
+        else
+        {
+            ptr = ptr->left;
+        }
+    }
+    return &ptr->value;
 }
 
 void test(void)
@@ -238,6 +306,17 @@ void test(void)
     free(reset_test);
 
     /*
+    _rm_node()
+    */
+
+   bsa *rm_test = bsa_init();
+   assert(bsa_set(rm_test, 20, 2));
+   assert(rm_test->head[4]->index == 20);
+   _rm_node(&rm_test->head[4], 20);
+   assert(rm_test->head[4] == NULL);
+   free(rm_test);
+
+    /*
     can delete node from tree
     */
     bsa *delete_test = bsa_init();
@@ -253,6 +332,7 @@ void test(void)
     assert(bsa_delete(delete_test, 23));
     assert(delete_test->head[4]->index == 22);
     assert(delete_test->head[4]->value == 2);
+    //clean up
     _reset_row(&delete_test->head[4]);
     assert(delete_test->head[4] == NULL);
 
@@ -262,8 +342,74 @@ void test(void)
     assert(bsa_delete(delete_test, 22));
     assert(delete_test->head[4]->index == 23);
     assert(delete_test->head[4]->value == 3);
+    //clean up
     _reset_row(&delete_test->head[4]);
     assert(delete_test->head[4] == NULL);
 
+    //can delete node deep in tree that has no children
+    assert(bsa_set(delete_test,22,2));
+    assert(bsa_set(delete_test,27,7));
+    assert(bsa_set(delete_test,25,2));
+    assert(bsa_set(delete_test,23,2));
+    assert(bsa_delete(delete_test, 23));
+    assert(delete_test->head[4]->right->left->left == NULL);
+    //clean up
+    _reset_row(&delete_test->head[4]);
+    assert(delete_test->head[4] == NULL);
+
+    //when node with 2 children is removed
+    //inorder successor replaces node and it points to 
+    //previous nodes left child
+    assert(bsa_set(delete_test, 40, 4));
+    assert(bsa_set(delete_test, 50, 5));
+    assert(bsa_set(delete_test, 45, 9));
+    assert(bsa_set(delete_test, 51, 6));
+    assert(bsa_delete(delete_test, 50));
+    assert(delete_test->head[5]->index == 40);
+    assert(delete_test->head[5]->right->index == 51);
+    assert(delete_test->head[5]->right->value == 6);
+    assert(delete_test->head[5]->right->left->value == 9);
+    assert(delete_test->head[5]->right->left->index == 45);
+    //clean up
+    _reset_row(&delete_test->head[5]);
+
+    //can delete node that has a few generations below it
+    assert(bsa_set(delete_test, 31, 3));
+    assert(bsa_set(delete_test, 40, 4));
+    assert(bsa_set(delete_test, 35, 8));
+    assert(bsa_set(delete_test, 34, 7));
+    assert(bsa_set(delete_test, 36, 9));
+    assert(bsa_set(delete_test, 51, 6));
+    assert(bsa_set(delete_test, 50, 5));
+    assert(bsa_set(delete_test, 52, 8));
+    assert(bsa_set(delete_test, 32, 5));
+    assert(bsa_set(delete_test, 37, 9));
+    assert(bsa_delete(delete_test, 40));
+    assert(delete_test->head[5]->left == NULL);
+    assert(delete_test->head[5]->right->index == 50);
+    _reset_row(&delete_test->head[5]);
+
     free(delete_test);
+
+    /*
+    can get a value
+    */
+    bsa *get_test = bsa_init();
+    assert(bsa_set(get_test, 0, 3));
+    assert(*bsa_get(get_test, 0) == 3);
+
+    assert(bsa_set(get_test, 1, 4));
+    assert(*bsa_get(get_test, 1) == 4);
+
+    assert(bsa_set(get_test, 5, 8));
+    assert(*bsa_get(get_test, 5) == 8);
+
+    assert(bsa_set(get_test, 10, 7));
+    assert(*bsa_get(get_test, 10) == 7);
+
+    _reset_row(&get_test->head[0]);
+    _reset_row(&get_test->head[1]);
+    _reset_row(&get_test->head[2]);
+    _reset_row(&get_test->head[3]);
+    free(get_test);
 }
