@@ -271,7 +271,24 @@ bool bsa_free(bsa *b)
     {
         return false;
     }
-    return false;
+    if (b->max_index == NOT_SET)
+    {
+        free(b);
+        return true;
+    }
+    else
+    {
+        int max_row = _get_row(b->max_index);
+        for (int i = max_row; i >= 0; i--)
+        {
+            if (b->head[i])
+            {
+                _reset_row(&b->head[i]);
+            }
+        }
+        free(b);
+        return true;
+    }
 }
 
 void test(void)
@@ -507,7 +524,27 @@ void test(void)
     */
     //returns false when given a NULL pointer
     assert(!bsa_free(NULL));
+    //returns true when bsa is empty
+    bsa *free_test = bsa_init();
+    assert(bsa_free(free_test));
+    //returns true and frees populated bsa
+    bsa *free_test_1 = bsa_init();
+    assert(bsa_set(free_test_1, 31, 3));
+    assert(bsa_set(free_test_1, 40, 4));
+    assert(bsa_set(free_test_1, 35, 8));
+    assert(bsa_set(free_test_1, 34, 7));
+    assert(bsa_set(free_test_1, 36, 9));
+    assert(bsa_set(free_test_1, 51, 6));
+    assert(bsa_set(free_test_1, 50, 5));
+    assert(bsa_set(free_test_1, 52, 8));
+    assert(bsa_set(free_test_1, 32, 5));
+    assert(bsa_set(free_test_1, 37, 9));
+    assert(bsa_set(free_test_1, 0, 3));
+    assert(bsa_set(free_test_1, 1, 4));
+    assert(bsa_set(free_test_1, 3, 8));
+    assert(bsa_set(free_test_1, 7, 7));
 
+    assert(bsa_free(free_test_1));
 
 
 
