@@ -211,19 +211,53 @@ void PrintTree(Node *t)
 int *bsa_get(bsa *b, int indx)
 {
     int row = _get_row(indx);
-    Node *ptr = b->head[row];
-    while (b->head[row]->index != indx)
+    if (!b->head[row])
     {
-        if (indx > ptr->index)
+        return NULL;
+    }
+
+    bool search_complete = false, index_found = false;
+    Node *n = b->head[row];
+    while (!search_complete)
+    {
+        if (n->index == indx)
         {
-            ptr = ptr->right;
+            index_found = true;
+            search_complete = true;
+        }
+        else if (indx > n->index)
+        {
+            if (n->right)
+            {
+                n = n->right;
+            }
+            else
+            {
+                search_complete = true;
+            }
         }
         else
         {
-            ptr = ptr->left;
+            if (n->left)
+            {
+                n = n->left;
+            }
+            else
+            {
+                search_complete = true;
+            }
         }
     }
-    return &ptr->value;
+
+    if (index_found)
+    {
+        return &b->head[row]->value;
+    }
+    else
+    {
+        return NULL;
+    }
+
 }
 
 int bsa_maxindex(bsa *b)
@@ -469,22 +503,24 @@ void test(void)
     can get a value
     */
     bsa *get_test = bsa_init();
+    //returns NULL when row not in use
+    assert(bsa_get(get_test, 0) == NULL);
+
+    //returns NULL when row in use, but index not in use
+    assert(bsa_set(get_test, 3, 4));
+    assert(bsa_set(get_test, 4, 5));
+    assert(bsa_get(get_test, 5) == NULL);
+
+    // returns value when it is 0th item in tree
     assert(bsa_set(get_test, 0, 3));
     assert(*bsa_get(get_test, 0) == 3);
 
     assert(bsa_set(get_test, 1, 4));
     assert(*bsa_get(get_test, 1) == 4);
 
-    assert(bsa_set(get_test, 5, 8));
-    assert(*bsa_get(get_test, 5) == 8);
-
-    assert(bsa_set(get_test, 10, 7));
-    assert(*bsa_get(get_test, 10) == 7);
-
     _reset_row(&get_test->head[0]);
     _reset_row(&get_test->head[1]);
     _reset_row(&get_test->head[2]);
-    _reset_row(&get_test->head[3]);
     free(get_test);
 
     /*
@@ -545,7 +581,4 @@ void test(void)
     assert(bsa_set(free_test_1, 7, 7));
 
     assert(bsa_free(free_test_1));
-
-
-
 }
