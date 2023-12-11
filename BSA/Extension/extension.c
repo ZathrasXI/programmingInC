@@ -29,6 +29,11 @@ bool bsa_set(bsa *b, int indx, int d)
         return false;
     }
 
+    if (indx > b->max_index)
+    {
+        b->max_index = indx;
+    }
+
     int row = _get_row(indx);
     b->head[row] = _insert(b->head[row], indx, d);
     return true;
@@ -185,6 +190,11 @@ bool bsa_delete(bsa *b, int indx)
         return false;
     }
     _rm_node(&b->head[row], indx);
+
+    if (indx == b->max_index)
+    {
+        _update_max_index(b, indx);
+    }
     return true;
 }
 
@@ -194,7 +204,6 @@ void PrintTree(Node *t)
     {
         return;
     }
-    printf("tree %d\n", t->index);
     PrintTree(t->left);
     PrintTree(t->right);
 }
@@ -215,6 +224,54 @@ int *bsa_get(bsa *b, int indx)
         }
     }
     return &ptr->value;
+}
+
+int bsa_maxindex(bsa *b)
+{
+    return b->max_index;
+}
+
+void _update_max_index(bsa *b, int indx)
+{
+    int max_row = _get_row(indx);
+    bool new_max_found = false;
+    int row = max_row;
+
+    while (!new_max_found)
+    {
+        //TODO is this a magic number?
+        if (row == 0 && !b->head[row])
+        {
+            b->max_index = NOT_SET;
+            new_max_found = true;
+        }
+        else
+        {
+            if (b->head[row])
+            {
+                Node *highest_index = b->head[row];
+                while (highest_index->right)
+                {
+                    highest_index = highest_index->right;
+                }
+                b->max_index = highest_index->index;
+                new_max_found = true;
+            }
+            else
+            {
+                row--;
+            }
+        }
+    }
+}
+
+bool bsa_free(bsa *b)
+{
+    if (!b)
+    {
+        return false;
+    }
+    return false;
 }
 
 void test(void)
@@ -412,4 +469,46 @@ void test(void)
     _reset_row(&get_test->head[2]);
     _reset_row(&get_test->head[3]);
     free(get_test);
+
+    /*
+    bsa_maxindex() returns current largest index
+    */
+    // max == -1 when set
+    bsa *index_test = bsa_init();
+    assert(index_test->max_index == NOT_SET);
+
+    //max is updated when greater index is used
+    assert(bsa_set(index_test, 0, 3));
+    assert(index_test->max_index == 0);
+
+    assert(bsa_set(index_test, 1, 4));
+    assert(index_test->max_index == 1);
+
+    assert(bsa_set(index_test, 34, 7));
+    assert(index_test->max_index == 34);
+
+    //max is updated when greater index is deleted
+    assert(bsa_delete(index_test, 34));
+    assert(index_test->max_index == 1);
+
+    assert(bsa_delete(index_test, 1));
+    assert(index_test->max_index == 0);
+
+    assert(bsa_delete(index_test, 0));
+    assert(index_test->max_index == NOT_SET);
+
+    _reset_row(&index_test->head[0]);
+    _reset_row(&index_test->head[1]);
+    _reset_row(&index_test->head[5]);
+    free(index_test);
+
+    /*
+    bsa_free() clears all space used by a bsa
+    */
+    //returns false when given a NULL pointer
+    assert(!bsa_free(NULL));
+
+
+
+
 }
