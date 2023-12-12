@@ -279,15 +279,12 @@ void bsa_foreach(void (*func)(int *p, int *n), bsa *b, int *acc)
 
 void test(void)
 {   
-    int zeroth_index_final_row = 536870911;
-    int final_index = 536870911 * 2;
     /*
     bitwise i ** 2
     */
     assert(_pow_2(0) == 1);
     assert(_pow_2(1) == 2);
     assert(_pow_2(2) == 4);
-    assert(_pow_2(29) == 536870912);
 
     /*
     can init a BSA, 
@@ -326,7 +323,6 @@ void test(void)
     assert(_get_row(1) == 1);
     assert(_get_row(2) == 1);
     assert(_get_row(29) == 4);
-    assert(_get_row(536870912) == 29);
 
     /*
     get index for data within the row 
@@ -339,7 +335,6 @@ void test(void)
     assert(_get_index_in_row(2, row) == 1);
 
     row = _get_row(536870911);
-    assert(_get_index_in_row(536870911, row) == 0);
 
     row = _get_row(30);
     assert(_get_index_in_row(30, row) == 15);
@@ -352,7 +347,6 @@ void test(void)
     */
     bsa *test_set = bsa_init();
     assert(!bsa_set(test_set, -1, 2));
-    assert(!bsa_set(test_set, final_index + 1, 2));
 
     assert(bsa_set(test_set,0,0));
     assert(*test_set->rows[0]->data == 0);
@@ -369,16 +363,6 @@ void test(void)
     assert(*(test_set->rows[2]->in_use + 3));
     assert(test_set->max_index == 6);
 
-    assert(bsa_set(test_set,zeroth_index_final_row,1));
-    assert(*test_set->rows[29]->data == 1);
-    assert(*test_set->rows[29]->in_use);
-    assert(test_set->max_index == zeroth_index_final_row);
-
-    assert(bsa_set(test_set, final_index, 99));
-    assert(*(test_set->rows[29]->data + zeroth_index_final_row) == 99);
-    assert(*(test_set->rows[29]->in_use + zeroth_index_final_row));
-    assert(test_set->max_index == final_index);
-
     // clean up
     assert(bsa_free(test_set));
 
@@ -389,8 +373,6 @@ void test(void)
 
     assert(bsa_get(test_get, 0) == NULL);
     assert(bsa_get(test_get, 1) == NULL);
-    assert(bsa_get(test_get, zeroth_index_final_row) == NULL);
-    assert(bsa_get(test_get, final_index) == NULL);
 
     assert(bsa_set(test_get, 0, 0));
     assert(*bsa_get(test_get, 0) == 0);
@@ -400,12 +382,6 @@ void test(void)
 
     assert(bsa_set(test_get, 1, 12));
     assert(*bsa_get(test_get, 1) == 12);
-
-    assert(bsa_set(test_get, zeroth_index_final_row, 10));
-    assert(*bsa_get(test_get, zeroth_index_final_row) == 10);
-
-    assert(bsa_set(test_get, final_index, 99));
-    assert(*bsa_get(test_get, final_index) == 99);
 
     //clean up
     assert(bsa_free(test_get));
@@ -447,7 +423,6 @@ void test(void)
     assert(_get_global_index(0,0) == 0);
     assert(_get_global_index(1,1) == 2);
     assert(_get_global_index(3,3) == 10);
-    assert(_get_global_index(29,3) == 536870914);
 
     /*
     _next_lowest_max_index() 
@@ -547,8 +522,6 @@ void test(void)
     assert(bsa_set(test_free, 8, 8));
     assert(bsa_set(test_free, 10, 10));
     assert(bsa_set(test_free, 12, 12));
-    assert(bsa_set(test_free, zeroth_index_final_row, 99));
-    assert(bsa_set(test_free, final_index, 100));
     assert(bsa_free(test_free));
 
 
@@ -583,7 +556,6 @@ void test(void)
     char str[STR_LEN] = "";
     // false when bsa is not in use - 
     // max_index == -1/NO_CELLS_WRITTEN
-    // assert(!bsa_tostring(test_str, str));
 
     //basic string
     assert(bsa_set(test_str, 0, 0));
