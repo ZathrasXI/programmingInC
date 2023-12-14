@@ -6,6 +6,7 @@
 
 int main(int argc, char **argv)
 {
+    test();
     if (argc == ONE_ARG)
     {
         return 1;
@@ -26,4 +27,16 @@ int main(int argc, char **argv)
 
 // check grammar is correct
 // The Formal Grammar is made up of lots of small parts
-//
+// the smallest units of the grammar are <NUM> <LTR> <OP> - they aren't made of other grammars
+void test(void)
+{
+    assert(!is_number("a"));
+    assert(is_number("0"));
+}
+
+bool is_number(char s[TOKEN_LEN])
+{
+    
+
+    return false;
+}
