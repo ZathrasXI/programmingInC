@@ -3,18 +3,19 @@
 #include <string.h>
 #include <assert.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define TOKEN_LEN 30
-#define MAX_TOKENS 100
+#define MAX_TOKENS 200
 #define ONE_ARG 1
 #define FILE_NAME_LEN 20
 
 
-typedef struct file
+typedef struct instructions
 {
-    char **words[TOKEN_LEN][MAX_TOKENS];
+    char words[MAX_TOKENS][TOKEN_LEN];
 
-} File;
+} Instructions;
 
 void test(void);
-bool is_number(char s[TOKEN_LEN]);
+bool is_number(char *s);

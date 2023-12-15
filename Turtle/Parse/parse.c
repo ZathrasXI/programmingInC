@@ -14,13 +14,30 @@ int main(int argc, char **argv)
 
     char instruction_file_name[FILE_NAME_LEN];
     strcpy(instruction_file_name, argv[1]);
+
     
-    FILE * turtle_file = fopen(instruction_file_name, "r");
+    FILE *turtle_file = fopen(instruction_file_name, "r");
     if (!turtle_file)
     {
         fprintf(stderr, "error opening file\n");
         exit(EXIT_FAILURE);
     }
+
+    Instructions *turtle = calloc(1, sizeof(Instructions));
+    if (turtle == NULL)
+    {
+        fprintf(stderr, "error allocating memory\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int token = 0;
+    while (fscanf(turtle_file, "%s", turtle->words[token]) == 1)
+    {
+        printf("%s\n", turtle->words[token]);
+        token++;
+    }
+    fclose(turtle_file);
+    free(turtle);
     return 0;
 }
 
@@ -30,13 +47,6 @@ int main(int argc, char **argv)
 // the smallest units of the grammar are <NUM> <LTR> <OP> - they aren't made of other grammars
 void test(void)
 {
-    assert(!is_number("a"));
-    assert(is_number("0"));
+
 }
 
-bool is_number(char s[TOKEN_LEN])
-{
-    
-
-    return false;
-}
