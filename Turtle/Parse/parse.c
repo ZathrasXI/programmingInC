@@ -84,12 +84,38 @@ void free_tokens(Token* head)
     }
 }
 
+bool is_number(Token *t)
+{
+    regex_t regex;
+    char *pattern = "^[+-]?([0-9]+(\\.?[0-9]*))$";
+
+    if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
+    {
+        fprintf(stderr, "failed to compile regex pattern\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (regexec(&regex, t->t, 0, NULL, 0) == 0)
+    {   
+        regfree(&regex);
+        return true;
+    }
+    else
+    {
+        regfree(&regex);
+        return false;
+    }
+}
+
 
 // check grammar is correct
 // The Formal Grammar is made up of lots of small parts
 // the smallest units of the grammar are <NUM> <LTR> <OP> - they aren't made of other grammars
 void test(void)
 {
+    /*
+    can store a token in a node
+    */
     Token *n = new_token("abc", 3);
     assert(n->length == 3);
     assert(strcmp(n->t, "abc") == 0);
@@ -100,5 +126,36 @@ void test(void)
     assert(strcmp(n->next->t, "defg") == 0);
     assert(n->next->next == NULL);
     free_tokens(n);
+
+    /*
+    is_number() identifies decimal and float
+    */
+    Token *number_test = new_token("123", 3);
+    assert(is_number(number_test));
+    free_tokens(number_test);
+
+    Token *number_test_1 = new_token("-123.1", 6);
+    assert(is_number(number_test_1));
+    free_tokens(number_test_1);
+
+    Token *number_test_2 = new_token("abc", 3);
+    assert(!is_number(number_test_2));
+    free_tokens(number_test_2);
+
+    Token *number_test_3 = new_token("abc.abc", 7);
+    assert(!is_number(number_test_3));
+    free_tokens(number_test_3);
+
+    Token *number_test_4 = new_token("1.abc", 5);
+    assert(!is_number(number_test_4));
+    free_tokens(number_test_4);
+
+    Token *number_test_5 = new_token("-abc", 6);
+    assert(!is_number(number_test_5));
+    free_tokens(number_test_5);
+
+    Token *number_test_6 = new_token("-abc", 6);
+    assert(!is_number(number_test_6));
+    free_tokens(number_test_6);
 }
 

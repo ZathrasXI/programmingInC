@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <regex.h>
 
 #define TOKEN_LEN 30
 #define ONE_ARG 1
@@ -28,4 +29,4 @@ typedef struct instructions
 void test(void);
 Token *new_token(char *c, int len);
 void free_tokens(Token* head);
-bool is_number(char *s);
+bool is_number(Token *t);
