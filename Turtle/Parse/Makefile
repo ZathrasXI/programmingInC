@@ -6,7 +6,7 @@ VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 
 parse: parse.h parse.c
-	$(CC) parse.c $(SANITIZE) -o parser
+	$(CC) parse.c $(COMMON) -o parser
 
 clean:
 	rm parser

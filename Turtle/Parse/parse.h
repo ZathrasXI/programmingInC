@@ -10,6 +10,8 @@
 #define ONE_ARG 1
 #define FILE_NAME_LEN 200
 #define INIT_SIZE 1
+#define STR_ONLY_QUOTES 2
+#define SPACE_ASCII 32
 
 
 typedef struct token
@@ -36,3 +38,4 @@ bool is_var(char *c);
 bool is_varnum(char *c);
 bool is_forward(char *c);
 bool is_rgt(char *c);
+bool is_word(char *c);

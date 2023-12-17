@@ -199,6 +199,29 @@ bool is_rgt(char *c)
     return false;
 }
 
+bool is_word(char *c)
+{   
+    int len = strlen(c);
+    for (int i = 0; i < len; i++)
+    {
+        if (c[i] == SPACE_ASCII)
+        {
+            return false;
+        }
+    }
+
+    char tmp[TOKEN_LEN];
+    int final_char = len - 1;
+    if (c[0] == '\"' &&
+        c[final_char] == '\"' &&
+        len > STR_ONLY_QUOTES &&
+        sscanf(c, "%s", tmp) == 1)
+    {
+        return true;
+    }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -289,5 +312,16 @@ void test(void)
     assert(!is_rgt(" RIGHT$$"));
     assert(!is_rgt("RGT $A"));
     
+    /*
+    is_word() a string as defined by scanf("%s"), must be encapsulated by ""
+    */
+    assert(is_word("\"potatoes\""));
+    assert(is_word("\"178\""));
+    assert(is_word("\"RED\""));
+    assert(!is_word("\"HELLO WORLD!\""));
+    assert(!is_word("178"));
+    assert(!is_word("\"\""));
+    assert(!is_word("potatoes"));
+
 }
 
