@@ -6,16 +6,26 @@
 #include <ctype.h>
 
 #define TOKEN_LEN 30
-#define MAX_TOKENS 200
 #define ONE_ARG 1
-#define FILE_NAME_LEN 20
+#define FILE_NAME_LEN 200
+#define INIT_SIZE 1
+
+
+typedef struct token
+{
+    char *t;
+    struct token *next;
+    int length;
+} Token;
 
 
 typedef struct instructions
 {
-    char words[MAX_TOKENS][TOKEN_LEN];
+    Token *head;
 
 } Instructions;
 
 void test(void);
+Token *new_token(char *c, int len);
+void free_tokens(Token* head);
 bool is_number(char *s);
