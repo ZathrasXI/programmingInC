@@ -130,6 +130,29 @@ bool is_letter(char *c)
     }
 }
 
+bool is_op(char *c)
+{
+    regex_t regex;
+    char *pattern = "^(-|\\+|\\/|\\*){1}$";
+
+    if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
+    {
+        fprintf(stderr, "failed to compile regex pattern\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (regexec(&regex, c, 0, NULL, 0) == 0)
+    {   
+        regfree(&regex);
+        return true;
+    }
+    else
+    {
+        regfree(&regex);
+        return false;
+    }   
+}
+
 
 // check grammar is correct
 // The Formal Grammar is made up of lots of small parts
@@ -172,5 +195,17 @@ void test(void)
     assert(!is_letter("1.A"));
     assert(!is_letter("-A"));
 
+    /*
+    is_op() idenitifies a string of one of the following: 
+    + - / *
+    */
+    assert(is_op("+"));
+    assert(is_op("-"));
+    assert(is_op("/"));
+    assert(is_op("*"));
+    assert(!is_op("++"));
+    assert(!is_op("abc-"));
+    assert(!is_op("1/"));
+    assert(!is_op("*2"));
 }
 
