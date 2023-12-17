@@ -35,3 +35,4 @@ bool is_op(char *c);
 bool is_var(char *c);
 bool is_varnum(char *c);
 bool is_forward(char *c);
+bool is_rgt(char *c);

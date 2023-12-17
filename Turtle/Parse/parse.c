@@ -185,6 +185,20 @@ bool is_forward(char *c)
     return false;
 }
 
+bool is_rgt(char *c)
+{
+    char *rgt = "RIGHT";
+    int len = strlen(rgt);
+    int len_inc_space = len + 1;
+    if (strncmp(rgt, c, len) == 0
+        && is_varnum(c + len_inc_space)
+    )
+    {
+        return true;
+    }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -256,7 +270,7 @@ void test(void)
     assert(!is_varnum("asdf$1fsafasdf"));
 
     /*
-    is_forward() <FWD> ::= <VARNUM>
+    is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
     assert(is_forward("FORWARD 1"));
     assert(is_forward("FORWARD $A"));
@@ -265,5 +279,15 @@ void test(void)
     assert(!is_forward(" FORWARD$$"));
     assert(!is_forward("FORWRD $A"));
 
+    /*
+    is_rgt() <RGT> ::= "RIGHT" <VARNUM>
+    */
+    assert(is_rgt("RIGHT 1"));
+    assert(is_rgt("RIGHT $A"));
+    assert(!is_rgt("RIGHT $1"));
+    assert(!is_rgt("RIGHT$$"));
+    assert(!is_rgt(" RIGHT$$"));
+    assert(!is_rgt("RGT $A"));
+    
 }
 
