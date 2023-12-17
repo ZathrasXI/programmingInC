@@ -84,7 +84,7 @@ void free_tokens(Token* head)
     }
 }
 
-bool is_number(Token *t)
+bool is_number(char *c)
 {
     regex_t regex;
     char *pattern = "^[+-]?([0-9]+(\\.?[0-9]*))$";
@@ -95,7 +95,7 @@ bool is_number(Token *t)
         exit(EXIT_FAILURE);
     }
 
-    if (regexec(&regex, t->t, 0, NULL, 0) == 0)
+    if (regexec(&regex, c, 0, NULL, 0) == 0)
     {   
         regfree(&regex);
         return true;
@@ -106,6 +106,7 @@ bool is_number(Token *t)
         return false;
     }
 }
+
 
 
 // check grammar is correct
@@ -130,32 +131,11 @@ void test(void)
     /*
     is_number() identifies decimal and float
     */
-    Token *number_test = new_token("123", 3);
-    assert(is_number(number_test));
-    free_tokens(number_test);
-
-    Token *number_test_1 = new_token("-123.1", 6);
-    assert(is_number(number_test_1));
-    free_tokens(number_test_1);
-
-    Token *number_test_2 = new_token("abc", 3);
-    assert(!is_number(number_test_2));
-    free_tokens(number_test_2);
-
-    Token *number_test_3 = new_token("abc.abc", 7);
-    assert(!is_number(number_test_3));
-    free_tokens(number_test_3);
-
-    Token *number_test_4 = new_token("1.abc", 5);
-    assert(!is_number(number_test_4));
-    free_tokens(number_test_4);
-
-    Token *number_test_5 = new_token("-abc", 6);
-    assert(!is_number(number_test_5));
-    free_tokens(number_test_5);
-
-    Token *number_test_6 = new_token("-abc", 6);
-    assert(!is_number(number_test_6));
-    free_tokens(number_test_6);
+    assert(is_number("123"));
+    assert(is_number("-123.1"));
+    assert(!is_number("abc"));
+    assert(!is_number("abc.abc"));
+    assert(!is_number("1.abc"));
+    assert(!is_number("-abc"));
 }
 

@@ -29,4 +29,4 @@ typedef struct instructions
 void test(void);
 Token *new_token(char *c, int len);
 void free_tokens(Token* head);
-bool is_number(Token *t);
+bool is_number(char *c);
