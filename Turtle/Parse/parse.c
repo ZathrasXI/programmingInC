@@ -153,10 +153,15 @@ bool is_op(char *c)
     }   
 }
 
+bool is_var(char *c)
+{
+    if (c[0] == '$' && is_letter(c+1))
+    {
+        return true;
+    }
+    return false;
+}
 
-// check grammar is correct
-// The Formal Grammar is made up of lots of small parts
-// the smallest units of the grammar are <NUM> <LTR> <OP> - they aren't made of other grammars
 void test(void)
 {
     /*
@@ -177,6 +182,7 @@ void test(void)
     is_number() identifies decimal and float
     */
     assert(is_number("123"));
+    assert(is_number("-17.99"));
     assert(is_number("-123.1"));
     assert(!is_number("abc"));
     assert(!is_number("abc.abc"));
@@ -196,8 +202,7 @@ void test(void)
     assert(!is_letter("-A"));
 
     /*
-    is_op() idenitifies a string of one of the following: 
-    + - / *
+    is_op() <OP>::= + - / *
     */
     assert(is_op("+"));
     assert(is_op("-"));
@@ -207,5 +212,20 @@ void test(void)
     assert(!is_op("abc-"));
     assert(!is_op("1/"));
     assert(!is_op("*2"));
+
+    /*
+    is_var() <VAR>::= $<LTR>
+    */
+    assert(is_var("$A"));
+    assert(is_var("$Z"));
+    assert(!is_var("$a"));
+    assert(!is_var("A$"));
+    assert(!is_var("$1"));
+    assert(!is_var("$$"));
+    assert(!is_var("A"));
+
+
+ 
+
 }
 

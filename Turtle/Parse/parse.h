@@ -32,3 +32,4 @@ void free_tokens(Token* head);
 bool is_number(char *c);
 bool is_letter(char *c);
 bool is_op(char *c);
+bool is_var(char *c);
