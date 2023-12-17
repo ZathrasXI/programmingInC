@@ -171,6 +171,20 @@ bool is_varnum(char *c)
     return false;
 }
 
+bool is_forward(char *c)
+{
+    char *fwd = "FORWARD";
+    int len = strlen(fwd);
+    int len_inc_space = len + 1;
+    if (strncmp(fwd, c, len) == 0
+        && is_varnum(c + len_inc_space)
+    )
+    {
+        return true;
+    }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -240,6 +254,16 @@ void test(void)
     assert(is_varnum("1"));
     assert(!is_varnum("$1"));
     assert(!is_varnum("asdf$1fsafasdf"));
+
+    /*
+    is_forward() <FWD> ::= <VARNUM>
+    */
+    assert(is_forward("FORWARD 1"));
+    assert(is_forward("FORWARD $A"));
+    assert(!is_forward("FORWARD $1"));
+    assert(!is_forward("FORWARD$$"));
+    assert(!is_forward(" FORWARD$$"));
+    assert(!is_forward("FORWRD $A"));
 
 }
 
