@@ -107,6 +107,28 @@ bool is_number(char *c)
     }
 }
 
+bool is_letter(char *c)
+{
+    regex_t regex;
+    char *pattern = "^([A-Z])$";
+
+    if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
+    {
+        fprintf(stderr, "failed to compile regex pattern\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (regexec(&regex, c, 0, NULL, 0) == 0)
+    {   
+        regfree(&regex);
+        return true;
+    }
+    else
+    {
+        regfree(&regex);
+        return false;
+    }
+}
 
 
 // check grammar is correct
@@ -137,5 +159,18 @@ void test(void)
     assert(!is_number("abc.abc"));
     assert(!is_number("1.abc"));
     assert(!is_number("-abc"));
+
+    /*
+    is_letter() identifies single upper case letter
+    */
+    assert(is_letter("A"));
+    assert(is_letter("Z"));
+    assert(!is_letter("a"));
+    assert(!is_letter("z"));
+    assert(!is_letter("123"));
+    assert(!is_letter("A.1"));
+    assert(!is_letter("1.A"));
+    assert(!is_letter("-A"));
+
 }
 
