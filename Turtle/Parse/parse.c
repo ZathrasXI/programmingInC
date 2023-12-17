@@ -162,6 +162,15 @@ bool is_var(char *c)
     return false;
 }
 
+bool is_varnum(char *c)
+{
+    if (is_var(c) || is_number(c))
+    {
+        return true;
+    }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -224,8 +233,13 @@ void test(void)
     assert(!is_var("$$"));
     assert(!is_var("A"));
 
-
- 
+    /*
+    is_varnum() <VARNUM> ::= <VAR> | <NUM>
+    */
+    assert(is_varnum("$A"));
+    assert(is_varnum("1"));
+    assert(!is_varnum("$1"));
+    assert(!is_varnum("asdf$1fsafasdf"));
 
 }
 
