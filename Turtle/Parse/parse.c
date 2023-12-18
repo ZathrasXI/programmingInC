@@ -54,7 +54,6 @@ int main(int argc, char **argv)
 
 Token *new_token(char *c, int len)
 {
-    //TODO investigate is `len` needed?if not why not?
     Token *new = (Token *) calloc(INIT_SIZE, sizeof(Token));
     if (!new)
     {
@@ -250,7 +249,10 @@ bool is_items(Token *t)
 
 bool is_lst(Token *t)
 {
-    if (strcmp(t->str, "{") == 0)
+    if (t->next &&
+        strcmp(t->str, "{") == 0 &&
+        is_items(t->next)
+    )
     {
         return true;
     }
@@ -411,12 +413,51 @@ void test(void)
     /*
     is_lst() <LST> ::= "{" <ITEMS>
     */
+    // false - token with no nodes proceeding
     Token *lst_test = new_token("{", 1);
-    assert(is_lst(lst_test));
+    assert(!is_lst(lst_test));
     free_tokens(lst_test);
 
-    // first item must be a "{" followed by items
+    // false when no closing "}"
+    Token *lst_test1 = new_token("{", 1);
+    Token *lst_test2 = new_token("$A", 2);
+    Token *lst_test3= new_token("\"WORD\"", 6);
+    Token *lst_test4 = new_token("$B", 2);
+    Token *lst_test5 = new_token("\"178\"", 5);
+    Token *lst_test6 = new_token("$C", 2);
+    Token *lst_test7 = new_token("\"ONE\"", 5);
+    lst_test1->next = lst_test2;
+    lst_test2->next = lst_test3;
+    lst_test3->next = lst_test4;
+    lst_test4->next = lst_test5;
+    lst_test5->next = lst_test6;
+    lst_test6->next = lst_test7;
+    assert(!is_lst(lst_test1));
+    free_tokens(lst_test1);
 
+    // "{" followed by "}" is allowed
+    Token *lst_test8 = new_token("{", 1);
+    Token *lst_test9 = new_token("}", 1);
+    lst_test8->next = lst_test9;
+    assert(is_lst(lst_test8));
+    free_tokens(lst_test8);
+
+    // large list, encapsulated with "{" and "}"
+    Token *lst_test10 = new_token("{", 1);
+    Token *lst_test11 = new_token("$A", 2);
+    Token *lst_test12 = new_token("\"WORD\"", 6);
+    Token *lst_test13 = new_token("$B", 2);
+    Token *lst_test14 = new_token("\"178\"", 5);
+    Token *lst_test15 = new_token("$C", 2);
+    Token *lst_test16 = new_token("}", 1);
+    lst_test10->next = lst_test11;
+    lst_test11->next = lst_test12;
+    lst_test12->next = lst_test13;
+    lst_test13->next = lst_test14;
+    lst_test14->next = lst_test15;
+    lst_test15->next = lst_test16;
+    assert(is_lst(lst_test10));
+    free_tokens(lst_test10);
 
 }
 
