@@ -232,18 +232,27 @@ bool is_item(char *c)
     return false;
 }
 
-bool is_items(Token *token)
+bool is_items(Token *t)
 {
-    if (strcmp(token->str, "}") == 0)
+    if (strcmp(t->str, "}") == 0)
     {
         return true;
     }
-    else if (token->next)
+    else if (t->next)
     {
-        if (is_item(token->str) && is_items(token->next))
+        if (is_item(t->str) && is_items(t->next))
         {
             return true;
         }
+    }
+    return false;
+}
+
+bool is_lst(Token *t)
+{
+    if (strcmp(t->str, "{") == 0)
+    {
+        return true;
     }
     return false;
 }
@@ -364,10 +373,12 @@ void test(void)
     */
     Token *items_test = new_token("}", 1);
     assert(is_items(items_test));
+    free_tokens(items_test);
 
     //false when next item == NULL
     Token *items_test1 = new_token("$A", 2);
     assert(!is_items(items_test1));
+    free_tokens(items_test1);
 
     // false next item is not an item or "}"
     Token *items_test2 = new_token("$A", 2);
@@ -378,6 +389,7 @@ void test(void)
     items_test3->next = items_test4;
     items_test4->next = items_test5;
     assert(!is_items(items_test2));
+    free_tokens(items_test2);
 
     // true when "}" can be found
     Token *items_test6 = new_token("$A", 2);
@@ -385,7 +397,7 @@ void test(void)
     items_test6->next = items_test7;
     Token *items_test8 = new_token("$C", 2);
     items_test7->next = items_test8;
-    Token *items_test9 = new_token("\"$D\"", 2);
+    Token *items_test9 = new_token("\"$D\"", 4);
     items_test8->next = items_test9;
     Token *items_test10 = new_token("$E", 2);
     items_test9->next = items_test10;
@@ -394,6 +406,17 @@ void test(void)
     Token *items_test12 = new_token("}", 1);
     items_test11->next = items_test12;
     assert(is_items(items_test6));
+    free_tokens(items_test6);
+
+    /*
+    is_lst() <LST> ::= "{" <ITEMS>
+    */
+    Token *lst_test = new_token("{", 1);
+    assert(is_lst(lst_test));
+    free_tokens(lst_test);
+
+    // first item must be a "{" followed by items
+
 
 }
 
