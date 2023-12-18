@@ -42,3 +42,4 @@ bool is_word(char *c);
 bool is_items(Token *t);
 bool is_lst(Token *t);
 bool is_col(char *c);
+bool is_pfix(Token *t);

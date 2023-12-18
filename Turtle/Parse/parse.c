@@ -277,6 +277,22 @@ bool is_col(char *c)
     return false;
 }
 
+bool is_pfix(Token *t)
+{
+    if (strcmp(")", t->str) == 0 ||
+            (t->next &&
+                (
+                    (is_op(t->str) && is_pfix(t->next)) ||
+                    (is_varnum(t->str) && is_pfix(t->next))
+                )
+            )
+        )
+    {
+        return true;
+    }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -486,5 +502,39 @@ void test(void)
     assert(!is_col("COLOUR "));
     assert(!is_col("COLOUR$A"));
 
+    /*
+    is_pfix() <PFIX> ::= ")" | <OP> <PFIX> | <VARNUM> <PFIX>
+    */
+   // true when given ")"
+    Token *pfix_test = new_token(")", 1);
+    assert(is_pfix(pfix_test));
+    free_tokens(pfix_test);
+
+    // true when <OP> ")"
+    Token *pfix_test1 = new_token("+", 1);
+    Token *pfix_test2 = new_token(")", 1);
+    pfix_test1->next=pfix_test2;
+    assert(is_pfix(pfix_test1));
+    free_tokens(pfix_test1);
+
+    // true when <VARNUM> and <OP> in list")"
+    Token *pfix_test3 = new_token("$A", 2);
+    Token *pfix_test4 = new_token("10", 2);
+    Token *pfix_test5 = new_token("+", 2);
+    Token *pfix_test6 = new_token(")", 2);
+    pfix_test3->next = pfix_test4;
+    pfix_test4->next = pfix_test5;
+    pfix_test5->next = pfix_test6;
+    assert(is_pfix(pfix_test3));
+    free_tokens(pfix_test3);
+
+    // false when no ")" at end
+    Token *pfix_test7 = new_token("$A", 2);
+    Token *pfix_test8 = new_token("10", 2);
+    Token *pfix_test9 = new_token("+", 1);
+    pfix_test7->next = pfix_test8;
+    pfix_test8->next = pfix_test9;
+    assert(!is_pfix(pfix_test7));
+    free_tokens(pfix_test7);
 }
 
