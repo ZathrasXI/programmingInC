@@ -222,6 +222,15 @@ bool is_word(char *c)
     return false;
 }
 
+bool is_item(char *c)
+{
+    if (is_varnum(c) | is_word(c))
+    {
+        return true;
+    }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -317,11 +326,21 @@ void test(void)
     */
     assert(is_word("\"potatoes\""));
     assert(is_word("\"178\""));
-    assert(is_word("\"RED\""));
-    assert(!is_word("\"HELLO WORLD!\""));
+    assert(is_word("\"RED!\""));
+    assert(!is_word("\"BIRD IS THE ____\""));
     assert(!is_word("178"));
     assert(!is_word("\"\""));
     assert(!is_word("potatoes"));
+
+    /*
+    is_item() <ITEM> ::= <VARNUM> | <WORD>
+    */
+    assert(is_item("$A"));
+    assert(is_item("\"a\""));
+    assert(is_item("99"));
+    assert(!is_item("$1"));
+    assert(!is_item("a"));
+    assert(!is_item("9A"));
 
 }
 
