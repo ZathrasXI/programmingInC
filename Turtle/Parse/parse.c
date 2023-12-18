@@ -259,6 +259,24 @@ bool is_lst(Token *t)
     return false;
 }
 
+bool is_col(char *c)
+{
+    char *col = "COLOUR";
+    int len = strlen(col);
+    int i_next_str = len + 1;
+    if (strncmp(col, c, len) == 0 &&
+        (
+            is_var(c + i_next_str) ||
+            is_word(c + i_next_str)
+        )
+    )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -458,6 +476,15 @@ void test(void)
     lst_test15->next = lst_test16;
     assert(is_lst(lst_test10));
     free_tokens(lst_test10);
+
+    /*
+    is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
+    */
+    assert(is_col("COLOUR $A"));
+    assert(is_col("COLOUR \"WOOORD\""));
+    assert(!is_col("COLOUR WOOORD"));
+    assert(!is_col("COLOUR "));
+    assert(!is_col("COLOUR$A"));
 
 }
 
