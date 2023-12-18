@@ -54,19 +54,20 @@ int main(int argc, char **argv)
 
 Token *new_token(char *c, int len)
 {
+    //TODO investigate is `len` needed?if not why not?
     Token *new = (Token *) calloc(INIT_SIZE, sizeof(Token));
     if (!new)
     {
         fprintf(stderr, "error allocating memory\n");
         exit(EXIT_FAILURE);
     }
-    new->t = (char *) calloc(len + 1, sizeof(char));
-    if (!new->t)
+    new->str = (char *) calloc(len + 1, sizeof(char));
+    if (!new->str)
     {
         fprintf(stderr, "error allocating memory\n");
         exit(EXIT_FAILURE);
     }
-    strcpy(new->t, c);
+    strcpy(new->str, c);
     new->next = NULL;
     new->length = len;
     return new;
@@ -79,7 +80,7 @@ void free_tokens(Token* head)
     {
         tmp = head;
         head = head->next;
-        free(tmp->t);
+        free(tmp->str);
         free(tmp);
     }
 }
@@ -224,9 +225,25 @@ bool is_word(char *c)
 
 bool is_item(char *c)
 {
-    if (is_varnum(c) | is_word(c))
+    if (is_varnum(c) || is_word(c))
     {
         return true;
+    }
+    return false;
+}
+
+bool is_items(Token *token)
+{
+    if (strcmp(token->str, "}") == 0)
+    {
+        return true;
+    }
+    else if (token->next)
+    {
+        if (is_item(token->str) && is_items(token->next))
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -238,12 +255,12 @@ void test(void)
     */
     Token *n = new_token("abc", 3);
     assert(n->length == 3);
-    assert(strcmp(n->t, "abc") == 0);
+    assert(strcmp(n->str, "abc") == 0);
     assert(n->next == NULL);
 
     n->next = new_token("defg", 4);
     assert(n->next->length == 4);
-    assert(strcmp(n->next->t, "defg") == 0);
+    assert(strcmp(n->next->str, "defg") == 0);
     assert(n->next->next == NULL);
     free_tokens(n);
 
@@ -341,6 +358,42 @@ void test(void)
     assert(!is_item("$1"));
     assert(!is_item("a"));
     assert(!is_item("9A"));
+
+    /*
+    is_items() <ITEMS> ::= '}' | <ITEM> <ITEMS>
+    */
+    Token *items_test = new_token("}", 1);
+    assert(is_items(items_test));
+
+    //false when next item == NULL
+    Token *items_test1 = new_token("$A", 2);
+    assert(!is_items(items_test1));
+
+    // false next item is not an item or "}"
+    Token *items_test2 = new_token("$A", 2);
+    Token *items_test3 = new_token("$A", 2);
+    Token *items_test4 = new_token("$A", 2);
+    Token *items_test5 = new_token("!", 1);
+    items_test2->next = items_test3;
+    items_test3->next = items_test4;
+    items_test4->next = items_test5;
+    assert(!is_items(items_test2));
+
+    // true when "}" can be found
+    Token *items_test6 = new_token("$A", 2);
+    Token *items_test7 = new_token("\"MAGENTA\"", 9);
+    items_test6->next = items_test7;
+    Token *items_test8 = new_token("$C", 2);
+    items_test7->next = items_test8;
+    Token *items_test9 = new_token("\"$D\"", 2);
+    items_test8->next = items_test9;
+    Token *items_test10 = new_token("$E", 2);
+    items_test9->next = items_test10;
+    Token *items_test11 = new_token("\"ONE\"", 5);
+    items_test10->next = items_test11;
+    Token *items_test12 = new_token("}", 1);
+    items_test11->next = items_test12;
+    assert(is_items(items_test6));
 
 }
 
