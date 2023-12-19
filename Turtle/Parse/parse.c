@@ -293,6 +293,24 @@ bool is_pfix(Token *t)
     return false;
 }
 
+bool is_set(Token *t)
+{
+    if (!t->next)
+    {
+        return false;
+    }
+    if (
+        strcmp(t->str, "SET") == 0 &&
+        is_letter(t->next->str) &&
+        strcmp(t->next->next->str, "(") == 0 &&
+        is_pfix(t->next->next->next)
+        )
+        {
+            return true;
+        }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -536,5 +554,45 @@ void test(void)
     pfix_test8->next = pfix_test9;
     assert(!is_pfix(pfix_test7));
     free_tokens(pfix_test7);
+
+    /*
+    is_set() <SET> ::= "SET" <LTR> "(" <PFIX>
+    */
+    Token *set_test = new_token("SET", 3);
+    Token *set_test1 = new_token("A", 1);
+    Token *set_test2 = new_token("(", 1);
+    Token *set_test3 = new_token("4", 1);
+    Token *set_test4 = new_token(")", 1);
+    set_test->next = set_test1;
+    set_test1->next = set_test2;
+    set_test2->next = set_test3;
+    set_test3->next = set_test4;
+    assert(is_set(set_test));
+    free_tokens(set_test);
+
+    Token *set_test5 = new_token("DESET", 5);
+    Token *set_test6 = new_token("A", 1);
+    Token *set_test7 = new_token("(", 1);
+    Token *set_test8 = new_token("4", 1);
+    Token *set_test9 = new_token(")", 1);
+    set_test5->next = set_test6;
+    set_test6->next = set_test7;
+    set_test7->next = set_test8;
+    set_test8->next = set_test9;
+    assert(!is_set(set_test5));
+    free_tokens(set_test5);
+
+    Token *set_test10 = new_token("SET", 3);
+    Token *set_test11 = new_token("A", 1);
+    Token *set_test12 = new_token("(", 1);
+    Token *set_test13 = new_token("4", 1);
+    Token *set_test14 = new_token("!", 1);
+    set_test10->next = set_test11;
+    set_test11->next = set_test12;
+    set_test12->next = set_test13;
+    set_test13->next = set_test14;
+    assert(!is_set(set_test10));
+    free_tokens(set_test10);
+
 }
 
