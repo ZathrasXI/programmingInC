@@ -47,3 +47,4 @@ bool is_pfix(Token *t);
 bool is_set(Token *t);
 bool is_loop(Token *t);
 bool is_ins(Token *t);
+bool is_inslst(Token *t);

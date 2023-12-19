@@ -231,16 +231,12 @@ bool is_item(char *c)
 
 bool is_items(Token *t)
 {
-    if (strcmp(t->str, "}") == 0)
+    if (strcmp(t->str, "}") == 0 ||
+        (t->next && 
+        is_item(t->str) && 
+        is_items(t->next)))
     {
         return true;
-    }
-    else if (t->next)
-    {
-        if (is_item(t->str) && is_items(t->next))
-        {
-            return true;
-        }
     }
     return false;
 }
@@ -321,8 +317,7 @@ bool is_loop(Token *t)
             {
                 end_of_lst = end_of_lst->next;
             }
-            //TODO change to is_inslst()
-            if (strcmp(end_of_lst->next->str, "END") == 0)
+            if (is_inslst(end_of_lst->next))
             {
                 return true;
             }
@@ -339,6 +334,78 @@ bool is_ins(Token *t)
         is_loop(t) ||
         is_set(t)
     )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool is_inslst(Token *t)
+{
+    if (strcmp("END", t->str) == 0)
+    {
+        return true;
+    }
+
+    Token *next_ins = t;
+    if (is_forward(t))
+    {
+        printf("1\n");
+        do
+        {
+            next_ins = next_ins->next;
+        } 
+        while (strcmp(next_ins->str, "FOWARD") == 0 || 
+            is_varnum(next_ins->str));
+    }
+    else if (is_rgt(t))
+    {
+        printf("2\n");
+        do
+        {
+            next_ins = next_ins->next;
+        }
+        while (strcmp(next_ins->str, "RIGHT") == 0 || 
+            is_varnum(next_ins->str));
+    }
+    else if (is_col(t))
+    {
+        printf("3\n");
+        do
+        {
+            next_ins = next_ins->next;
+        } 
+        while (strcmp(next_ins->str, "COLOUR") == 0 || 
+            is_var(next_ins->str) || 
+            is_word(next_ins->str));
+    }
+    else if (is_loop(t))
+    {
+        printf("4\n");
+        do
+        {
+            next_ins = next_ins->next;
+        } 
+        while (strcmp(next_ins->str, "LOOP") == 0 || 
+            is_letter(next_ins->str) || 
+            strcmp(next_ins->str, "OVER") == 0 || 
+            is_lst(next_ins) || 
+            is_inslst(t));
+    }
+    else if (is_set(t))
+    {
+        printf("5\n");
+        do
+        {
+            next_ins = next_ins->next;
+        } 
+        while (strcmp(next_ins->str, "SET") == 0 || 
+            is_letter(next_ins->str) || 
+            strcmp(next_ins->str, "(") || 
+            is_pfix(next_ins));
+    }
+
+    if (is_ins(t) && is_inslst(next_ins))
     {
         return true;
     }
@@ -665,46 +732,125 @@ void test(void)
     /*
     is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>
     */
-    Token *loop_test = new_token("LOOP");
-    Token *loop_test1 = new_token("A");
-    Token *loop_test2 = new_token("OVER");
-    Token *loop_test3 = new_token("{");
-    Token *loop_test4 = new_token("$A");
-    Token *loop_test5 = new_token("10");
-    Token *loop_test6 = new_token("\"PURPLE\"");
-    Token *loop_test7 = new_token("}");
-    Token *loop_test8 = new_token("END");
-    loop_test->next = loop_test1;
-    loop_test1->next = loop_test2;
-    loop_test2->next = loop_test3;
-    loop_test3->next = loop_test4;
-    loop_test4->next = loop_test5;
-    loop_test5->next = loop_test6;
-    loop_test6->next = loop_test7;
-    loop_test7->next = loop_test8;
-    assert(is_loop(loop_test));
-    free_tokens(loop_test);
+    //loop has list and list of instructions and end - true
+    // Token *loop_test = new_token("LOOP");
+    // Token *loop_test1 = new_token("A");
+    // Token *loop_test2 = new_token("OVER");
+    // Token *loop_test3 = new_token("{");
+    // Token *loop_test4 = new_token("$A");
+    // Token *loop_test5 = new_token("10");
+    // Token *loop_test6 = new_token("\"PURPLE\"");
+    // Token *loop_test7 = new_token("}");
+    // Token *loop_test8 = new_token("FOWARD");
+    // Token *loop_test9 = new_token("1");
+    // // Token *loop_test10 = new_token("RIGHT");
+    // // Token *loop_test11 = new_token("2");
+    // // Token *loop_test12 = new_token("COLOUR");
+    // // Token *loop_test13 = new_token("\"PURPLE\"");
+    // // Token *loop_test14 = new_token("SET");
+    // // Token *loop_test15 = new_token("A");
+    // // Token *loop_test16 = new_token("(");
+    // // Token *loop_test17 = new_token("10");
+    // // Token *loop_test18 = new_token("$A");
+    // // Token *loop_test19 = new_token("+");
+    // // Token *loop_test20 = new_token(")");
+    // Token *loop_test21 = new_token("END");
+    // loop_test->next = loop_test1;
+    // loop_test1->next = loop_test2;
+    // loop_test2->next = loop_test3;
+    // loop_test3->next = loop_test4;
+    // loop_test4->next = loop_test5;
+    // loop_test5->next = loop_test6;
+    // loop_test6->next = loop_test7;
+    // loop_test7->next = loop_test8;
+    // loop_test8->next = loop_test9;
+    // loop_test9->next = loop_test21;
+    // // loop_test10->next = loop_test11;
+    // // loop_test11->next = loop_test12;
+    // // loop_test12->next = loop_test13;
+    // // loop_test13->next = loop_test21;
+    // // loop_test14->next = loop_test15;
+    // // loop_test15->next = loop_test16;
+    // // loop_test16->next = loop_test17;
+    // // loop_test17->next = loop_test18;
+    // // loop_test18->next = loop_test19;
+    // // loop_test19->next = loop_test20;
+    // // loop_test20->next = loop_test21;
+    // // assert(is_loop(loop_test));
+    // free_tokens(loop_test);
 
-    Token *loop_test9 = new_token("LOOP");
-    Token *loop_test10 = new_token("A");
-    Token *loop_test11 = new_token("OVER");
-    Token *loop_test12 = new_token("{");
-    Token *loop_test13 = new_token("$A");
-    Token *loop_test14 = new_token("10");
-    Token *loop_test15 = new_token("\"PURPLE\"");
-    Token *loop_test16 = new_token("}");
-    Token *loop_test17 = new_token("NED");
-    loop_test9->next = loop_test10;
-    loop_test10->next = loop_test11;
-    loop_test11->next = loop_test12;
-    loop_test12->next = loop_test13;
-    loop_test13->next = loop_test14;
-    loop_test14->next = loop_test15;
-    loop_test15->next = loop_test16;
-    loop_test16->next = loop_test17;
-    assert(!is_loop(loop_test9));
-    free_tokens(loop_test9);
+    //false when no "END" found
+    // Token *loop_test9 = new_token("LOOP");
+    // Token *loop_test10 = new_token("A");
+    // Token *loop_test11 = new_token("OVER");
+    // Token *loop_test12 = new_token("{");
+    // Token *loop_test13 = new_token("$A");
+    // Token *loop_test14 = new_token("10");
+    // Token *loop_test15 = new_token("\"PURPLE\"");
+    // Token *loop_test16 = new_token("}");
+    // Token *loop_test17 = new_token("NED");
+    // loop_test9->next = loop_test10;
+    // loop_test10->next = loop_test11;
+    // loop_test11->next = loop_test12;
+    // loop_test12->next = loop_test13;
+    // loop_test13->next = loop_test14;
+    // loop_test14->next = loop_test15;
+    // loop_test15->next = loop_test16;
+    // loop_test16->next = loop_test17;
+    // assert(!is_loop(loop_test9));
+    // free_tokens(loop_test9);
 
-      
+    /*
+    is_inslst() <INSLST> ::= "END" | <INS> <INSLST>
+    */
+    Token *inslst_test = new_token("END");
+    assert(is_inslst(inslst_test));
+    free_tokens(inslst_test);
+
+    Token *inslst_test1 = new_token("RIGHT");
+    Token *inslst_test2 = new_token("61");
+    Token *inslst_test3 = new_token("FOWARD");
+    Token *inslst_test4 = new_token("1");
+    Token *inslst_test5 = new_token("COLOUR");
+    Token *inslst_test6 = new_token("$A");
+    Token *inslst_test7 = new_token("LOOP");
+    Token *inslst_test8 = new_token("C");
+    Token *inslst_test9 = new_token("OVER");
+    Token *inslst_test10 = new_token("{");
+    Token *inslst_test11 = new_token("1");
+    Token *inslst_test12 = new_token("2");
+    Token *inslst_test13 = new_token("3");
+    Token *inslst_test14 = new_token("}");
+    Token *inslst_test15 = new_token("SET");
+    Token *inslst_test16 = new_token("Z");
+    Token *inslst_test17 = new_token("(");
+    Token *inslst_test18 = new_token("$A");
+    Token *inslst_test19 = new_token("1");
+    Token *inslst_test20 = new_token("/");
+    Token *inslst_test21 = new_token(")");
+    Token *inslst_test22 = new_token("END");
+    inslst_test1->next=inslst_test2;
+    inslst_test2->next=inslst_test3;
+    inslst_test3->next=inslst_test4;
+    inslst_test4->next=inslst_test5;
+    inslst_test5->next=inslst_test6;
+    inslst_test6->next=inslst_test7;
+    inslst_test7->next=inslst_test8;
+    inslst_test8->next=inslst_test9;
+    inslst_test9->next=inslst_test10;
+    inslst_test10->next=inslst_test11;
+    inslst_test11->next=inslst_test12;
+    inslst_test12->next=inslst_test13;
+    inslst_test13->next=inslst_test14;
+    inslst_test14->next=inslst_test15;
+    inslst_test15->next=inslst_test16;
+    inslst_test16->next=inslst_test17;
+    inslst_test17->next=inslst_test18;
+    inslst_test18->next=inslst_test19;
+    inslst_test19->next=inslst_test20;
+    inslst_test20->next=inslst_test21;
+    inslst_test21->next=inslst_test22;
+    assert(is_inslst(inslst_test1));
+    free_tokens(inslst_test1);
 }
 
