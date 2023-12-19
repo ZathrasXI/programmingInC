@@ -171,13 +171,11 @@ bool is_varnum(char *c)
     return false;
 }
 
-bool is_forward(char *c)
+bool is_forward(Token *t)
 {
     char *fwd = "FORWARD";
-    int len = strlen(fwd);
-    int len_inc_space = len + 1;
-    if (strncmp(fwd, c, len) == 0
-        && is_varnum(c + len_inc_space)
+    if (strcmp(fwd, t->str) == 0 &&
+        is_varnum(t->next->str)
     )
     {
         return true;
@@ -407,12 +405,23 @@ void test(void)
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
-    assert(is_forward("FORWARD 1"));
-    assert(is_forward("FORWARD $A"));
-    assert(!is_forward("FORWARD $1"));
-    assert(!is_forward("FORWARD$$"));
-    assert(!is_forward(" FORWARD$$"));
-    assert(!is_forward("FORWRD $A"));
+    Token *fwd = new_token("FORWARD", 7);
+    Token *fwd1 = new_token("1", 1);
+    fwd->next=fwd1;
+    assert(is_forward(fwd));
+    free_tokens(fwd);
+
+    Token *fwd2 = new_token("FORWARD", 7);
+    Token *fwd3 = new_token("$A", 2);
+    fwd2->next = fwd3;
+    assert(is_forward(fwd2));
+    free_tokens(fwd2);
+
+    Token *fwd4 = new_token("FORWARD", 7);
+    Token *fwd5 = new_token("FOWARD", 7);
+    fwd4->next = fwd5;
+    assert(!is_forward(fwd4));
+    free_tokens(fwd4);
 
     /*
     is_rgt() <RGT> ::= "RIGHT" <VARNUM>
@@ -659,5 +668,10 @@ void test(void)
     loop_test16->next = loop_test17;
     assert(!is_loop(loop_test9));
     free_tokens(loop_test9);
+
+    /*
+    is_ins() <INS> ::= <FWD> | <RGT> | <COL> | <LOOP> | <SET>
+    */
+
 }
 

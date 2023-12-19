@@ -18,6 +18,7 @@ typedef struct token
 {
     char *str;
     struct token *next;
+    //TODO is length needed?
     int length;
 } Token;
 
@@ -36,13 +37,12 @@ bool is_letter(char *c);
 bool is_op(char *c);
 bool is_var(char *c);
 bool is_varnum(char *c);
-bool is_forward(char *c);
 bool is_rgt(char *c);
 bool is_word(char *c);
 bool is_col(char *c);
+bool is_forward(Token *t);
 bool is_items(Token *t);
 bool is_lst(Token *t);
-bool is_col(char *c);
 bool is_pfix(Token *t);
 bool is_set(Token *t);
 bool is_loop(Token *t);
