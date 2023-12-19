@@ -261,6 +261,7 @@ bool is_lst(Token *t)
 
 bool is_col(char *c)
 {
+    //TODO do I need to check if valid colour?
     char *col = "COLOUR";
     int len = strlen(col);
     int i_next_str = len + 1;
@@ -307,6 +308,28 @@ bool is_set(Token *t)
         )
         {
             return true;
+        }
+    return false;
+}
+
+bool is_loop(Token *t)
+{
+    if (strcmp(t->str, "LOOP") == 0 &&
+        is_letter(t->next->str) &&
+        strcmp(t->next->next->str, "OVER") == 0 &&
+        is_lst(t->next->next->next)
+        )
+        {
+            Token *end_of_lst = t->next->next->next;
+            while (strcmp(end_of_lst->str, "}") != 0)
+            {
+                end_of_lst = end_of_lst->next;
+            }
+            //TODO change to is_inslst()
+            if (strcmp(end_of_lst->next->str, "END") == 0)
+            {
+                return true;
+            }
         }
     return false;
 }
@@ -594,5 +617,47 @@ void test(void)
     assert(!is_set(set_test10));
     free_tokens(set_test10);
 
+    /*
+    is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>
+    */
+    Token *loop_test = new_token("LOOP", 4);
+    Token *loop_test1 = new_token("A", 1);
+    Token *loop_test2 = new_token("OVER", 4);
+    Token *loop_test3 = new_token("{", 1);
+    Token *loop_test4 = new_token("$A", 2);
+    Token *loop_test5 = new_token("10", 2);
+    Token *loop_test6 = new_token("\"PURPLE\"", 8);
+    Token *loop_test7 = new_token("}", 1);
+    Token *loop_test8 = new_token("END", 3);
+    loop_test->next = loop_test1;
+    loop_test1->next = loop_test2;
+    loop_test2->next = loop_test3;
+    loop_test3->next = loop_test4;
+    loop_test4->next = loop_test5;
+    loop_test5->next = loop_test6;
+    loop_test6->next = loop_test7;
+    loop_test7->next = loop_test8;
+    assert(is_loop(loop_test));
+    free_tokens(loop_test);
+
+    Token *loop_test9 = new_token("LOOP", 4);
+    Token *loop_test10 = new_token("A", 1);
+    Token *loop_test11 = new_token("OVER", 4);
+    Token *loop_test12 = new_token("{", 1);
+    Token *loop_test13 = new_token("$A", 2);
+    Token *loop_test14 = new_token("10", 2);
+    Token *loop_test15 = new_token("\"PURPLE\"", 8);
+    Token *loop_test16 = new_token("}", 1);
+    Token *loop_test17 = new_token("NED", 4);
+    loop_test9->next = loop_test10;
+    loop_test10->next = loop_test11;
+    loop_test11->next = loop_test12;
+    loop_test12->next = loop_test13;
+    loop_test13->next = loop_test14;
+    loop_test14->next = loop_test15;
+    loop_test15->next = loop_test16;
+    loop_test16->next = loop_test17;
+    assert(!is_loop(loop_test9));
+    free_tokens(loop_test9);
 }
 
