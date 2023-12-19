@@ -183,13 +183,11 @@ bool is_forward(Token *t)
     return false;
 }
 
-bool is_rgt(char *c)
+bool is_rgt(Token *t)
 {
     char *rgt = "RIGHT";
-    int len = strlen(rgt);
-    int len_inc_space = len + 1;
-    if (strncmp(rgt, c, len) == 0
-        && is_varnum(c + len_inc_space)
+    if (strcmp(rgt, t->str) == 0 &&
+        is_varnum(t->next->str)
     )
     {
         return true;
@@ -426,13 +424,24 @@ void test(void)
     /*
     is_rgt() <RGT> ::= "RIGHT" <VARNUM>
     */
-    assert(is_rgt("RIGHT 1"));
-    assert(is_rgt("RIGHT $A"));
-    assert(!is_rgt("RIGHT $1"));
-    assert(!is_rgt("RIGHT$$"));
-    assert(!is_rgt(" RIGHT$$"));
-    assert(!is_rgt("RGT $A"));
-    
+    Token *rgt_test = new_token("RIGHT", 5);
+    Token *rgt_test1 = new_token("1", 1);
+    rgt_test->next=rgt_test1;
+    assert(is_rgt(rgt_test));
+    free_tokens(rgt_test);
+
+    Token *rgt_test2 = new_token("RIGHT", 5);
+    Token *rgt_test3 = new_token("$A", 2);
+    rgt_test2->next=rgt_test3;
+    assert(is_rgt(rgt_test2));
+    free_tokens(rgt_test2);
+
+    Token *rgt_test4 = new_token("RIGHT", 5);
+    Token *rgt_test5 = new_token("\"WORD\"", 6);
+    rgt_test4->next=rgt_test5;
+    assert(!is_rgt(rgt_test4));
+    free_tokens(rgt_test4);
+
     /*
     is_word() a string as defined by scanf("%s"), must be encapsulated by ""
     */
