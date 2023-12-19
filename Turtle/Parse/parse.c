@@ -255,16 +255,14 @@ bool is_lst(Token *t)
     return false;
 }
 
-bool is_col(char *c)
+bool is_col(Token *t)
 {
     //TODO do I need to check if valid colour?
     char *col = "COLOUR";
-    int len = strlen(col);
-    int i_next_str = len + 1;
-    if (strncmp(col, c, len) == 0 &&
+    if (strcmp(col, t->str) == 0 &&
         (
-            is_var(c + i_next_str) ||
-            is_word(c + i_next_str)
+            is_var(t->next->str) ||
+            is_word(t->next->str)
         )
     )
     {
@@ -555,11 +553,23 @@ void test(void)
     /*
     is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
     */
-    assert(is_col("COLOUR $A"));
-    assert(is_col("COLOUR \"WOOORD\""));
-    assert(!is_col("COLOUR WOOORD"));
-    assert(!is_col("COLOUR "));
-    assert(!is_col("COLOUR$A"));
+    Token *col_test = new_token("COLOUR", 6);
+    Token *col_test1 = new_token("$A", 2);
+    col_test->next=col_test1;
+    assert(is_col(col_test));
+    free_tokens(col_test);
+
+    Token *col_test2 = new_token("COLOUR", 6);
+    Token *col_test3 = new_token("\"WORD\"", 6);
+    col_test2->next=col_test3;
+    assert(is_col(col_test2));
+    free_tokens(col_test2);
+
+    Token *col_test4 = new_token("COLOUR", 6);
+    Token *col_test5 = new_token("END", 3);
+    col_test4->next=col_test5;
+    assert(!is_col(col_test4));
+    free_tokens(col_test4);
 
     /*
     is_pfix() <PFIX> ::= ")" | <OP> <PFIX> | <VARNUM> <PFIX>

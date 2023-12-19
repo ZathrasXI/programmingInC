@@ -38,7 +38,7 @@ bool is_op(char *c);
 bool is_var(char *c);
 bool is_varnum(char *c);
 bool is_word(char *c);
-bool is_col(char *c);
+bool is_col(Token *t);
 bool is_rgt(Token *t);
 bool is_forward(Token *t);
 bool is_items(Token *t);
