@@ -30,7 +30,7 @@ typedef struct instructions
 } Instructions;
 
 void test(void);
-Token *new_token(char *c, int len);
+Token *new_token(char *c);
 void free_tokens(Token* head);
 bool is_number(char *c);
 bool is_letter(char *c);

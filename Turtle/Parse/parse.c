@@ -36,12 +36,12 @@ int main(int argc, char **argv)
     {
         if (!inst->head)
         {
-            inst->head = new_token(buffer, (int) strlen(buffer));
+            inst->head = new_token(buffer);
             current = inst->head;
         }
         else
         {
-            current->next = new_token(buffer, (int) strlen(buffer));
+            current->next = new_token(buffer);
             current = current->next;
         }
     }
@@ -52,8 +52,10 @@ int main(int argc, char **argv)
     return 0;
 }
 
-Token *new_token(char *c, int len)
+Token *new_token(char *c)
 {
+    //TODO can I calculate len inside this funciton instead of passing it in
+    int len = strlen(c);
     Token *new = (Token *) calloc(INIT_SIZE, sizeof(Token));
     if (!new)
     {
@@ -333,12 +335,12 @@ void test(void)
     /*
     can store a token in a node
     */
-    Token *n = new_token("abc", 3);
+    Token *n = new_token("abc");
     assert(n->length == 3);
     assert(strcmp(n->str, "abc") == 0);
     assert(n->next == NULL);
 
-    n->next = new_token("defg", 4);
+    n->next = new_token("defg");
     assert(n->next->length == 4);
     assert(strcmp(n->next->str, "defg") == 0);
     assert(n->next->next == NULL);
@@ -401,20 +403,20 @@ void test(void)
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
-    Token *fwd = new_token("FORWARD", 7);
-    Token *fwd1 = new_token("1", 1);
+    Token *fwd = new_token("FORWARD");
+    Token *fwd1 = new_token("1");
     fwd->next=fwd1;
     assert(is_forward(fwd));
     free_tokens(fwd);
 
-    Token *fwd2 = new_token("FORWARD", 7);
-    Token *fwd3 = new_token("$A", 2);
+    Token *fwd2 = new_token("FORWARD");
+    Token *fwd3 = new_token("$A");
     fwd2->next = fwd3;
     assert(is_forward(fwd2));
     free_tokens(fwd2);
 
-    Token *fwd4 = new_token("FORWARD", 7);
-    Token *fwd5 = new_token("FOWARD", 7);
+    Token *fwd4 = new_token("FORWARD");
+    Token *fwd5 = new_token("FOWARD");
     fwd4->next = fwd5;
     assert(!is_forward(fwd4));
     free_tokens(fwd4);
@@ -422,20 +424,20 @@ void test(void)
     /*
     is_rgt() <RGT> ::= "RIGHT" <VARNUM>
     */
-    Token *rgt_test = new_token("RIGHT", 5);
-    Token *rgt_test1 = new_token("1", 1);
+    Token *rgt_test = new_token("RIGHT");
+    Token *rgt_test1 = new_token("1");
     rgt_test->next=rgt_test1;
     assert(is_rgt(rgt_test));
     free_tokens(rgt_test);
 
-    Token *rgt_test2 = new_token("RIGHT", 5);
-    Token *rgt_test3 = new_token("$A", 2);
+    Token *rgt_test2 = new_token("RIGHT");
+    Token *rgt_test3 = new_token("$A");
     rgt_test2->next=rgt_test3;
     assert(is_rgt(rgt_test2));
     free_tokens(rgt_test2);
 
-    Token *rgt_test4 = new_token("RIGHT", 5);
-    Token *rgt_test5 = new_token("\"WORD\"", 6);
+    Token *rgt_test4 = new_token("RIGHT");
+    Token *rgt_test5 = new_token("\"WORD\"");
     rgt_test4->next=rgt_test5;
     assert(!is_rgt(rgt_test4));
     free_tokens(rgt_test4);
@@ -464,20 +466,20 @@ void test(void)
     /*
     is_items() <ITEMS> ::= '}' | <ITEM> <ITEMS>
     */
-    Token *items_test = new_token("}", 1);
+    Token *items_test = new_token("}");
     assert(is_items(items_test));
     free_tokens(items_test);
 
     //false when next item == NULL
-    Token *items_test1 = new_token("$A", 2);
+    Token *items_test1 = new_token("$A");
     assert(!is_items(items_test1));
     free_tokens(items_test1);
 
     // false next item is not an item or "}"
-    Token *items_test2 = new_token("$A", 2);
-    Token *items_test3 = new_token("$A", 2);
-    Token *items_test4 = new_token("$A", 2);
-    Token *items_test5 = new_token("!", 1);
+    Token *items_test2 = new_token("$A");
+    Token *items_test3 = new_token("$A");
+    Token *items_test4 = new_token("$A");
+    Token *items_test5 = new_token("!");
     items_test2->next = items_test3;
     items_test3->next = items_test4;
     items_test4->next = items_test5;
@@ -485,18 +487,18 @@ void test(void)
     free_tokens(items_test2);
 
     // true when "}" can be found
-    Token *items_test6 = new_token("$A", 2);
-    Token *items_test7 = new_token("\"MAGENTA\"", 9);
+    Token *items_test6 = new_token("$A");
+    Token *items_test7 = new_token("\"MAGENTA\"");
     items_test6->next = items_test7;
-    Token *items_test8 = new_token("$C", 2);
+    Token *items_test8 = new_token("$C");
     items_test7->next = items_test8;
-    Token *items_test9 = new_token("\"$D\"", 4);
+    Token *items_test9 = new_token("\"$D\"");
     items_test8->next = items_test9;
-    Token *items_test10 = new_token("$E", 2);
+    Token *items_test10 = new_token("$E");
     items_test9->next = items_test10;
-    Token *items_test11 = new_token("\"ONE\"", 5);
+    Token *items_test11 = new_token("\"ONE\"");
     items_test10->next = items_test11;
-    Token *items_test12 = new_token("}", 1);
+    Token *items_test12 = new_token("}");
     items_test11->next = items_test12;
     assert(is_items(items_test6));
     free_tokens(items_test6);
@@ -505,18 +507,18 @@ void test(void)
     is_lst() <LST> ::= "{" <ITEMS>
     */
     // false - token with no nodes proceeding
-    Token *lst_test = new_token("{", 1);
+    Token *lst_test = new_token("{");
     assert(!is_lst(lst_test));
     free_tokens(lst_test);
 
     // false when no closing "}"
-    Token *lst_test1 = new_token("{", 1);
-    Token *lst_test2 = new_token("$A", 2);
-    Token *lst_test3= new_token("\"WORD\"", 6);
-    Token *lst_test4 = new_token("$B", 2);
-    Token *lst_test5 = new_token("\"178\"", 5);
-    Token *lst_test6 = new_token("$C", 2);
-    Token *lst_test7 = new_token("\"ONE\"", 5);
+    Token *lst_test1 = new_token("{");
+    Token *lst_test2 = new_token("$A");
+    Token *lst_test3= new_token("\"WORD\"");
+    Token *lst_test4 = new_token("$B");
+    Token *lst_test5 = new_token("\"178\"");
+    Token *lst_test6 = new_token("$C");
+    Token *lst_test7 = new_token("\"ONE\"");
     lst_test1->next = lst_test2;
     lst_test2->next = lst_test3;
     lst_test3->next = lst_test4;
@@ -527,20 +529,20 @@ void test(void)
     free_tokens(lst_test1);
 
     // "{" followed by "}" is allowed
-    Token *lst_test8 = new_token("{", 1);
-    Token *lst_test9 = new_token("}", 1);
+    Token *lst_test8 = new_token("{");
+    Token *lst_test9 = new_token("}");
     lst_test8->next = lst_test9;
     assert(is_lst(lst_test8));
     free_tokens(lst_test8);
 
     // large list, encapsulated with "{" and "}"
-    Token *lst_test10 = new_token("{", 1);
-    Token *lst_test11 = new_token("$A", 2);
-    Token *lst_test12 = new_token("\"WORD\"", 6);
-    Token *lst_test13 = new_token("$B", 2);
-    Token *lst_test14 = new_token("\"178\"", 5);
-    Token *lst_test15 = new_token("$C", 2);
-    Token *lst_test16 = new_token("}", 1);
+    Token *lst_test10 = new_token("{");
+    Token *lst_test11 = new_token("$A");
+    Token *lst_test12 = new_token("\"WORD\"");
+    Token *lst_test13 = new_token("$B");
+    Token *lst_test14 = new_token("\"178\"");
+    Token *lst_test15 = new_token("$C");
+    Token *lst_test16 = new_token("}");
     lst_test10->next = lst_test11;
     lst_test11->next = lst_test12;
     lst_test12->next = lst_test13;
@@ -553,20 +555,20 @@ void test(void)
     /*
     is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
     */
-    Token *col_test = new_token("COLOUR", 6);
-    Token *col_test1 = new_token("$A", 2);
+    Token *col_test = new_token("COLOUR");
+    Token *col_test1 = new_token("$A");
     col_test->next=col_test1;
     assert(is_col(col_test));
     free_tokens(col_test);
 
-    Token *col_test2 = new_token("COLOUR", 6);
-    Token *col_test3 = new_token("\"WORD\"", 6);
+    Token *col_test2 = new_token("COLOUR");
+    Token *col_test3 = new_token("\"WORD\"");
     col_test2->next=col_test3;
     assert(is_col(col_test2));
     free_tokens(col_test2);
 
-    Token *col_test4 = new_token("COLOUR", 6);
-    Token *col_test5 = new_token("END", 3);
+    Token *col_test4 = new_token("COLOUR");
+    Token *col_test5 = new_token("END");
     col_test4->next=col_test5;
     assert(!is_col(col_test4));
     free_tokens(col_test4);
@@ -575,22 +577,22 @@ void test(void)
     is_pfix() <PFIX> ::= ")" | <OP> <PFIX> | <VARNUM> <PFIX>
     */
    // true when given ")"
-    Token *pfix_test = new_token(")", 1);
+    Token *pfix_test = new_token(")");
     assert(is_pfix(pfix_test));
     free_tokens(pfix_test);
 
     // true when <OP> ")"
-    Token *pfix_test1 = new_token("+", 1);
-    Token *pfix_test2 = new_token(")", 1);
+    Token *pfix_test1 = new_token("+");
+    Token *pfix_test2 = new_token(")");
     pfix_test1->next=pfix_test2;
     assert(is_pfix(pfix_test1));
     free_tokens(pfix_test1);
 
     // true when <VARNUM> and <OP> in list")"
-    Token *pfix_test3 = new_token("$A", 2);
-    Token *pfix_test4 = new_token("10", 2);
-    Token *pfix_test5 = new_token("+", 2);
-    Token *pfix_test6 = new_token(")", 2);
+    Token *pfix_test3 = new_token("$A");
+    Token *pfix_test4 = new_token("10");
+    Token *pfix_test5 = new_token("+");
+    Token *pfix_test6 = new_token(")");
     pfix_test3->next = pfix_test4;
     pfix_test4->next = pfix_test5;
     pfix_test5->next = pfix_test6;
@@ -598,9 +600,9 @@ void test(void)
     free_tokens(pfix_test3);
 
     // false when no ")" at end
-    Token *pfix_test7 = new_token("$A", 2);
-    Token *pfix_test8 = new_token("10", 2);
-    Token *pfix_test9 = new_token("+", 1);
+    Token *pfix_test7 = new_token("$A");
+    Token *pfix_test8 = new_token("10");
+    Token *pfix_test9 = new_token("+");
     pfix_test7->next = pfix_test8;
     pfix_test8->next = pfix_test9;
     assert(!is_pfix(pfix_test7));
@@ -609,11 +611,11 @@ void test(void)
     /*
     is_set() <SET> ::= "SET" <LTR> "(" <PFIX>
     */
-    Token *set_test = new_token("SET", 3);
-    Token *set_test1 = new_token("A", 1);
-    Token *set_test2 = new_token("(", 1);
-    Token *set_test3 = new_token("4", 1);
-    Token *set_test4 = new_token(")", 1);
+    Token *set_test = new_token("SET");
+    Token *set_test1 = new_token("A");
+    Token *set_test2 = new_token("(");
+    Token *set_test3 = new_token("4");
+    Token *set_test4 = new_token(")");
     set_test->next = set_test1;
     set_test1->next = set_test2;
     set_test2->next = set_test3;
@@ -621,11 +623,11 @@ void test(void)
     assert(is_set(set_test));
     free_tokens(set_test);
 
-    Token *set_test5 = new_token("DESET", 5);
-    Token *set_test6 = new_token("A", 1);
-    Token *set_test7 = new_token("(", 1);
-    Token *set_test8 = new_token("4", 1);
-    Token *set_test9 = new_token(")", 1);
+    Token *set_test5 = new_token("DESET");
+    Token *set_test6 = new_token("A");
+    Token *set_test7 = new_token("(");
+    Token *set_test8 = new_token("4");
+    Token *set_test9 = new_token(")");
     set_test5->next = set_test6;
     set_test6->next = set_test7;
     set_test7->next = set_test8;
@@ -633,11 +635,11 @@ void test(void)
     assert(!is_set(set_test5));
     free_tokens(set_test5);
 
-    Token *set_test10 = new_token("SET", 3);
-    Token *set_test11 = new_token("A", 1);
-    Token *set_test12 = new_token("(", 1);
-    Token *set_test13 = new_token("4", 1);
-    Token *set_test14 = new_token("!", 1);
+    Token *set_test10 = new_token("SET");
+    Token *set_test11 = new_token("A");
+    Token *set_test12 = new_token("(");
+    Token *set_test13 = new_token("4");
+    Token *set_test14 = new_token("!");
     set_test10->next = set_test11;
     set_test11->next = set_test12;
     set_test12->next = set_test13;
@@ -648,15 +650,15 @@ void test(void)
     /*
     is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>
     */
-    Token *loop_test = new_token("LOOP", 4);
-    Token *loop_test1 = new_token("A", 1);
-    Token *loop_test2 = new_token("OVER", 4);
-    Token *loop_test3 = new_token("{", 1);
-    Token *loop_test4 = new_token("$A", 2);
-    Token *loop_test5 = new_token("10", 2);
-    Token *loop_test6 = new_token("\"PURPLE\"", 8);
-    Token *loop_test7 = new_token("}", 1);
-    Token *loop_test8 = new_token("END", 3);
+    Token *loop_test = new_token("LOOP");
+    Token *loop_test1 = new_token("A");
+    Token *loop_test2 = new_token("OVER");
+    Token *loop_test3 = new_token("{");
+    Token *loop_test4 = new_token("$A");
+    Token *loop_test5 = new_token("10");
+    Token *loop_test6 = new_token("\"PURPLE\"");
+    Token *loop_test7 = new_token("}");
+    Token *loop_test8 = new_token("END");
     loop_test->next = loop_test1;
     loop_test1->next = loop_test2;
     loop_test2->next = loop_test3;
@@ -668,15 +670,15 @@ void test(void)
     assert(is_loop(loop_test));
     free_tokens(loop_test);
 
-    Token *loop_test9 = new_token("LOOP", 4);
-    Token *loop_test10 = new_token("A", 1);
-    Token *loop_test11 = new_token("OVER", 4);
-    Token *loop_test12 = new_token("{", 1);
-    Token *loop_test13 = new_token("$A", 2);
-    Token *loop_test14 = new_token("10", 2);
-    Token *loop_test15 = new_token("\"PURPLE\"", 8);
-    Token *loop_test16 = new_token("}", 1);
-    Token *loop_test17 = new_token("NED", 4);
+    Token *loop_test9 = new_token("LOOP");
+    Token *loop_test10 = new_token("A");
+    Token *loop_test11 = new_token("OVER");
+    Token *loop_test12 = new_token("{");
+    Token *loop_test13 = new_token("$A");
+    Token *loop_test14 = new_token("10");
+    Token *loop_test15 = new_token("\"PURPLE\"");
+    Token *loop_test16 = new_token("}");
+    Token *loop_test17 = new_token("NED");
     loop_test9->next = loop_test10;
     loop_test10->next = loop_test11;
     loop_test11->next = loop_test12;
@@ -688,9 +690,25 @@ void test(void)
     assert(!is_loop(loop_test9));
     free_tokens(loop_test9);
 
-    /*
-    is_ins() <INS> ::= <FWD> | <RGT> | <COL> | <LOOP> | <SET>
-    */
-
+//     /*
+//     is_ins() <INS> ::= <FWD> | <RGT> | <COL> | <LOOP> | <SET>
+//     */
+//    Token *ins_test = new_token("FORWARD", 7);
+//    Token *ins_test1 = new_token("1", 1);
+//    Token *ins_test2 = new_token("RGT", 3);
+//    Token *ins_test3 = new_token("2", 1);
+//    Token *ins_test4 = new_token("COLOUR", 6);
+//    Token *ins_test5 = new_token("\"WORD\"", 6);
+//    Token *ins_test6 = new_token("LOOP", 4);
+//    Token *ins_test7 = new_token("A", 1);
+//    Token *ins_test8 = new_token("OVER", 4);
+//    Token *ins_test9 = new_token("{", 1);
+//    Token *ins_test10 = new_token("$A", 2);
+//    Token *ins_test11 = new_token("3", 1);
+//    Token *ins_test12 = new_token("\"FORWARD\"", 9);
+//    Token *ins_test13 = new_token("}", 1);
+//    Token *ins_test14 = new_token("END", 3);
+//    Token *ins_test15 = new_token("SET", 3);
+//    Token *ins_test16= new_token("A", 7);                     
 }
 
