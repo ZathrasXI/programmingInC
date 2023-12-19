@@ -330,6 +330,21 @@ bool is_loop(Token *t)
     return false;
 }
 
+bool is_ins(Token *t)
+{
+    if (
+        is_forward(t) ||
+        is_rgt(t) ||
+        is_col(t) ||
+        is_loop(t) ||
+        is_set(t)
+    )
+    {
+        return true;
+    }
+    return false;
+}
+
 void test(void)
 {
     /*
@@ -690,25 +705,6 @@ void test(void)
     assert(!is_loop(loop_test9));
     free_tokens(loop_test9);
 
-//     /*
-//     is_ins() <INS> ::= <FWD> | <RGT> | <COL> | <LOOP> | <SET>
-//     */
-//    Token *ins_test = new_token("FORWARD", 7);
-//    Token *ins_test1 = new_token("1", 1);
-//    Token *ins_test2 = new_token("RGT", 3);
-//    Token *ins_test3 = new_token("2", 1);
-//    Token *ins_test4 = new_token("COLOUR", 6);
-//    Token *ins_test5 = new_token("\"WORD\"", 6);
-//    Token *ins_test6 = new_token("LOOP", 4);
-//    Token *ins_test7 = new_token("A", 1);
-//    Token *ins_test8 = new_token("OVER", 4);
-//    Token *ins_test9 = new_token("{", 1);
-//    Token *ins_test10 = new_token("$A", 2);
-//    Token *ins_test11 = new_token("3", 1);
-//    Token *ins_test12 = new_token("\"FORWARD\"", 9);
-//    Token *ins_test13 = new_token("}", 1);
-//    Token *ins_test14 = new_token("END", 3);
-//    Token *ins_test15 = new_token("SET", 3);
-//    Token *ins_test16= new_token("A", 7);                     
+      
 }
 
