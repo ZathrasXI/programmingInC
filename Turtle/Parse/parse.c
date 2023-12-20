@@ -325,6 +325,28 @@ bool is_loop(Token *t)
     return false;
 }
 
+bool loop_closed(Token *t)
+{
+    int loop_depth = 0;
+    while (t)
+    {
+        if (strcmp(t->str, "LOOP") == 0)
+        {
+            loop_depth++;
+        }
+        if (strcmp(t->str, "END") == 0)
+        {
+            loop_depth--;
+            if (loop_depth == 0)
+            {
+                return true;
+            }
+        }
+        t = t->next;
+    }
+    return false;
+}
+
 bool is_ins(Token *t)
 {
     if (
@@ -389,28 +411,21 @@ bool is_inslst(Token *t)
         {
             next_ins = next_ins->next;
         } 
-        while (strcmp(next_ins->str, "LOOP") == 0 || 
-            is_letter(next_ins->str) || 
-            strcmp(next_ins->str, "OVER") == 0 || 
-            is_lst(next_ins) || 
-            is_inslst(next_ins));
-            // printf("t4 %s next %s\n", t->str, next_ins->str);
+        while (strcmp(next_ins->str, "}") != 0);
+        next_ins = next_ins->next;
     }
     else if (is_set(t))
     {
-        printf("is set\n");
+        printf("is set \n");
         do
         {
             next_ins = next_ins->next;
         } 
-        while (strcmp(next_ins->str, "SET") == 0 || 
-            is_letter(next_ins->str) || 
-            strcmp(next_ins->str, "(") || 
-            is_pfix(next_ins));
+        while (strcmp(next_ins->str, ")") != 0);
+        next_ins = next_ins->next;
             // printf("t5 %s next %s\n", t->str, next_ins->str);
     }
-
-    // printf("end %s %s\n", t->str, next_ins->str);
+    printf("currentins %s   next_ins %s\n", t->str, next_ins->str);
     if (is_ins(t) && is_inslst(next_ins))
     {
         printf("here\n");
@@ -771,11 +786,11 @@ void test(void)
     loop_test6->next = loop_test7;
     loop_test7->next = loop_test8;
     loop_test8->next = loop_test9;
-    loop_test9->next = loop_test21;
+    loop_test9->next = loop_test10;
     loop_test10->next = loop_test11;
     loop_test11->next = loop_test12;
     loop_test12->next = loop_test13;
-    loop_test13->next = loop_test21;
+    loop_test13->next = loop_test14;
     loop_test14->next = loop_test15;
     loop_test15->next = loop_test16;
     loop_test16->next = loop_test17;
@@ -808,11 +823,54 @@ void test(void)
     free_tokens(loop_test22);
 
     /*
+    loop_closed()
+    */
+    Token *closed_loop = new_token("LOOP");
+    Token *closed_loop1 = new_token("END");
+    closed_loop->next = closed_loop1;
+    assert(loop_closed(closed_loop));
+    free_tokens(closed_loop);
+
+    Token *closed_loop2 = new_token("LOOP");
+    Token *closed_loop3 = new_token("LOOP");
+    Token *closed_loop4 = new_token("LOOP");
+    Token *closed_loop5 = new_token("END");
+    Token *closed_loop6 = new_token("END");
+    Token *closed_loop7 = new_token("NOT_THE_END");
+    closed_loop2->next = closed_loop3;
+    closed_loop3->next = closed_loop4;
+    closed_loop4->next = closed_loop5;
+    closed_loop5->next = closed_loop6;
+    closed_loop6->next = closed_loop7;
+    assert(!loop_closed(closed_loop2));
+    free_tokens(closed_loop2);
+
+    Token *closed_loop8 = new_token("LOOP");
+    Token *closed_loop9 = new_token("LOOP");
+    Token *closed_loop10 = new_token("LOOP");
+    Token *closed_loop11 = new_token("END");
+    Token *closed_loop12 = new_token("END");
+    Token *closed_loop13 = new_token("END");
+    closed_loop8->next = closed_loop9;
+    closed_loop9->next = closed_loop10;
+    closed_loop10->next = closed_loop11;
+    closed_loop11->next = closed_loop12;
+    closed_loop12->next = closed_loop13;
+    assert(loop_closed(closed_loop8));
+    assert(loop_closed(closed_loop9));
+    assert(loop_closed(closed_loop10));
+    free_tokens(closed_loop8);
+
+    /*
     is_inslst() <INSLST> ::= "END" | <INS> <INSLST>
     */
+    printf("\n\ninslst test \n\n");
+    //true when str == END
     Token *inslst_test = new_token("END");
     assert(is_inslst(inslst_test));
     free_tokens(inslst_test);
+
+    // true when given valid ins and for loop
     Token *inslst_test1 = new_token("FORWARD");
     Token *inslst_test2 = new_token("1");
     Token *inslst_test3 = new_token("RIGHT");
@@ -858,5 +916,55 @@ void test(void)
     inslst_test21->next=inslst_test22;
     assert(is_inslst(inslst_test1));
     free_tokens(inslst_test1);
+
+    //nested for loop
+    Token *nestd_loop = new_token("LOOP");
+    Token *nestd_loop2 = new_token("C");
+    Token *nestd_loop3 = new_token("OVER");
+    Token *nestd_loop4 = new_token("{");
+    Token *nestd_loop5 = new_token("\"BLUE\"");
+    Token *nestd_loop6 = new_token("\"GREEN\"");
+    Token *nestd_loop7 = new_token("}");
+    Token *nestd_loop8 = new_token("COLOUR");
+    Token *nestd_loop9 = new_token("$C");
+    Token *nestd_loop10 = new_token("LOOP");
+    Token *nestd_loop11 = new_token("Z");
+    Token *nestd_loop12 = new_token("OVER");
+    Token *nestd_loop13 = new_token("{");
+    Token *nestd_loop14 = new_token("1");
+    Token *nestd_loop15 = new_token("2");
+    Token *nestd_loop16 = new_token("3");
+    Token *nestd_loop17 = new_token("}");
+    Token *nestd_loop18 = new_token("FORWARD");
+    Token *nestd_loop19 = new_token("$Z");
+    Token *nestd_loop20 = new_token("RIGHT");
+    Token *nestd_loop21 = new_token("$A");
+    Token *nestd_loop22 = new_token("END");
+    //FALSE POSITIVE THIS TEST SHOULD FAIL
+    Token *nestd_loop23 = new_token("END");
+    nestd_loop->next=nestd_loop2;
+    nestd_loop2->next=nestd_loop3;
+    nestd_loop3->next=nestd_loop4;
+    nestd_loop4->next=nestd_loop5;
+    nestd_loop5->next=nestd_loop6;
+    nestd_loop6->next=nestd_loop7;
+    nestd_loop7->next=nestd_loop8;
+    nestd_loop8->next=nestd_loop9;
+    nestd_loop9->next=nestd_loop10;
+    nestd_loop10->next=nestd_loop11;
+    nestd_loop11->next=nestd_loop12;
+    nestd_loop12->next=nestd_loop13;
+    nestd_loop13->next=nestd_loop14;
+    nestd_loop14->next=nestd_loop15;
+    nestd_loop15->next=nestd_loop16;
+    nestd_loop16->next=nestd_loop17;
+    nestd_loop17->next=nestd_loop18;
+    nestd_loop18->next=nestd_loop19;
+    nestd_loop19->next=nestd_loop20;
+    nestd_loop20->next=nestd_loop21;
+    nestd_loop21->next=nestd_loop22;
+    nestd_loop22->next=nestd_loop23;
+    assert(is_inslst(nestd_loop));
+    free_tokens(nestd_loop);
 }
 
