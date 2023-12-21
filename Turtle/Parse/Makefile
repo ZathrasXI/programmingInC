@@ -12,4 +12,4 @@ test: parse.h parse.c
 	$(CC) parse.c $(SANITIZE) -o test_parser
 
 clean:
-	rm parser
+	rm parser test_parser
