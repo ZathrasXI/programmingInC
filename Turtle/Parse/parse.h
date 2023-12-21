@@ -22,7 +22,7 @@ typedef struct token
     int length;
 } Token;
 
-
+// TODO do I need this??
 typedef struct instructions
 {
     Token *head;
@@ -49,3 +49,4 @@ bool is_loop(Token *t);
 bool is_ins(Token *t);
 bool is_inslst(Token *t);
 bool loop_closed(Token *t);
+bool is_prog(Token *t);

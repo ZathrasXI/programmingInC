@@ -46,6 +46,12 @@ int main(int argc, char **argv)
         }
     }
 
+    if (!is_prog(inst->head))
+    {
+        fprintf(stderr, "file not parsed\n");
+        exit(EXIT_FAILURE);
+    }
+
     free_tokens(inst->head);
     fclose(turtle_file);
     free(inst);
@@ -307,6 +313,7 @@ bool is_set(Token *t)
 bool is_loop(Token *t)
 {
     if (strcmp(t->str, "LOOP") == 0 &&
+        loop_closed(t) &&
         is_letter(t->next->str) &&
         strcmp(t->next->next->str, "OVER") == 0 &&
         is_lst(t->next->next->next)
@@ -372,7 +379,6 @@ bool is_inslst(Token *t)
     Token *next_ins = t;
     if (is_forward(t))
     {
-        printf("is fwd\n");
         do
         {
             next_ins = next_ins->next;
@@ -383,7 +389,6 @@ bool is_inslst(Token *t)
     }
     else if (is_rgt(t))
     {
-        printf("is right\n");
         do
         {
             next_ins = next_ins->next;
@@ -394,7 +399,6 @@ bool is_inslst(Token *t)
     }
     else if (is_col(t))
     {
-        printf("is col\n");
         do
         {
             next_ins = next_ins->next;
@@ -406,7 +410,6 @@ bool is_inslst(Token *t)
     }
     else if (is_loop(t))
     {
-        printf("is loop\n");
         do
         {
             next_ins = next_ins->next;
@@ -416,7 +419,6 @@ bool is_inslst(Token *t)
     }
     else if (is_set(t))
     {
-        printf("is set \n");
         do
         {
             next_ins = next_ins->next;
@@ -425,10 +427,19 @@ bool is_inslst(Token *t)
         next_ins = next_ins->next;
             // printf("t5 %s next %s\n", t->str, next_ins->str);
     }
-    printf("currentins %s   next_ins %s\n", t->str, next_ins->str);
     if (is_ins(t) && is_inslst(next_ins))
     {
-        printf("here\n");
+        return true;
+    }
+    return false;
+}
+
+bool is_prog(Token *t)   
+{
+    if (strcmp(t->str, "START") == 0 && 
+        t->next &&
+        is_inslst(t->next))
+    {
         return true;
     }
     return false;
@@ -864,7 +875,6 @@ void test(void)
     /*
     is_inslst() <INSLST> ::= "END" | <INS> <INSLST>
     */
-    printf("\n\ninslst test \n\n");
     //true when str == END
     Token *inslst_test = new_token("END");
     assert(is_inslst(inslst_test));
@@ -940,7 +950,6 @@ void test(void)
     Token *nestd_loop20 = new_token("RIGHT");
     Token *nestd_loop21 = new_token("$A");
     Token *nestd_loop22 = new_token("END");
-    //FALSE POSITIVE THIS TEST SHOULD FAIL
     Token *nestd_loop23 = new_token("END");
     nestd_loop->next=nestd_loop2;
     nestd_loop2->next=nestd_loop3;
@@ -966,5 +975,128 @@ void test(void)
     nestd_loop22->next=nestd_loop23;
     assert(is_inslst(nestd_loop));
     free_tokens(nestd_loop);
+
+    /*(is_prog) "START" <INSLST>
+    */
+
+    Token *start = new_token("START");
+    assert(!is_prog(start));
+    free_tokens(start);
+
+   //nested for loop with start and end
+    Token *prog = new_token("START"); 
+    Token *prog1 = new_token("LOOP");
+    Token *prog2 = new_token("C");
+    Token *prog3 = new_token("OVER");
+    Token *prog4 = new_token("{");
+    Token *prog5 = new_token("\"BLUE\"");
+    Token *prog6 = new_token("\"GREEN\"");
+    Token *prog7 = new_token("}");
+    Token *prog8 = new_token("COLOUR");
+    Token *prog9 = new_token("$C");
+    Token *prog10 = new_token("LOOP");
+    Token *prog11 = new_token("Z");
+    Token *prog12 = new_token("OVER");
+    Token *prog13 = new_token("{");
+    Token *prog14 = new_token("1");
+    Token *prog15 = new_token("2");
+    Token *prog16 = new_token("3");
+    Token *prog17 = new_token("}");
+    Token *prog18 = new_token("FORWARD");
+    Token *prog19 = new_token("$Z");
+    Token *prog20 = new_token("RIGHT");
+    Token *prog21 = new_token("$A");
+    Token *prog22 = new_token("END");
+    Token *prog23 = new_token("END");
+    Token *prog24 = new_token("END");
+    prog->next=prog1;
+    prog1->next=prog2;
+    prog2->next=prog3;
+    prog3->next=prog4;
+    prog4->next=prog5;
+    prog5->next=prog6;
+    prog6->next=prog7;
+    prog7->next=prog8;
+    prog8->next=prog9;
+    prog9->next=prog10;
+    prog10->next=prog11;
+    prog11->next=prog12;
+    prog12->next=prog13;
+    prog13->next=prog14;
+    prog14->next=prog15;
+    prog15->next=prog16;
+    prog16->next=prog17;
+    prog17->next=prog18;
+    prog18->next=prog19;
+    prog19->next=prog20;
+    prog20->next=prog21;
+    prog21->next=prog22;
+    prog22->next=prog23;
+    prog23->next=prog24;
+    assert(is_prog(prog));
+    free_tokens(prog);
+
+
+   // instructions before nested for loop
+    Token *full_prog1 = new_token("START");
+    Token *full_prog2 = new_token("FORWARD");
+    Token *full_prog3 = new_token("1");
+    Token *full_prog4 = new_token("RIGHT");
+    Token *full_prog5 = new_token("10");
+    Token *full_prog6 = new_token("LOOP");
+    Token *full_prog7 = new_token("C");
+    Token *full_prog8 = new_token("OVER");
+    Token *full_prog9 = new_token("{");
+    Token *full_prog10 = new_token("\"BLUE\"");
+    Token *full_prog11 = new_token("\"GREEN\"");
+    Token *full_prog12 = new_token("}");
+    Token *full_prog13 = new_token("COLOUR");
+    Token *full_prog14 = new_token("$C");
+    Token *full_prog15 = new_token("LOOP");
+    Token *full_prog16 = new_token("Z");
+    Token *full_prog17 = new_token("OVER");
+    Token *full_prog18 = new_token("{");
+    Token *full_prog19 = new_token("1");
+    Token *full_prog20 = new_token("2");
+    Token *full_prog21 = new_token("3");
+    Token *full_prog22 = new_token("}");
+    Token *full_prog23 = new_token("FORWARD");
+    Token *full_prog24 = new_token("$Z");
+    Token *full_prog25 = new_token("RIGHT");
+    Token *full_prog26 = new_token("$A");
+    Token *full_prog27 = new_token("END");
+    Token *full_prog28 = new_token("END");
+    Token *full_prog29 = new_token("END");
+    full_prog1->next=full_prog2;
+    full_prog2->next=full_prog3;
+    full_prog3->next=full_prog4;
+    full_prog4->next=full_prog5;
+    full_prog5->next=full_prog6;
+    full_prog6->next=full_prog7;
+    full_prog7->next=full_prog8;
+    full_prog8->next=full_prog9;
+    full_prog9->next=full_prog10;
+    full_prog10->next=full_prog11;
+    full_prog11->next=full_prog12;
+    full_prog12->next=full_prog13;
+    full_prog13->next=full_prog14;
+    full_prog14->next=full_prog15;
+    full_prog15->next=full_prog16;
+    full_prog16->next=full_prog17;
+    full_prog17->next=full_prog18;
+    full_prog18->next=full_prog19;
+    full_prog19->next=full_prog20;
+    full_prog20->next=full_prog21;
+    full_prog21->next=full_prog22;
+    full_prog22->next=full_prog23;
+    full_prog23->next=full_prog24;
+    full_prog24->next=full_prog25;
+    full_prog25->next=full_prog26;
+    full_prog26->next=full_prog27;
+    full_prog27->next=full_prog28;
+    full_prog28->next=full_prog29;
+    assert(is_prog(full_prog1));
+    free_tokens(full_prog1);
+
 }
 
