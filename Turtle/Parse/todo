@@ -4,3 +4,4 @@
 
 //for the Q&A
 //are we allowed to change the Makefiles?
+//are we allowed to install and use extra packages for valgrind? e.g. kcachegrind

@@ -26,7 +26,7 @@ for comp in "${compilers[@]}"; do
     for file in "$TTLs"/*; do
         if [ -f "$file" ]; then
             ./test_${comp}_parser "$file" 2> /dev/null
-            if [[ "$file" == "$expected_failure" && $? == 0 ]]; then
+            if [[ "$file" == "$expected_failure" && $? == 0  ]]; then
                 echo "FAIL: compiler: ${comp} - $file" 
             fi
             if [[ "$file" != "$expected_failure" && $? != 0 ]]; then

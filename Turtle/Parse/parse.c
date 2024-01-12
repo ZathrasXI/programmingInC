@@ -382,7 +382,6 @@ bool is_inslst(Token *t)
         } 
         while (strcmp(next_ins->str, "FOWARD") == 0 || 
             is_varnum(next_ins->str));
-            // printf("t1 %s next %s\n", t->str, next_ins->str);
     }
     else if (is_rgt(t))
     {
@@ -392,7 +391,6 @@ bool is_inslst(Token *t)
         }
         while (strcmp(next_ins->str, "RIGHT") == 0 || 
             is_varnum(next_ins->str));
-            // printf("t2 %s next %s\n", t->str, next_ins->str);
     }
     else if (is_col(t))
     {
@@ -403,7 +401,6 @@ bool is_inslst(Token *t)
         while (strcmp(next_ins->str, "COLOUR") == 0 || 
             is_var(next_ins->str) || 
             is_word(next_ins->str));
-            // printf("t3 %s next %s\n", t->str, next_ins->str);
     }
     else if (is_loop(t))
     {
@@ -422,7 +419,6 @@ bool is_inslst(Token *t)
         } 
         while (strcmp(next_ins->str, ")") != 0);
         next_ins = next_ins->next;
-            // printf("t5 %s next %s\n", t->str, next_ins->str);
     }
     if (is_ins(t) && is_inslst(next_ins))
     {

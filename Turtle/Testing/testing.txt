@@ -1,0 +1,12 @@
+using `gcov` to assess test coverage
+
+```
+gcc -fprofile-arcs -ftest-coverage -o parse parse.c
+./parse
+gcov parse.c
+```
+output shows % of lines executed, which we can equate to coverage by the unit
+tests because when we executed the compiled file we didn't give it any files,
+so the only function that ran was `test()`. To confirm this, if we comment
+out `test()` in `main()`, then run all of the gcov commands again, we notice
+a significant drop in the % of lines executed.

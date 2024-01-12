@@ -8,5 +8,14 @@ PRODUCTION= $(COMMON) -O3
 parse: parse.h parse.c
 	$(CC) parse.c $(SANITIZE) -o parser
 
+val: parse.c parse.h
+	$(CC) parse.c $(VALGRIND) -o val_parser
+
+cov: parse.c 
+	gcc -fprofile-arcs -ftest-coverage -o parse parse.c
+	
+clean_cov:
+	rm *.gc* parse
+
 clean:
 	rm parser 
