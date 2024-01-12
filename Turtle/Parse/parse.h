@@ -18,8 +18,6 @@ typedef struct token
 {
     char *str;
     struct token *next;
-    //TODO is length needed?
-    int length;
 } Token;
 
 // TODO do I need this??

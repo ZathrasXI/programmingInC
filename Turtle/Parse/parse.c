@@ -60,7 +60,6 @@ int main(int argc, char **argv)
 
 Token *new_token(char *c)
 {
-    //TODO can I calculate len inside this funciton instead of passing it in
     int len = strlen(c);
     Token *new = (Token *) calloc(INIT_SIZE, sizeof(Token));
     if (!new)
@@ -76,7 +75,6 @@ Token *new_token(char *c)
     }
     strcpy(new->str, c);
     new->next = NULL;
-    new->length = len;
     return new;
 }
 
@@ -261,7 +259,6 @@ bool is_lst(Token *t)
 
 bool is_col(Token *t)
 {
-    //TODO do I need to check if valid colour?
     char *col = "COLOUR";
     if (strcmp(col, t->str) == 0 &&
         (
@@ -451,12 +448,10 @@ void test(void)
     can store a token in a node
     */
     Token *n = new_token("abc");
-    assert(n->length == 3);
     assert(strcmp(n->str, "abc") == 0);
     assert(n->next == NULL);
 
     n->next = new_token("defg");
-    assert(n->next->length == 4);
     assert(strcmp(n->next->str, "defg") == 0);
     assert(n->next->next == NULL);
     free_tokens(n);

@@ -8,8 +8,5 @@ PRODUCTION= $(COMMON) -O3
 parse: parse.h parse.c
 	$(CC) parse.c $(SANITIZE) -o parser
 
-test: parse.h parse.c
-	$(CC) parse.c $(SANITIZE) -o test_parser
-
 clean:
-	rm parser test_parser
+	rm parser 
