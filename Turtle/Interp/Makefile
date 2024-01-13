@@ -6,10 +6,10 @@ VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 
 interp: interp.h interp.c
-	$(CC) interp.c $(SANITIZE) -o interpr
+	$(CC) interp.c $(SANITIZE) -o interpreter
 
 val: interp.c interp.h
-	$(CC) interp.c $(VALGRIND) -o val_interpr
+	$(CC) interp.c $(VALGRIND) -o val_interp
 
 cov: interp.c 
 	gcc -fprofile-arcs -ftest-coverage -o interp interp.c
@@ -18,4 +18,4 @@ clean_cov:
 	rm *.gc* interp
 
 clean:
-	rm interpr 
+	rm interpreter 
