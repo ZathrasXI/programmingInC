@@ -6,7 +6,7 @@ int main(int argc, char **argv)
     if (argc == ONE_ARG)
     {
         printf("Usage: ./parser <turtle file>\n");
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     char instruction_file_name[FILE_NAME_LEN];
