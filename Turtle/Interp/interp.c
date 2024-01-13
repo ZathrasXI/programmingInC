@@ -1,16 +1,12 @@
 #include "interp.h"
 
-//TODO usage
-//TODO error message and EXIT for alloc()
-//TODO only given input file 
-//TODO given input and output file
-
 int main(int argc, char **argv)
 {
     test();
     if (argc == ONE_ARG)
     {
-        return 1;
+        printf("Usage: ./interpreter <turtle file>\n");
+        exit(EXIT_FAILURE);
     }
 
     char instruction_file_name[FILE_NAME_LEN];
@@ -23,21 +19,15 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    Instructions *inst = calloc(INIT_SIZE, sizeof(Instructions));
-    if (inst == NULL)
-    {
-        fprintf(stderr, "error allocating memory\n");
-        exit(EXIT_FAILURE);
-    }
-
     char buffer[TOKEN_LEN];
     Token *current;
+    Token *head;
     while (fscanf(turtle_file, "%s", buffer) == 1)
     {
-        if (!inst->head)
+        if (!head)
         {
-            inst->head = new_token(buffer);
-            current = inst->head;
+            head = new_token(buffer);
+            current = head;
         }
         else
         {
@@ -46,15 +36,14 @@ int main(int argc, char **argv)
         }
     }
 
-    if (!is_prog(inst->head))
+    if (!is_prog(head))
     {
         fprintf(stderr, "file not parsed\n");
         exit(EXIT_FAILURE);
     }
 
-    free_tokens(inst->head);
+    free_tokens(head);
     fclose(turtle_file);
-    free(inst);
     return 0;
 }
 

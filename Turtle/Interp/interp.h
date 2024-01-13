@@ -20,12 +20,6 @@ typedef struct token
     struct token *next;
 } Token;
 
-// TODO do I need this??
-typedef struct instructions
-{
-    Token *head;
-
-} Instructions;
 
 void test(void);
 Token *new_token(char *c);
