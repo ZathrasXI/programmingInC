@@ -1,15 +1,11 @@
 #include "parse.h"
 
-//TODO usage
-//TODO error message and EXIT for alloc()
-//TODO only given input file 
-//TODO given input and output file
-
 int main(int argc, char **argv)
 {
     test();
     if (argc == ONE_ARG)
     {
+        printf("Usage: ./parser <turtle file>\n");
         return 1;
     }
 
