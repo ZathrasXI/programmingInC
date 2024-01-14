@@ -184,18 +184,16 @@ bool is_forward(Token *t)
     {
         int steps;
         sscanf(t->next->str, "%d", &steps);
+        if (ttl.len == 0)
+        {
+            ttl.path[ttl.len].col = COL_START;
+            ttl.path[ttl.len].row = ROW_START;
+            ttl.len++;
+        }
         for (int i = 0; i < steps; i++)
         {
-            if (ttl.len == 0)
-            {
-                ttl.path[ttl.len].col = COL_START;
-                ttl.path[ttl.len].row = ROW_START;
-            }
-            else
-            {
-                ttl.path[ttl.len].row = next_row();
-                ttl.path[ttl.len].col = COL_START;
-            }
+            ttl.path[ttl.len].row = next_row();
+            ttl.path[ttl.len].col = next_col();
             ttl.len++;
         }
 
@@ -211,6 +209,12 @@ bool is_rgt(Token *t)
         is_varnum(t->next->str)
     )
     {
+        if (is_number(t->next->str))
+        {
+            double degrees;
+            sscanf(t->next->str, "%lf", &degrees);
+            ttl.direction += degrees_to_radians(degrees);
+        }
         return true;
     }
     return false;
@@ -458,7 +462,12 @@ int next_row(void)
     return ttl.path[ttl.len-1].row - (int)round(1 * cos(ttl.direction));
 }
 
-double degrees_to_radians(int degrees)
+int next_col(void)
+{
+    return ttl.path[ttl.len-1].col + (int)round(1 * sin(ttl.direction));
+}
+
+double degrees_to_radians(double degrees)
 {
     return degrees * (PI / 180);
 }
@@ -550,7 +559,7 @@ void test(void)
     assert(fabs(PI - degrees_to_radians(180)) < tolerance);
 
     /*
-    next row location
+    get index for row
     */
     //1st step north
     ttl.direction = 0;
@@ -569,6 +578,29 @@ void test(void)
     assert(next_row() == ROW_START - 2);
     //teardown
     ttl.len = 0;
+
+    /*
+    get index for column
+    */
+    //column doesn't change when going north
+    ttl.direction = 0;
+    ttl.path[0].col = COL_START;
+    ttl.path[0].row = ROW_START;
+    ttl.len = 1;
+    assert(next_col() == COL_START);
+    //teardown
+    ttl.len = 0;
+    
+    //column + 1 when going East
+    ttl.direction = degrees_to_radians(90);
+    ttl.path[0].col = COL_START;
+    ttl.path[0].row = ROW_START;
+    ttl.len = 1;
+    assert(next_col() == COL_START + 1);
+    //teardown
+    ttl.direction = 0;
+    ttl.len = 0;
+
   
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
@@ -578,7 +610,7 @@ void test(void)
     Token *fwd1 = new_token("1");
     fwd->next=fwd1;
     assert(is_forward(fwd));
-    assert(ttl.len == 1);
+    assert(ttl.len == 2);
     assert(ttl.path[0].col == COL_START);
     assert(ttl.path[0].row == ROW_START);
     //teardown
@@ -591,7 +623,7 @@ void test(void)
     Token *fwd_many1 = new_token("4");
     fwd_many->next=fwd_many1;
     assert(is_forward(fwd_many));
-    assert(ttl.len == steps);
+    assert(ttl.len == steps + 1);
     for (int i = 0; i < steps; i++)
     {
         assert(ttl.path[i].row == ROW_START - i);
@@ -601,6 +633,33 @@ void test(void)
     ttl.len = 0;
     free_tokens(fwd_many);
     
+    //forward, turn right, forward
+    Token *fwd_rgt_fwd = new_token("FORWARD");
+    Token *fwd_rgt_fwd1 = new_token("1");
+    Token *fwd_rgt_fwd2 = new_token("RIGHT");
+    Token *fwd_rgt_fwd3 = new_token("90");
+    Token *fwd_rgt_fwd4 = new_token("FORWARD");
+    Token *fwd_rgt_fwd5 = new_token("1");
+    fwd_rgt_fwd->next = fwd_rgt_fwd1;
+    fwd_rgt_fwd1->next = fwd_rgt_fwd2;
+    fwd_rgt_fwd2->next = fwd_rgt_fwd3;
+    fwd_rgt_fwd3->next = fwd_rgt_fwd4;
+    fwd_rgt_fwd4->next = fwd_rgt_fwd5;
+    assert(is_forward(fwd_rgt_fwd));
+    assert(is_rgt(fwd_rgt_fwd2));
+    assert(is_forward(fwd_rgt_fwd4));
+    assert(ttl.len == 3);
+    assert(ttl.path[0].col == COL_START);
+    assert(ttl.path[0].row == ROW_START);
+    assert(ttl.path[1].col == COL_START);
+    assert(ttl.path[1].row == ROW_START - 1);
+    assert(ttl.path[2].col == COL_START + 1);
+    assert(ttl.path[2].row == ROW_START - 1);
+    //teardown
+    ttl.len = 0;
+    ttl.direction = 0;
+    free_tokens(fwd_rgt_fwd);
+
     exit(EXIT_FAILURE);
 
     Token *fwd2 = new_token("FORWARD");
@@ -608,6 +667,7 @@ void test(void)
     fwd2->next = fwd3;
     assert(is_forward(fwd2));
     free_tokens(fwd2);
+    
 
     Token *fwd4 = new_token("FORWARD");
     Token *fwd5 = new_token("FOWARD");
@@ -623,6 +683,7 @@ void test(void)
     rgt_test->next=rgt_test1;
     assert(is_rgt(rgt_test));
     free_tokens(rgt_test);
+    
 
     Token *rgt_test2 = new_token("RIGHT");
     Token *rgt_test3 = new_token("$A");

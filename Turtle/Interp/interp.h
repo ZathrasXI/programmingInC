@@ -47,6 +47,8 @@ typedef struct token
 void test(void);
 void init_ttl();
 int next_row(void);
+int next_col(void);
+double degrees_to_radians(double degrees);
 Token *new_token(char *c);
 void free_tokens(Token* head);
 bool is_number(char *c);
