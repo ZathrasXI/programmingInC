@@ -1,8 +1,12 @@
 #include "interp.h"
 
+static Turtle ttl;
+
 int main(int argc, char **argv)
 {
+    init_ttl();
     test();
+
     if (argc == ONE_ARG)
     {
         printf("Usage: ./interpreter <turtle file>\n");
@@ -24,6 +28,7 @@ int main(int argc, char **argv)
     Token *head;
     while (fscanf(turtle_file, "%s", buffer) == 1)
     {
+        //TODO: count forward commands
         if (!head)
         {
             head = new_token(buffer);
@@ -36,6 +41,8 @@ int main(int argc, char **argv)
         }
     }
 
+
+
     if (!is_prog(head))
     {
         fprintf(stderr, "file not parsed\n");
@@ -43,6 +50,8 @@ int main(int argc, char **argv)
     }
 
     free_tokens(head);
+    free(ttl.path);
+    // free(ttl.vars);
     fclose(turtle_file);
     return 0;
 }
@@ -173,6 +182,22 @@ bool is_forward(Token *t)
         is_varnum(t->next->str)
     )
     {
+        int steps;
+        sscanf(t->next->str, "%d", &steps);
+        for (int i = 0; i < steps; i++)
+        {
+            if (ttl.len == 0)
+            {
+                ttl.path[ttl.len].col = COL_START;
+                ttl.path[ttl.len].row = ROW_START;
+            }
+            else
+            {
+                ttl.path[ttl.len].row = next_row();
+            }
+            ttl.len++;
+        }
+
         return true;
     }
     return false;
@@ -427,8 +452,22 @@ bool is_prog(Token *t)
     return false;
 }
 
+int next_row(void)
+{
+    return ttl.path[ttl.len-1].row - (int)round(1 * cos(ttl.direction));
+}
+
 void test(void)
 {
+    /*
+    TTL is initialised with correct values
+    */
+    assert(ttl.len == 0);
+    assert((int) ttl.direction == 0);
+    assert(ttl.capacity == PATH);
+    assert(ttl.colour == 'W');
+    assert(ttl.path != NULL);
+
     /*
     can store a token in a node
     */
@@ -496,13 +535,57 @@ void test(void)
     assert(!is_varnum("asdf$1fsafasdf"));
 
     /*
+    next row location
+    */
+    //1st step north
+    ttl.direction = 0;
+    ttl.path[0].col = COL_START;
+    ttl.path[0].row = ROW_START;
+    ttl.len = 1;
+    assert(next_row() == ROW_START - 1);
+    //teardown
+    ttl.len = 0;
+
+    //4 steps north
+    ttl.direction = 0;
+    ttl.path[1].col = COL_START;
+    ttl.path[1].row = ROW_START - 1;
+    ttl.len = 2;
+    assert(next_row() == ROW_START - 2);
+    //teardown
+    ttl.len = 0;
+  
+    /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
+    //can store forward step
     Token *fwd = new_token("FORWARD");
     Token *fwd1 = new_token("1");
     fwd->next=fwd1;
     assert(is_forward(fwd));
+    assert(ttl.len == 1);
+    assert(ttl.path[0].col == COL_START);
+    assert(ttl.path[0].row == ROW_START);
+    //teardown
+    ttl.len = 0;
     free_tokens(fwd);
+
+    // 4 steps northward
+    int steps = 4;
+    Token *fwd_many = new_token("FORWARD");
+    Token *fwd_many1 = new_token("4");
+    fwd_many->next=fwd_many1;
+    assert(is_forward(fwd_many));
+    assert(ttl.len == steps);
+    for (int i = 0; i < steps; i++)
+    {
+        assert(ttl.path[i].row == ROW_START - i);
+    }
+    //TODO assert value of COL doesn't change
+    //teardown
+    // ttl.len = 0;
+    free_tokens(fwd_many);
+    
 
     Token *fwd2 = new_token("FORWARD");
     Token *fwd3 = new_token("$A");
@@ -1078,5 +1161,26 @@ void test(void)
     assert(is_prog(full_prog1));
     free_tokens(full_prog1);
 
+
 }
 
+void init_ttl()
+{
+    //TODO test this
+    ttl.len = 0;
+    ttl.capacity = PATH;
+    ttl.direction = 0;
+    ttl.colour = 'W';
+    ttl.path = calloc(PATH, sizeof(Loc));
+    if (!ttl.path)
+    {
+        fprintf(stderr, "error allocating memory for turtle's path\n");
+        exit(EXIT_FAILURE);
+    }
+    // ttl.vars = calloc(MAX_VARS, sizeof(char));
+    // if (!ttl.vars)
+    // {
+    //     fprintf(stderr, "error allocating memory for turtle's variables\n");
+    //     exit(EXIT_FAILURE);
+    // }
+}

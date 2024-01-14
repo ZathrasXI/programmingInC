@@ -6,7 +6,7 @@ VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 
 interp: interp.h interp.c
-	$(CC) interp.c $(SANITIZE) -o interpreter
+	$(CC) interp.c $(SANITIZE) -o interpreter -lm
 
 val: interp.c interp.h
 	$(CC) interp.c $(VALGRIND) -o val_interp

@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <regex.h>
+#include <math.h>
 
 #define TOKEN_LEN 30
 #define ONE_ARG 1
@@ -12,7 +13,30 @@
 #define INIT_SIZE 1
 #define STR_ONLY_QUOTES 2
 #define SPACE_ASCII 32
+//TODO find less rigid alternative
+#define PATH 100
+//2D array is 51 wide, 33 high
+#define COL_START 25
+#define ROW_START 16
+#define MAX_VARS 26
+#define ASCII_TO_NUM 65
+#define PI 3.14159265358979323846
 
+typedef struct loc
+{
+    int row;
+    int col;
+} Loc;
+
+typedef struct turtle 
+{
+    Loc *path;
+    int len;
+    int capacity;
+    char colour;
+    double direction;
+    // char *vars;
+} Turtle;
 
 typedef struct token
 {
@@ -20,8 +44,9 @@ typedef struct token
     struct token *next;
 } Token;
 
-
 void test(void);
+void init_ttl();
+int next_row(void);
 Token *new_token(char *c);
 void free_tokens(Token* head);
 bool is_number(char *c);
