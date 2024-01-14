@@ -194,6 +194,7 @@ bool is_forward(Token *t)
             else
             {
                 ttl.path[ttl.len].row = next_row();
+                ttl.path[ttl.len].col = COL_START;
             }
             ttl.len++;
         }
@@ -457,6 +458,11 @@ int next_row(void)
     return ttl.path[ttl.len-1].row - (int)round(1 * cos(ttl.direction));
 }
 
+double degrees_to_radians(int degrees)
+{
+    return degrees * (PI / 180);
+}
+
 void test(void)
 {
     /*
@@ -535,6 +541,15 @@ void test(void)
     assert(!is_varnum("asdf$1fsafasdf"));
 
     /*
+    can convert degrees to radians
+    */
+    double tolerance = 0.0000001;
+    assert(fabs(0 * (PI/180) - degrees_to_radians(0)) < tolerance);
+    assert(fabs(359 * (PI/180) - degrees_to_radians(359)) < tolerance);
+    assert(fabs(62 * (PI/180) - degrees_to_radians(62)) < tolerance);
+    assert(fabs(PI - degrees_to_radians(180)) < tolerance);
+
+    /*
     next row location
     */
     //1st step north
@@ -580,12 +595,13 @@ void test(void)
     for (int i = 0; i < steps; i++)
     {
         assert(ttl.path[i].row == ROW_START - i);
+        assert(ttl.path[i].col == COL_START);
     }
-    //TODO assert value of COL doesn't change
     //teardown
-    // ttl.len = 0;
+    ttl.len = 0;
     free_tokens(fwd_many);
     
+    exit(EXIT_FAILURE);
 
     Token *fwd2 = new_token("FORWARD");
     Token *fwd3 = new_token("$A");
