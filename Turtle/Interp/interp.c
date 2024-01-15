@@ -189,8 +189,7 @@ bool is_forward(Token *t)
         }
         else
         {
-            int index;
-            sscanf(t->next->str+1, "%d", &index);
+            int index = t->next->str[1] - ASCII_TO_NUM;
             steps = ttl.vars[index];
         }
         if (steps > 0)
@@ -222,12 +221,17 @@ bool is_rgt(Token *t)
         is_varnum(t->next->str)
     )
     {
+        double degrees;
         if (is_number(t->next->str))
         {
-            double degrees;
             sscanf(t->next->str, "%lf", &degrees);
-            ttl.direction += degrees_to_radians(degrees);
         }
+        else 
+        {
+            int index = t->next->str[1] - ASCII_TO_NUM;
+            degrees = ttl.vars[index];
+        }
+        ttl.direction += degrees_to_radians(degrees);
         return true;
     }
     return false;
@@ -565,7 +569,7 @@ void test(void)
     /*
     can convert degrees to radians
     */
-    double tolerance = 0.0000001;
+    double tolerance = 0.000001;
     assert(fabs(0 * (PI/180) - degrees_to_radians(0)) < tolerance);
     assert(fabs(359 * (PI/180) - degrees_to_radians(359)) < tolerance);
     assert(fabs(62 * (PI/180) - degrees_to_radians(62)) < tolerance);
@@ -646,7 +650,7 @@ void test(void)
     ttl.len = 0;
     free_tokens(fwd_many);
     
-    //forward, turn right, forward
+    //forward, turn 90, forward
     Token *fwd_rgt_fwd = new_token("FORWARD");
     Token *fwd_rgt_fwd1 = new_token("1");
     Token *fwd_rgt_fwd2 = new_token("RIGHT");
@@ -673,6 +677,7 @@ void test(void)
     ttl.direction = 0;
     free_tokens(fwd_rgt_fwd);
 
+    //awkward angle
     //forward 1, right 62, forward 4
     Token *fwd_rgt_fwd6 = new_token("FORWARD");
     Token *fwd_rgt_fwd7 = new_token("1");
@@ -701,51 +706,71 @@ void test(void)
     assert(ttl.path[4].col == COL_START + 3);
     assert(ttl.path[5].row == ROW_START - 2);
     assert(ttl.path[5].col == COL_START + 4);
-
     //teardown
     ttl.len = 0;
     ttl.direction = 0;
     free_tokens(fwd_rgt_fwd6);
 
-    //unset variables == 0
+    //turtle doesn't move when var == 0
     Token *fwd2 = new_token("FORWARD");
     Token *fwd3 = new_token("$A");
     fwd2->next = fwd3;
     assert(is_forward(fwd2));
-    free_tokens(fwd2);
     assert(ttl.len == 0);
+    //teardown
+    free_tokens(fwd2);
     
-    exit(EXIT_FAILURE);
-    
-
     Token *fwd4 = new_token("FORWARD");
     Token *fwd5 = new_token("FOWARD");
     fwd4->next = fwd5;
     assert(!is_forward(fwd4));
     free_tokens(fwd4);
 
+
     /*
     is_rgt() <RGT> ::= "RIGHT" <VARNUM>
     */
+    ttl.direction = 0;
+    double one_degree_in_rads = 0.017453;
     Token *rgt_test = new_token("RIGHT");
     Token *rgt_test1 = new_token("1");
     rgt_test->next=rgt_test1;
     assert(is_rgt(rgt_test));
+    assert(fabs(ttl.direction - one_degree_in_rads) < tolerance);
+    //teardown
+    ttl.direction = 0;
     free_tokens(rgt_test);
     
-
+    // no rotation when variable == 0
+    double zero_direction = 0.0;
     Token *rgt_test2 = new_token("RIGHT");
     Token *rgt_test3 = new_token("$A");
     rgt_test2->next=rgt_test3;
     assert(is_rgt(rgt_test2));
+    assert(fabs(zero_direction - ttl.direction) < tolerance);
+    //teardown
     free_tokens(rgt_test2);
 
+    //direction == $var converted to rads
+    ttl.vars[0] = 359;
+    double rads = degrees_to_radians(ttl.vars[0]);
     Token *rgt_test4 = new_token("RIGHT");
-    Token *rgt_test5 = new_token("\"WORD\"");
+    Token *rgt_test5 = new_token("$A");
     rgt_test4->next=rgt_test5;
-    assert(!is_rgt(rgt_test4));
+    assert(is_rgt(rgt_test4));
+    assert(fabs(ttl.direction - rads) < tolerance);
+    //teardown
+    ttl.direction = 0;
     free_tokens(rgt_test4);
 
+
+    Token *rgt_test6 = new_token("RIGHT");
+    Token *rgt_test7 = new_token("\"WORD\"");
+    rgt_test6->next=rgt_test7;
+    assert(!is_rgt(rgt_test6));
+    free_tokens(rgt_test6);
+
+    exit(EXIT_FAILURE);
     /*
     is_word() a string as defined by scanf("%s"), must be encapsulated by ""
     */
