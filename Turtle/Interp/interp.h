@@ -46,8 +46,8 @@ typedef struct token
 
 void test(void);
 void init_ttl();
-int next_row(void);
-int next_col(void);
+int next_row(int line_start, int step_n);
+int next_col(int line_start, int step_n);
 double degrees_to_radians(double degrees);
 Token *new_token(char *c);
 void free_tokens(Token* head);

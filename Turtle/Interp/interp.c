@@ -190,10 +190,12 @@ bool is_forward(Token *t)
             ttl.path[ttl.len].row = ROW_START;
             ttl.len++;
         }
+        int row_line_start = next_row(ttl.path[ttl.len-1].row, 1);
+        int col_line_start = next_col(ttl.path[ttl.len-1].col, 1);
         for (int i = 0; i < steps; i++)
         {
-            ttl.path[ttl.len].row = next_row();
-            ttl.path[ttl.len].col = next_col();
+            ttl.path[ttl.len].row = next_row(row_line_start, i);
+            ttl.path[ttl.len].col = next_col(col_line_start, i);
             ttl.len++;
         }
 
@@ -457,14 +459,14 @@ bool is_prog(Token *t)
     return false;
 }
 
-int next_row(void)
+int next_row(int line_start, int step_n)
 {
-    return ttl.path[ttl.len-1].row - (int)round(1 * cos(ttl.direction));
+    return line_start - (int)round(step_n * cos(ttl.direction));
 }
 
-int next_col(void)
+int next_col(int line_start, int step_n)
 {
-    return ttl.path[ttl.len-1].col + (int)round(1 * sin(ttl.direction));
+    return line_start + (int)round(step_n * sin(ttl.direction));
 }
 
 double degrees_to_radians(double degrees)
@@ -561,21 +563,21 @@ void test(void)
     /*
     get index for row
     */
-    //1st step north
+    //1 step north
+    // ttl.direction = 0;
+    // ttl.path[0].col = COL_START;
+    // ttl.path[0].row = ROW_START;
+    // ttl.len = 1;
+    // assert(next_row(1) == ROW_START - 1);
+    // //teardown
+    // ttl.len = 0;
+
+    //2 steps north
     ttl.direction = 0;
     ttl.path[0].col = COL_START;
     ttl.path[0].row = ROW_START;
     ttl.len = 1;
-    assert(next_row() == ROW_START - 1);
-    //teardown
-    ttl.len = 0;
-
-    //4 steps north
-    ttl.direction = 0;
-    ttl.path[1].col = COL_START;
-    ttl.path[1].row = ROW_START - 1;
-    ttl.len = 2;
-    assert(next_row() == ROW_START - 2);
+    assert(next_row(ROW_START, 1) == ROW_START - 1);
     //teardown
     ttl.len = 0;
 
@@ -587,7 +589,7 @@ void test(void)
     ttl.path[0].col = COL_START;
     ttl.path[0].row = ROW_START;
     ttl.len = 1;
-    assert(next_col() == COL_START);
+    assert(next_col(COL_START,1) == COL_START);
     //teardown
     ttl.len = 0;
     
@@ -596,7 +598,7 @@ void test(void)
     ttl.path[0].col = COL_START;
     ttl.path[0].row = ROW_START;
     ttl.len = 1;
-    assert(next_col() == COL_START + 1);
+    assert(next_col(COL_START, 1) == COL_START + 1);
     //teardown
     ttl.direction = 0;
     ttl.len = 0;
@@ -659,6 +661,40 @@ void test(void)
     ttl.len = 0;
     ttl.direction = 0;
     free_tokens(fwd_rgt_fwd);
+
+    //forward 1, right 62, forward 4
+    Token *fwd_rgt_fwd6 = new_token("FORWARD");
+    Token *fwd_rgt_fwd7 = new_token("1");
+    Token *fwd_rgt_fwd8 = new_token("RIGHT");
+    Token *fwd_rgt_fwd9 = new_token("62");
+    Token *fwd_rgt_fwd10 = new_token("FORWARD");
+    Token *fwd_rgt_fwd11 = new_token("4");
+    fwd_rgt_fwd6->next = fwd_rgt_fwd7;
+    fwd_rgt_fwd7->next = fwd_rgt_fwd8;
+    fwd_rgt_fwd8->next = fwd_rgt_fwd9;
+    fwd_rgt_fwd9->next = fwd_rgt_fwd10;
+    fwd_rgt_fwd10->next = fwd_rgt_fwd11;
+    assert(is_forward(fwd_rgt_fwd6));
+    assert(is_rgt(fwd_rgt_fwd8));
+    assert(is_forward(fwd_rgt_fwd10));
+    assert(ttl.len == 6);
+    assert(ttl.path[0].row == ROW_START);
+    assert(ttl.path[0].col == COL_START);
+    assert(ttl.path[1].row == ROW_START - 1);
+    assert(ttl.path[1].col == COL_START);
+    assert(ttl.path[2].row == ROW_START - 1);
+    assert(ttl.path[2].col == COL_START + 1);
+    assert(ttl.path[3].row == ROW_START - 1);
+    assert(ttl.path[3].col == COL_START + 2);
+    assert(ttl.path[4].row == ROW_START - 2);
+    assert(ttl.path[4].col == COL_START + 3);
+    assert(ttl.path[5].row == ROW_START - 2);
+    assert(ttl.path[5].col == COL_START + 4);
+
+    //teardown
+    ttl.len = 0;
+    ttl.direction = 0;
+    free_tokens(fwd_rgt_fwd6);
 
     exit(EXIT_FAILURE);
 
