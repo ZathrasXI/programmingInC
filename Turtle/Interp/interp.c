@@ -183,22 +183,33 @@ bool is_forward(Token *t)
     )
     {
         int steps;
-        sscanf(t->next->str, "%d", &steps);
-        if (ttl.len == 0)
+        if (is_number(t->next->str))
         {
-            ttl.path[ttl.len].col = COL_START;
-            ttl.path[ttl.len].row = ROW_START;
-            ttl.len++;
+            sscanf(t->next->str, "%d", &steps);
         }
-        int row_line_start = next_row(ttl.path[ttl.len-1].row, 1);
-        int col_line_start = next_col(ttl.path[ttl.len-1].col, 1);
-        for (int i = 0; i < steps; i++)
+        else
         {
-            ttl.path[ttl.len].row = next_row(row_line_start, i);
-            ttl.path[ttl.len].col = next_col(col_line_start, i);
-            ttl.len++;
+            int index;
+            sscanf(t->next->str+1, "%d", &index);
+            steps = ttl.vars[index];
         }
-
+        if (steps > 0)
+        {
+            if (ttl.len == 0)
+            {
+                ttl.path[ttl.len].col = COL_START;
+                ttl.path[ttl.len].row = ROW_START;
+                ttl.len++;
+            }
+            int row_line_start = next_row(ttl.path[ttl.len-1].row, 1);
+            int col_line_start = next_col(ttl.path[ttl.len-1].col, 1);
+            for (int i = 0; i < steps; i++)
+            {
+                ttl.path[ttl.len].row = next_row(row_line_start, i);
+                ttl.path[ttl.len].col = next_col(col_line_start, i);
+                ttl.len++;
+            }
+        }
         return true;
     }
     return false;
@@ -696,13 +707,15 @@ void test(void)
     ttl.direction = 0;
     free_tokens(fwd_rgt_fwd6);
 
-    exit(EXIT_FAILURE);
-
+    //unset variables == 0
     Token *fwd2 = new_token("FORWARD");
     Token *fwd3 = new_token("$A");
     fwd2->next = fwd3;
     assert(is_forward(fwd2));
     free_tokens(fwd2);
+    assert(ttl.len == 0);
+    
+    exit(EXIT_FAILURE);
     
 
     Token *fwd4 = new_token("FORWARD");
@@ -1290,10 +1303,10 @@ void init_ttl()
         fprintf(stderr, "error allocating memory for turtle's path\n");
         exit(EXIT_FAILURE);
     }
-    // ttl.vars = calloc(MAX_VARS, sizeof(char));
-    // if (!ttl.vars)
-    // {
-    //     fprintf(stderr, "error allocating memory for turtle's variables\n");
-    //     exit(EXIT_FAILURE);
-    // }
+    ttl.vars = calloc(MAX_VARS, sizeof(double));
+    if (!ttl.vars)
+    {
+        fprintf(stderr, "error allocating memory for turtle's variables\n");
+        exit(EXIT_FAILURE);
+    }
 }

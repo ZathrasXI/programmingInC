@@ -35,7 +35,7 @@ typedef struct turtle
     int capacity;
     char colour;
     double direction;
-    // char *vars;
+    double *vars;
 } Turtle;
 
 typedef struct token
