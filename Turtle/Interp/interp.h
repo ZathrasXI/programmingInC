@@ -75,3 +75,4 @@ bool is_ins(Token *t);
 bool is_inslst(Token *t);
 bool loop_closed(Token *t);
 bool is_prog(Token *t);
+void panic_msg(char *msg);

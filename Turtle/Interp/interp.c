@@ -19,8 +19,7 @@ int main(int argc, char **argv)
     FILE *turtle_file = fopen(instruction_file_name, "r");
     if (!turtle_file)
     {
-        fprintf(stderr, "error opening file\n");
-        exit(EXIT_FAILURE);
+        panic_msg("opening file");
     }
 
     char buffer[TOKEN_LEN];
@@ -45,8 +44,7 @@ int main(int argc, char **argv)
 
     if (!is_prog(head))
     {
-        fprintf(stderr, "file not parsed\n");
-        exit(EXIT_FAILURE);
+        panic_msg("file not parsed");
     }
 
     free_tokens(head);
@@ -62,14 +60,12 @@ Token *new_token(char *c)
     Token *new = (Token *) calloc(INIT_SIZE, sizeof(Token));
     if (!new)
     {
-        fprintf(stderr, "error allocating memory\n");
-        exit(EXIT_FAILURE);
+        panic_msg("allocating memory for Token");
     }
     new->str = (char *) calloc(len + 1, sizeof(char));
     if (!new->str)
     {
-        fprintf(stderr, "error allocating memory\n");
-        exit(EXIT_FAILURE);
+        panic_msg("allocating memory a Token's string");
     }
     strcpy(new->str, c);
     new->next = NULL;
@@ -95,8 +91,7 @@ bool is_number(char *c)
 
     if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
     {
-        fprintf(stderr, "failed to compile regex pattern\n");
-        exit(EXIT_FAILURE);
+        panic_msg("failed to compile regex pattern");
     }
 
     if (regexec(&regex, c, 0, NULL, 0) == 0)
@@ -118,8 +113,7 @@ bool is_letter(char *c)
 
     if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
     {
-        fprintf(stderr, "failed to compile regex pattern\n");
-        exit(EXIT_FAILURE);
+        panic_msg("failed to compile regex pattern");
     }
 
     if (regexec(&regex, c, 0, NULL, 0) == 0)
@@ -141,8 +135,7 @@ bool is_op(char *c)
 
     if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
     {
-        fprintf(stderr, "failed to compile regex pattern\n");
-        exit(EXIT_FAILURE);
+        panic_msg("failed to compile regex pattern");
     }
 
     if (regexec(&regex, c, 0, NULL, 0) == 0)
@@ -315,8 +308,7 @@ bool is_col(Token *t)
             //error allocating memory for {...}
             if (!str)
             {
-                fprintf(stderr, "error allocating memory for string\n");
-                exit(EXIT_FAILURE);
+                panic_msg("allocating memory for string (colour)");
             }
             strcpy(str, ttl.vars[index].word);
         }
@@ -326,8 +318,7 @@ bool is_col(Token *t)
             str = calloc(len, sizeof(char));
             if (!str)
             {
-                fprintf(stderr, "error allocating memory for string\n");
-                exit(EXIT_FAILURE);
+                panic_msg("allocating memory for string (colour)");
             }
             strcpy(str, t->next->str);
         }
@@ -950,8 +941,7 @@ void test(void)
     ttl.vars[25].word = calloc(len, sizeof(char));
     if (!ttl.vars[25].word)
     {
-        fprintf(stderr, "error allocating memory for test\n");
-        exit(EXIT_FAILURE);
+        panic_msg("allocating memory for test");
     }
     strcpy(ttl.vars[25].word, magenta);
     Token *col_test = new_token("COLOUR");
@@ -969,8 +959,7 @@ void test(void)
     ttl.vars[0].word = calloc(len, sizeof(char));
     if (!ttl.vars[0].word)
     {
-        fprintf(stderr, "error allocating memory for test\n");
-        exit(EXIT_FAILURE);
+        panic_msg("allocating memory for test");
     }
     strcpy(ttl.vars[0].word, rust);
     Token *col_test8 = new_token("COLOUR");
@@ -1418,13 +1407,10 @@ void test(void)
     full_prog28->next=full_prog29;
     assert(is_prog(full_prog1));
     free_tokens(full_prog1);
-
-
 }
 
 void init_ttl()
 {
-    //TODO test this
     ttl.len = 0;
     ttl.capacity = PATH;
     ttl.direction = 0;
@@ -1432,13 +1418,17 @@ void init_ttl()
     ttl.path = calloc(PATH, sizeof(Loc));
     if (!ttl.path)
     {
-        fprintf(stderr, "error allocating memory for turtle's path\n");
-        exit(EXIT_FAILURE);
+        panic_msg("allocating memory for turtle's path");
     }
     ttl.vars = calloc(MAX_VARS, sizeof(Var));
     if (!ttl.vars)
     {
-        fprintf(stderr, "error allocating memory for turtle's variables\n");
-        exit(EXIT_FAILURE);
+        panic_msg("allocating memory for turtle's variables");
     }
+}
+
+void panic_msg(char *msg)
+{
+    fprintf(stderr, "error: %s\n", msg);
+    exit(EXIT_FAILURE);
 }
