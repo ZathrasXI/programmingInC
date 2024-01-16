@@ -52,6 +52,7 @@ typedef struct token
 
 void test(void);
 void init_ttl();
+int get_var_index(char *var_name);
 int next_row(int line_start, int step_n);
 int next_col(int line_start, int step_n);
 double degrees_to_radians(double degrees);

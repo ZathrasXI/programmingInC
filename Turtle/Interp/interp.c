@@ -182,8 +182,7 @@ bool is_forward(Token *t)
         }
         else
         {
-            int index = t->next->str[1] - ASCII_TO_NUM;
-            steps = ttl.vars[index].num;
+            steps = ttl.vars[get_var_index(t->next->str)].num;
         }
         if (steps > 0)
         {
@@ -221,8 +220,7 @@ bool is_rgt(Token *t)
         }
         else 
         {
-            int index = t->next->str[1] - ASCII_TO_NUM;
-            degrees = ttl.vars[index].num;
+            degrees = ttl.vars[get_var_index(t->next->str)].num;
         }
         ttl.direction += degrees_to_radians(degrees);
         return true;
@@ -300,12 +298,10 @@ bool is_col(Token *t)
         char *str;
         if (is_var(t->next->str))
         {
-            //TODO make this a funciton
-            int index = t->next->str[1] - ASCII_TO_NUM;
+            //TODO make this a function
+            int index = get_var_index(t->next->str);
             int len = strlen(ttl.vars[index].word) + 1;
             str = calloc(len, sizeof(char));
-            //TODO make this a function, can pass in a string literal 
-            //error allocating memory for {...}
             if (!str)
             {
                 panic_msg("allocating memory for string (colour)");
@@ -544,6 +540,11 @@ int next_col(int line_start, int step_n)
 double degrees_to_radians(double degrees)
 {
     return degrees * (PI / 180);
+}
+
+int get_var_index(char *var_name)
+{
+    return var_name[1] - ASCII_TO_NUM;
 }
 
 void test(void)
@@ -820,6 +821,16 @@ void test(void)
     rgt_test6->next=rgt_test7;
     assert(!is_rgt(rgt_test6));
     free_tokens(rgt_test6);
+
+    /*
+    get index of a variable,e.g. index of $A
+    */
+    char *vars[] = {"$A", "$B", "$C", "$D", "$E", "$F", "$G", "$H", "$I", "$J", 
+    "$K", "$L", "$M", "$N", "$O", "$P", "$Q", "$R", "$S", "$T", "$U", "$V", "$W", "$X", "$Y", "$Z"};
+    for (int i = 0; i < 26; i++)
+    {
+        assert(get_var_index(vars[i]) == i);
+    }
 
     /*
     is_word() a string as defined by scanf("%s"), must be encapsulated by ""
