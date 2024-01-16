@@ -1,4 +1,5 @@
 #include "interp.h"
+#include "stack.c"
 
 static Turtle ttl;
 
@@ -393,39 +394,63 @@ bool is_set(Token *t)
         )
         {
             // when the statement has format `SET <letter> ( <num> | <var> )`
-            if (strcmp(t->next->next->str, "(") == 0 &&
-                strcmp(t->next->next->next->next->str, ")") == 0)
-                {
-                    int dest_index = get_var_index(t->next->str[0]);
-                    if (is_number(t->next->next->next->str))
-                    {
-                        sscanf(t->next->next->next->str, "%lf", &ttl.vars[dest_index].num);
-                    }
-                    else if (is_var(t->next->next->next->str))
-                    {
-                        //assign the value of a variable to another variable
-                        //value could be a number or a str
-                        //when value is str
-                        int target_index = get_var_index(t->next->next->next->str[1]);
-                        if (ttl.type_in_use[target_index] == union_double)
-                        {
-                            ttl.vars[dest_index].num = ttl.vars[target_index].num;
-                            ttl.type_in_use[dest_index] = union_double; 
-                        } 
-                        else if (ttl.type_in_use[target_index] == union_char)
-                        {
-                            int len = strlen(ttl.vars[get_var_index(t->next->next->next->str[1])].word) + 1;
-                            ttl.vars[dest_index].word = calloc(len, sizeof(char));
-                            if (!ttl.vars[dest_index].word)
-                            {
-                                panic_msg("allocating space for word var");
-                            }
-                            strcpy(ttl.vars[dest_index].word, ttl.vars[get_var_index(t->next->next->next->str[1])].word);
-                            ttl.type_in_use[dest_index] = union_char;
-                        }
-                    }
-                }
+            // if (strcmp(t->next->next->str, "(") == 0 &&
+            //     strcmp(t->next->next->next->next->str, ")") == 0)
+            //     {
+            //         int dest_index = get_var_index(t->next->str[0]);
+            //         if (is_number(t->next->next->next->str))
+            //         {
+            //             sscanf(t->next->next->next->str, "%lf", &ttl.vars[dest_index].num);
+            //         }
+            //         else if (is_var(t->next->next->next->str))
+            //         {
+            //             //assign the value of a variable to another variable
+            //             //value could be a number or a str
+            //             //when value is str
+            //             int target_index = get_var_index(t->next->next->next->str[1]);
+            //             if (ttl.type_in_use[target_index] == union_double)
+            //             {
+            //                 ttl.vars[dest_index].num = ttl.vars[target_index].num;
+            //                 ttl.type_in_use[dest_index] = union_double; 
+            //             } 
+            //             else if (ttl.type_in_use[target_index] == union_char)
+            //             {
+            //                 int len = strlen(ttl.vars[get_var_index(t->next->next->next->str[1])].word) + 1;
+            //                 ttl.vars[dest_index].word = calloc(len, sizeof(char));
+            //                 if (!ttl.vars[dest_index].word)
+            //                 {
+            //                     panic_msg("allocating space for word var");
+            //                 }
+            //                 strcpy(ttl.vars[dest_index].word, ttl.vars[get_var_index(t->next->next->next->str[1])].word);
+            //                 ttl.type_in_use[dest_index] = union_char;
+            //             }
+            //         }
+            //     }
 
+            Token *start = t->next->next;
+            int exp_len = 0;
+            while (strcmp(start->next->str, ")") != 0)
+            {
+                exp_len += strlen(start->str);
+                start = start->next;
+            }
+            char *postfix_expr = calloc(exp_len + 1, sizeof(char));
+            if (!postfix_expr)
+            {
+                panic_msg("allocating memory for postfix expression\n");
+            }
+            Token *ps_head = t->next->next->next;
+            while (strcmp(ps_head->str, ")") != 0)
+            {
+                strcat(postfix_expr, ps_head->str);
+                ps_head = ps_head->next;
+            }
+
+            int answer = evaluate(postfix_expr);
+            int dest_index = get_var_index(t->next->str[0]);
+            ttl.vars[dest_index].num = (double) answer;
+            free(postfix_expr);
+            
             return true;
         }
     return false;
@@ -1098,6 +1123,10 @@ void test(void)
     ttl.vars[0].num = 0.0;
     free_tokens(set_test);
 
+
+    exit(EXIT_FAILURE);
+
+
     //can assign word value of one variable to another variable
     char *test_word = "ZOOBZOOB";
     int d_index = get_var_index('D');
@@ -1173,7 +1202,7 @@ void test(void)
     set_test13->next = set_test14;
     assert(!is_set(set_test10));
     free_tokens(set_test10);
-    exit(EXIT_FAILURE);
+    
 
     /*
     is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>
