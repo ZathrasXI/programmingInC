@@ -1,7 +1,6 @@
 #include "interp.h"
 #include "stack.c"
 
-static Turtle ttl;
 
 int main(int argc, char **argv)
 {
@@ -428,29 +427,37 @@ bool is_set(Token *t)
             //     }
 
             Token *start = t->next->next;
-            int exp_len = 0;
+            int token_count = 0;
             while (strcmp(start->next->str, ")") != 0)
             {
-                exp_len += strlen(start->str);
+                token_count++;
                 start = start->next;
             }
-            char *postfix_expr = calloc(exp_len + 1, sizeof(char));
+            char **postfix_expr = calloc(token_count, sizeof(char*));
             if (!postfix_expr)
             {
                 panic_msg("allocating memory for postfix expression\n");
             }
             Token *ps_head = t->next->next->next;
+            int i = 0;
             while (strcmp(ps_head->str, ")") != 0)
             {
-                strcat(postfix_expr, ps_head->str);
+                int len = strlen(ps_head->str);
+                postfix_expr[i] = calloc(len + 1, sizeof(char));
+                strcat(postfix_expr[i], ps_head->str);
                 ps_head = ps_head->next;
+                i++;
             }
 
-            int answer = evaluate(postfix_expr);
+            int answer = evaluate(postfix_expr, token_count);
+            printf("%d\n",answer);
             int dest_index = get_var_index(t->next->str[0]);
             ttl.vars[dest_index].num = (double) answer;
+            for (int i = 0; i < token_count; i++)
+            {
+                free(postfix_expr[i]);
+            }
             free(postfix_expr);
-            
             return true;
         }
     return false;

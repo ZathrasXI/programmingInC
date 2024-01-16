@@ -5,7 +5,7 @@ SANITIZE= $(COMMON) -fsanitize=undefined -fsanitize=address $(DEBUG)
 VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 
-interp: interp.h interp.c
+interp: interp.h interp.c stack.c
 	$(CC) interp.c $(SANITIZE) -o interpreter -lm
 
 val: interp.c interp.h

@@ -8,16 +8,16 @@
 #define EMPTY -1
 
 typedef struct {
-    int data[MAX_STACK_SIZE];
+    double data[MAX_STACK_SIZE];
     int top;
 } Stack;
 
 Stack *stack_init(void);
 bool is_empty(int top);
 bool is_full(int top);
-bool push(Stack *stack, int value);
-int pop(Stack *stack);
-int evaluate(char *exp);
+bool push(Stack *stack, double value);
+double pop(Stack *stack);
+int evaluate(char **exp, int len);
 
 // int main(void)
 // {
@@ -44,7 +44,7 @@ bool is_full(int top)
     return top == MAX_STACK_SIZE - 1;
 }
 
-bool push(Stack *stack, int value) 
+bool push(Stack *stack, double value) 
 {
     if (is_full(stack->top)) 
     {
@@ -55,7 +55,7 @@ bool push(Stack *stack, int value)
     return true;
 }
 
-int pop(Stack *stack)
+double pop(Stack *stack)
 {
     if (is_empty(stack->top))
     {
@@ -64,53 +64,90 @@ int pop(Stack *stack)
     return stack->data[stack->top--];
 }
 
-int evaluate(char *exp)
+int evaluate(char **exp, int len)
 {
     Stack *s = stack_init();
-    int i = 0;
     
-    while (exp[i])
+    for (int i = 0; i < len; i++)
     {
-        if (isdigit(exp[i]))
+        if (is_number(exp[i]))
         {
-            bool pushed = push(s, exp[i] - '0');
+            double num; 
+            sscanf(exp[i], "%lf", &num);
+            bool pushed = push(s, num);
             if (!pushed)
             {
                 fprintf(stderr,"stack overflow\n");
                 exit(EXIT_FAILURE);
             }
         }
+        else if (is_var(exp[i]))
+        {
+            //get index
+            //TODO check if is num or char type in use
+            int index = get_var_index(exp[i][1]);
+            bool pushed = push(s, ttl.vars[index].num);
+            if (!pushed)
+            {
+                panic_msg("pushing value to stack, possible stack overflow");
+            }
+        }
         else
         {
-            int op2 = pop(s);
-            int op1 = pop(s);
-            switch (exp[i])
+            double op2 = pop(s);
+            double op1 = pop(s);
+
+            if (strcmp(exp[i], "+") == 0)
             {
-            case '+':
-                push(s, op1+op2);
-                break;
-            case '-':
-                push(s, op1-op2);
-                break;
-            case '*':
-                push(s, op1*op2);
-                break;
-            case '/':
-                if (op2 == 0)
-                {
-                    fprintf(stderr, "division by 0 not possible\n");
-                    exit(EXIT_FAILURE);
-                }
-                push(s, op1/op2);
-                break;
-            default:
-            printf("%c\n", exp[i]);
-                fprintf(stderr, "invalid character\n");
-                exit(EXIT_FAILURE);
+                push(s, op1 + op2);
             }
+            else if (strcmp(exp[i], "-") == 0)
+            {
+                push(s, op1 - op2);
+            }
+            else if (strcmp(exp[i], "*") == 0)
+            {
+                push(s, op1 * op2);
+            }
+            else if (strcmp(exp[i], "/") == 0 && fabs(op2 - 0) < 0.0001)
+            {
+                //TODO replace 0 with #define NO_DIVISION_BY_ZERO
+                push(s, op1 / op2);
+            }
+            else
+            {
+                panic_msg("invalid character in postfix expression");
+            }
+
+
+
+
+            // switch (exp[i])
+            // {
+            // case '+':
+            //     push(s, op1+op2);
+            //     break;
+            // case '-':
+            //     push(s, op1-op2);
+            //     break;
+            // case '*':
+            //     push(s, op1*op2);
+            //     break;
+            // case '/':
+            //     if (op2 == 0)
+            //     {
+            //         fprintf(stderr, "division by 0 not possible\n");
+            //         exit(EXIT_FAILURE);
+            //     }
+            //     push(s, op1/op2);
+            //     break;
+            // default:
+            // printf("%c\n", exp[i]);
+            //     fprintf(stderr, "invalid character\n");
+            //     exit(EXIT_FAILURE);
+            // }
         
         }
-        i++;
     }
     int answer = pop(s);
     free(s);

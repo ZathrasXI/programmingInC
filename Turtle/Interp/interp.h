@@ -52,6 +52,8 @@ typedef struct token
     struct token *next;
 } Token;
 
+static Turtle ttl;
+
 void test(void);
 void init_ttl();
 int get_var_index(char var_name);
