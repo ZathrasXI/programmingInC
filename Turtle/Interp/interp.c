@@ -962,6 +962,26 @@ void test(void)
     free(ttl.vars[25].word);
     free_tokens(col_test);
 
+    //ttl.colour not updated when given invalid colour via variable
+    ttl.len = 0;
+    char *rust = "\"RUST\"";
+    len = strlen(rust) + 1;
+    ttl.vars[0].word = calloc(len, sizeof(char));
+    if (!ttl.vars[0].word)
+    {
+        fprintf(stderr, "error allocating memory for test\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(ttl.vars[0].word, rust);
+    Token *col_test8 = new_token("COLOUR");
+    Token *col_test9 = new_token("$A");
+    col_test8->next=col_test9;
+    assert(is_col(col_test8));
+    assert(ttl.colour == 'W');
+    free(ttl.vars[0].word);
+    free_tokens(col_test8);
+
+
     //ttl.colour is updated when given valid colour directly
     ttl.len = 0;
     Token *col_test6 = new_token("COLOUR");
@@ -971,18 +991,22 @@ void test(void)
     assert(ttl.colour == 'C');
     free_tokens(col_test6);
 
+    //ttl.colour not updated when given invalid colour directly
     Token *col_test2 = new_token("COLOUR");
     Token *col_test3 = new_token("\"FOX\"");
     col_test2->next=col_test3;
     assert(is_col(col_test2));
     assert(ttl.colour == 'W');
     free_tokens(col_test2);
-
+    
+    // invalid syntax
     Token *col_test4 = new_token("COLOUR");
     Token *col_test5 = new_token("END");
     col_test4->next=col_test5;
     assert(!is_col(col_test4));
     free_tokens(col_test4);
+
+
     exit(EXIT_FAILURE);
 
     /*
