@@ -22,6 +22,12 @@
 #define ASCII_TO_NUM 65
 #define PI 3.14159265358979323846
 
+typedef union var 
+{
+    double num;
+    char *word;
+} Var;
+
 typedef struct loc
 {
     int row;
@@ -35,7 +41,7 @@ typedef struct turtle
     int capacity;
     char colour;
     double direction;
-    double *vars;
+    Var *vars;
 } Turtle;
 
 typedef struct token

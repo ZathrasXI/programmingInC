@@ -190,7 +190,7 @@ bool is_forward(Token *t)
         else
         {
             int index = t->next->str[1] - ASCII_TO_NUM;
-            steps = ttl.vars[index];
+            steps = ttl.vars[index].num;
         }
         if (steps > 0)
         {
@@ -229,7 +229,7 @@ bool is_rgt(Token *t)
         else 
         {
             int index = t->next->str[1] - ASCII_TO_NUM;
-            degrees = ttl.vars[index];
+            degrees = ttl.vars[index].num;
         }
         ttl.direction += degrees_to_radians(degrees);
         return true;
@@ -295,6 +295,10 @@ bool is_lst(Token *t)
 
 bool is_col(Token *t)
 {
+    /*
+    % Valid colours include "BLACK", "RED", "GREEN", "BLUE",
+    % "YELLOW", "CYAN", "MAGENTA", "WHITE"
+    */
     char *col = "COLOUR";
     if (strcmp(col, t->str) == 0 &&
         (
@@ -303,6 +307,8 @@ bool is_col(Token *t)
         )
     )
     {
+        //if t->next->str is word
+        
         return true;
     }
 
@@ -743,8 +749,8 @@ void test(void)
     free_tokens(rgt_test2);
 
     //direction == $var converted to rads
-    ttl.vars[0] = 359;
-    double rads = degrees_to_radians(ttl.vars[0]);
+    ttl.vars[0].num = 359;
+    double rads = degrees_to_radians(ttl.vars[0].num);
     Token *rgt_test4 = new_token("RIGHT");
     Token *rgt_test5 = new_token("$A");
     rgt_test4->next=rgt_test5;
@@ -761,7 +767,6 @@ void test(void)
     assert(!is_rgt(rgt_test6));
     free_tokens(rgt_test6);
 
-    exit(EXIT_FAILURE);
     /*
     is_word() a string as defined by scanf("%s"), must be encapsulated by ""
     */
@@ -875,12 +880,14 @@ void test(void)
     /*
     is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
     */
+
     Token *col_test = new_token("COLOUR");
     Token *col_test1 = new_token("$A");
     col_test->next=col_test1;
     assert(is_col(col_test));
     free_tokens(col_test);
 
+    exit(EXIT_FAILURE);
     Token *col_test2 = new_token("COLOUR");
     Token *col_test3 = new_token("\"WORD\"");
     col_test2->next=col_test3;
@@ -1319,7 +1326,7 @@ void init_ttl()
         fprintf(stderr, "error allocating memory for turtle's path\n");
         exit(EXIT_FAILURE);
     }
-    ttl.vars = calloc(MAX_VARS, sizeof(double));
+    ttl.vars = calloc(MAX_VARS, sizeof(Var));
     if (!ttl.vars)
     {
         fprintf(stderr, "error allocating memory for turtle's variables\n");
