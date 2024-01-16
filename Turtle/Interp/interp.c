@@ -313,11 +313,8 @@ bool is_pfix(Token *t)
 {
     if (strcmp(")", t->str) == 0 ||
             (t->next &&
-                (
-                    (is_op(t->str) && is_pfix(t->next)) ||
-                    (is_varnum(t->str) && is_pfix(t->next))
-                )
-            )
+            ((is_op(t->str) && is_pfix(t->next)) ||
+            (is_varnum(t->str) && is_pfix(t->next))))
         )
     {
         return true;
@@ -578,46 +575,40 @@ void test(void)
     /*
     get index for row
     */
-    //1 step north
-    // ttl.direction = 0;
-    // ttl.path[0].col = COL_START;
-    // ttl.path[0].row = ROW_START;
-    // ttl.len = 1;
-    // assert(next_row(1) == ROW_START - 1);
-    // //teardown
-    // ttl.len = 0;
-
-    //2 steps north
+    //1 step facing north
     ttl.direction = 0;
-    ttl.path[0].col = COL_START;
-    ttl.path[0].row = ROW_START;
-    ttl.len = 1;
+    assert(next_row(ROW_START, 1) == ROW_START - 1);
+    //1 step east
+    ttl.direction = degrees_to_radians(90);
+    assert(next_row(ROW_START, 1) == ROW_START);
+    //1 step south
+    ttl.direction = degrees_to_radians(180);
+    assert(next_row(ROW_START, 1) == ROW_START + 1);
+    //1 step west
+    ttl.direction = degrees_to_radians(270);
+    assert(next_row(ROW_START, 1) == ROW_START);
+    //1 step NE
+    ttl.direction = degrees_to_radians(45);
     assert(next_row(ROW_START, 1) == ROW_START - 1);
     //teardown
-    ttl.len = 0;
+    ttl.direction = 0;
 
     /*
     get index for column
     */
-    //column doesn't change when going north
+    // 1 step north
     ttl.direction = 0;
-    ttl.path[0].col = COL_START;
-    ttl.path[0].row = ROW_START;
-    ttl.len = 1;
-    assert(next_col(COL_START,1) == COL_START);
-    //teardown
-    ttl.len = 0;
-    
-    //column + 1 when going East
-    ttl.direction = degrees_to_radians(90);
-    ttl.path[0].col = COL_START;
-    ttl.path[0].row = ROW_START;
-    ttl.len = 1;
+    assert(next_col(COL_START, 1) == COL_START);
+    // 1 step NE
+    ttl.direction = degrees_to_radians(45);
     assert(next_col(COL_START, 1) == COL_START + 1);
-    //teardown
+    //1 step south
+    ttl.direction = degrees_to_radians(180);
+    assert(next_col(COL_START, 1) == COL_START);
+    //1 step west
+    ttl.direction = degrees_to_radians(270);
+    assert(next_col(COL_START, 1) == COL_START -1 );
     ttl.direction = 0;
-    ttl.len = 0;
-
   
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
