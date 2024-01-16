@@ -27,6 +27,7 @@ typedef union var
     double num;
     char *word;
 } Var;
+typedef enum {union_double, union_char} type_used;
 
 typedef struct loc
 {
@@ -42,6 +43,7 @@ typedef struct turtle
     char colour;
     double direction;
     Var *vars;
+    type_used *type_in_use;
 } Turtle;
 
 typedef struct token
@@ -52,7 +54,7 @@ typedef struct token
 
 void test(void);
 void init_ttl();
-int get_var_index(char *var_name);
+int get_var_index(char var_name);
 int next_row(int line_start, int step_n);
 int next_col(int line_start, int step_n);
 double degrees_to_radians(double degrees);

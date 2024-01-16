@@ -182,7 +182,7 @@ bool is_forward(Token *t)
         }
         else
         {
-            steps = ttl.vars[get_var_index(t->next->str)].num;
+            steps = ttl.vars[get_var_index(t->next->str[1])].num;
         }
         if (steps > 0)
         {
@@ -220,7 +220,7 @@ bool is_rgt(Token *t)
         }
         else 
         {
-            degrees = ttl.vars[get_var_index(t->next->str)].num;
+            degrees = ttl.vars[get_var_index(t->next->str[1])].num;
         }
         ttl.direction += degrees_to_radians(degrees);
         return true;
@@ -298,8 +298,7 @@ bool is_col(Token *t)
         char *str;
         if (is_var(t->next->str))
         {
-            //TODO make this a function
-            int index = get_var_index(t->next->str);
+            int index = get_var_index(t->next->str[1]);
             int len = strlen(ttl.vars[index].word) + 1;
             str = calloc(len, sizeof(char));
             if (!str)
@@ -322,6 +321,8 @@ bool is_col(Token *t)
         % Valid colours include "BLACK", "RED", "GREEN", "BLUE",
         % "YELLOW", "CYAN", "MAGENTA", "WHITE"
         */
+       //TODO check that letters are correct
+       //TODO enumerate letters
         if (strcmp(str, "\"BLACK\"") == 0)
         {
             ttl.colour = 'K';
@@ -391,6 +392,40 @@ bool is_set(Token *t)
         is_pfix(t->next->next->next)
         )
         {
+            // when the statement has format `SET <letter> ( <num> | <var> )`
+            if (strcmp(t->next->next->str, "(") == 0 &&
+                strcmp(t->next->next->next->next->str, ")") == 0)
+                {
+                    int dest_index = get_var_index(t->next->str[0]);
+                    if (is_number(t->next->next->next->str))
+                    {
+                        sscanf(t->next->next->next->str, "%lf", &ttl.vars[dest_index].num);
+                    }
+                    else if (is_var(t->next->next->next->str))
+                    {
+                        //assign the value of a variable to another variable
+                        //value could be a number or a str
+                        //when value is str
+                        int target_index = get_var_index(t->next->next->next->str[1]);
+                        if (ttl.type_in_use[target_index] == union_double)
+                        {
+                            ttl.vars[dest_index].num = ttl.vars[target_index].num;
+                            ttl.type_in_use[dest_index] = union_double; 
+                        } 
+                        else if (ttl.type_in_use[target_index] == union_char)
+                        {
+                            int len = strlen(ttl.vars[get_var_index(t->next->next->next->str[1])].word) + 1;
+                            ttl.vars[dest_index].word = calloc(len, sizeof(char));
+                            if (!ttl.vars[dest_index].word)
+                            {
+                                panic_msg("allocating space for word var");
+                            }
+                            strcpy(ttl.vars[dest_index].word, ttl.vars[get_var_index(t->next->next->next->str[1])].word);
+                            ttl.type_in_use[dest_index] = union_char;
+                        }
+                    }
+                }
+
             return true;
         }
     return false;
@@ -542,9 +577,9 @@ double degrees_to_radians(double degrees)
     return degrees * (PI / 180);
 }
 
-int get_var_index(char *var_name)
+int get_var_index(char var_name)
 {
-    return var_name[1] - ASCII_TO_NUM;
+    return var_name - ASCII_TO_NUM;
 }
 
 void test(void)
@@ -829,7 +864,7 @@ void test(void)
     "$K", "$L", "$M", "$N", "$O", "$P", "$Q", "$R", "$S", "$T", "$U", "$V", "$W", "$X", "$Y", "$Z"};
     for (int i = 0; i < 26; i++)
     {
-        assert(get_var_index(vars[i]) == i);
+        assert(get_var_index(vars[i][1]) == i);
     }
 
     /*
@@ -1007,7 +1042,6 @@ void test(void)
     free_tokens(col_test4);
 
 
-    exit(EXIT_FAILURE);
 
     /*
     is_pfix() <PFIX> ::= ")" | <OP> <PFIX> | <VARNUM> <PFIX>
@@ -1047,6 +1081,8 @@ void test(void)
     /*
     is_set() <SET> ::= "SET" <LTR> "(" <PFIX>
     */
+    //can directly assign a number to a var
+    ttl.vars[0].num = 0.0;
     Token *set_test = new_token("SET");
     Token *set_test1 = new_token("A");
     Token *set_test2 = new_token("(");
@@ -1057,7 +1093,62 @@ void test(void)
     set_test2->next = set_test3;
     set_test3->next = set_test4;
     assert(is_set(set_test));
+    assert(fabs(ttl.vars[0].num - 4.0) < tolerance);
+    //teardown
+    ttl.vars[0].num = 0.0;
     free_tokens(set_test);
+
+    //can assign word value of one variable to another variable
+    char *test_word = "ZOOBZOOB";
+    int d_index = get_var_index('D');
+    int z_index = get_var_index('Z');
+    ttl.type_in_use[d_index] = union_char;
+    ttl.vars[d_index].word = calloc((int) strlen(test_word) + 1, sizeof(char));
+    if (!ttl.vars[d_index].word)
+    {
+        panic_msg("allocating string for test");
+    }
+    strcpy(ttl.vars[d_index].word, test_word);
+    Token *set_test15 = new_token("SET");
+    Token *set_test16 = new_token("Z");
+    Token *set_test17 = new_token("(");
+    Token *set_test18 = new_token("$D");
+    Token *set_test19 = new_token(")");
+    set_test15->next = set_test16;
+    set_test16->next = set_test17;
+    set_test17->next = set_test18;
+    set_test18->next = set_test19;
+    assert(is_set(set_test15));
+    assert(ttl.type_in_use[z_index] == union_char);
+    assert(strcmp(ttl.vars[z_index].word, ttl.vars[d_index].word) == 0);
+    //teardown
+    free(ttl.vars[d_index].word);
+    free(ttl.vars[z_index].word);
+    free_tokens(set_test15);
+
+    //can assign number of one variable to another variable
+    double test_num = 3.142;
+    int m_index = get_var_index('M');
+    ttl.vars[m_index].num = test_num;
+    ttl.type_in_use[m_index] = union_double;
+    z_index = get_var_index('Z');
+
+    Token *set_test20 = new_token("SET");
+    Token *set_test21 = new_token("Z");
+    Token *set_test22 = new_token("(");
+    Token *set_test23 = new_token("$M");
+    Token *set_test24 = new_token(")");
+    set_test20->next = set_test21;
+    set_test21->next = set_test22;
+    set_test22->next = set_test23;
+    set_test23->next = set_test24;
+    assert(is_set(set_test20));
+    assert(fabs(ttl.vars[m_index].num - ttl.vars[get_var_index('Z')].num) < tolerance);
+    assert(ttl.type_in_use[m_index] == union_double);
+    assert(ttl.type_in_use[m_index] == ttl.type_in_use[z_index]);
+    //teardown
+    ttl.vars[m_index].num = 0.0;
+    free_tokens(set_test20);
 
     Token *set_test5 = new_token("DESET");
     Token *set_test6 = new_token("A");
@@ -1082,6 +1173,7 @@ void test(void)
     set_test13->next = set_test14;
     assert(!is_set(set_test10));
     free_tokens(set_test10);
+    exit(EXIT_FAILURE);
 
     /*
     is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>
@@ -1436,6 +1528,12 @@ void init_ttl()
     {
         panic_msg("allocating memory for turtle's variables");
     }
+    ttl.type_in_use = calloc(MAX_VARS, sizeof(type_used));
+    if (!ttl.type_in_use)
+    {
+        panic_msg("allocating memory for type_used array");
+    }
+
 }
 
 void panic_msg(char *msg)
