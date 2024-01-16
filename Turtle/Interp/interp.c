@@ -295,10 +295,6 @@ bool is_lst(Token *t)
 
 bool is_col(Token *t)
 {
-    /*
-    % Valid colours include "BLACK", "RED", "GREEN", "BLUE",
-    % "YELLOW", "CYAN", "MAGENTA", "WHITE"
-    */
     char *col = "COLOUR";
     if (strcmp(col, t->str) == 0 &&
         (
@@ -307,8 +303,75 @@ bool is_col(Token *t)
         )
     )
     {
-        //if t->next->str is word
-        
+        //is valid colour?
+        char *str;
+        if (is_var(t->next->str))
+        {
+            //TODO make this a funciton
+            int index = t->next->str[1] - ASCII_TO_NUM;
+            int len = strlen(ttl.vars[index].word) + 1;
+            str = calloc(len, sizeof(char));
+            //TODO make this a function, can pass in a string literal 
+            //error allocating memory for {...}
+            if (!str)
+            {
+                fprintf(stderr, "error allocating memory for string\n");
+                exit(EXIT_FAILURE);
+            }
+            strcpy(str, ttl.vars[index].word);
+        }
+        else
+        {
+            int len = strlen(t->next->str) + 1;
+            str = calloc(len, sizeof(char));
+            if (!str)
+            {
+                fprintf(stderr, "error allocating memory for string\n");
+                exit(EXIT_FAILURE);
+            }
+            strcpy(str, t->next->str);
+        }
+        /*
+        % Valid colours include "BLACK", "RED", "GREEN", "BLUE",
+        % "YELLOW", "CYAN", "MAGENTA", "WHITE"
+        */
+        if (strcmp(str, "\"BLACK\"") == 0)
+        {
+            ttl.colour = 'K';
+        }
+        else if (strcmp(str, "\"RED\"") == 0)
+        {
+            ttl.colour = 'R';
+        }
+        else if (strcmp(str, "\"GREEN\"") == 0)
+        {
+            ttl.colour = 'G';
+        }
+        else if (strcmp(str, "\"BLUE\"") == 0)
+        {
+            ttl.colour = 'B';
+        }
+        else if (strcmp(str, "\"YELLOW\"") == 0)
+        {
+            ttl.colour = 'Y';
+        }
+        else if (strcmp(str, "\"CYAN\"") == 0)
+        {
+            ttl.colour = 'C';
+        }
+        else if (strcmp(str, "\"MAGENTA\"") == 0)
+        {
+            ttl.colour = 'M';
+        }
+        else if (strcmp(str, "\"WHITE\"") == 0)
+        {
+            ttl.colour = 'W';
+        }
+        else
+        {
+            ttl.colour = 'W';
+        }
+        free(str);
         return true;
     }
 
@@ -880,18 +943,39 @@ void test(void)
     /*
     is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
     */
-
+    //ttl.colour is updated when given valid colour via variable
+    ttl.len = 0;
+    char *magenta = "\"MAGENTA\"";
+    int len = strlen(magenta) + 1;
+    ttl.vars[25].word = calloc(len, sizeof(char));
+    if (!ttl.vars[25].word)
+    {
+        fprintf(stderr, "error allocating memory for test\n");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(ttl.vars[25].word, magenta);
     Token *col_test = new_token("COLOUR");
-    Token *col_test1 = new_token("$A");
+    Token *col_test1 = new_token("$Z");
     col_test->next=col_test1;
     assert(is_col(col_test));
+    assert(ttl.colour == 'M');
+    free(ttl.vars[25].word);
     free_tokens(col_test);
 
-    exit(EXIT_FAILURE);
+    //ttl.colour is updated when given valid colour directly
+    ttl.len = 0;
+    Token *col_test6 = new_token("COLOUR");
+    Token *col_test7 = new_token("\"CYAN\"");
+    col_test6->next=col_test7;
+    assert(is_col(col_test6));
+    assert(ttl.colour == 'C');
+    free_tokens(col_test6);
+
     Token *col_test2 = new_token("COLOUR");
-    Token *col_test3 = new_token("\"WORD\"");
+    Token *col_test3 = new_token("\"FOX\"");
     col_test2->next=col_test3;
     assert(is_col(col_test2));
+    assert(ttl.colour == 'W');
     free_tokens(col_test2);
 
     Token *col_test4 = new_token("COLOUR");
@@ -899,6 +983,7 @@ void test(void)
     col_test4->next=col_test5;
     assert(!is_col(col_test4));
     free_tokens(col_test4);
+    exit(EXIT_FAILURE);
 
     /*
     is_pfix() <PFIX> ::= ")" | <OP> <PFIX> | <VARNUM> <PFIX>
