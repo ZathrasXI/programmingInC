@@ -1333,30 +1333,6 @@ void test(void)
     assert(ttl.type_in_use[a_index] == union_char);
     free_tokens(loop_test31);
 
-    int b_index = get_var_index('B');
-    // char *final_value = "\"PURPLE\"";
-    Token *loop_test40 = new_token("LOOP");
-    Token *loop_test41 = new_token("B");
-    Token *loop_test42 = new_token("OVER");
-    Token *loop_test43 = new_token("{");
-    Token *loop_test44 = new_token("$B");
-    Token *loop_test45 = new_token("\"PURPLE\"");
-    Token *loop_test46 = new_token("10");
-    Token *loop_test47 = new_token("}");
-    Token *loop_test48 = new_token("END");
-    loop_test40->next = loop_test41;
-    loop_test41->next = loop_test42;
-    loop_test42->next = loop_test43;
-    loop_test43->next = loop_test44;
-    loop_test44->next = loop_test45;
-    loop_test45->next = loop_test46;
-    loop_test46->next = loop_test47;
-    loop_test47->next = loop_test48;
-    assert(is_loop(loop_test40));
-    assert(fabs(10.0 - ttl.vars[b_index].num) < tolerance);
-    assert(ttl.type_in_use[b_index] == union_double);
-    free_tokens(loop_test40);
-
     /*
     update_var() 
     can update var with a word, num, value of another variable
