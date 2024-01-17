@@ -449,7 +449,7 @@ bool is_set(Token *t)
                 i++;
             }
 
-            int answer = evaluate(postfix_expr, token_count);
+            double answer = evaluate(postfix_expr, token_count);
             int dest_index = get_var_index(t->next->str[0]);
             ttl.vars[dest_index].num = (double) answer;
             for (int i = 0; i < token_count; i++)
@@ -1154,6 +1154,35 @@ void test(void)
     ttl.vars[0].num = 0.0;
     free_tokens(set_test25);
 
+    //can evaluate postfix expression that contains a variable
+    //variable has a num value
+    int j_index = get_var_index('J');
+    int s_index = get_var_index('S');
+    ttl.vars[j_index].num = 31.0;
+
+    Token *set_test34 = new_token("SET");
+    Token *set_test35 = new_token("S");
+    Token *set_test36 = new_token("(");
+    Token *set_test37 = new_token("2");
+    Token *set_test38 = new_token("2");
+    Token *set_test39 = new_token("*");
+    Token *set_test40 = new_token("$J");
+    Token *set_test41 = new_token("+");
+    Token *set_test42 = new_token(")");
+    set_test34->next = set_test35;
+    set_test35->next = set_test36;
+    set_test36->next = set_test37;
+    set_test37->next = set_test38;
+    set_test38->next = set_test39;
+    set_test39->next = set_test40;
+    set_test40->next = set_test41;
+    set_test41->next = set_test42;
+    assert(is_set(set_test34));
+    assert(fabs(ttl.vars[s_index].num - 35.0) < tolerance);
+    //teardown
+    ttl.vars[j_index].num = 0.0;
+    ttl.vars[s_index].num = 0.0;
+    free_tokens(set_test34);
 
     exit(EXIT_FAILURE);
 

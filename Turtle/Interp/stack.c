@@ -17,7 +17,7 @@ bool is_empty(int top);
 bool is_full(int top);
 bool push(Stack *stack, double value);
 double pop(Stack *stack);
-int evaluate(char **exp, int len);
+double evaluate(char **exp, int len);
 
 // int main(void)
 // {
@@ -64,7 +64,7 @@ double pop(Stack *stack)
     return stack->data[stack->top--];
 }
 
-int evaluate(char **exp, int len)
+double evaluate(char **exp, int len)
 {
     Stack *s = stack_init();
     
