@@ -452,13 +452,24 @@ bool is_loop(Token *t)
         is_lst(t->next->next->next)
         )
         {
-            Token *end_of_lst = t->next->next->next;
-            while (strcmp(end_of_lst->str, "}") != 0)
+            Token *start_of_lst = t->next->next->next->next;
+            int list_len = 0;
+            while (strcmp(start_of_lst->str, "}") != 0)
             {
-                end_of_lst = end_of_lst->next;
+                start_of_lst = start_of_lst->next;
+                list_len++;
             }
-            if (is_inslst(end_of_lst->next))
+            if (is_inslst(start_of_lst->next))
             {
+                Token *iter = t->next->next->next->next;
+                int var_index = get_var_index(t->next->str[0]);
+                while (strcmp(iter->str, "}") != 0)
+                {
+                    update_var(iter->str, var_index);
+
+                    iter = iter->next;
+                }
+
                 return true;
             }
         }
@@ -592,6 +603,49 @@ double degrees_to_radians(double degrees)
 int get_var_index(char var_name)
 {
     return var_name - ASCII_TO_NUM;
+}
+
+void update_var(char *token_str, int dest_index)
+{
+    if (is_number(token_str))
+    {
+        if (ttl.vars[dest_index].word)
+        {
+            free(ttl.vars[dest_index].word);
+        }
+        ttl.vars[dest_index].num = strtod(token_str, NULL);
+        ttl.type_in_use[dest_index] = union_double;
+    }
+    else if (is_var(token_str))
+    {
+        int src_indx = get_var_index(token_str[1]);
+        if (ttl.type_in_use[src_indx] == union_char)
+        {
+            int s_len = strlen(ttl.vars[src_indx].word) + NULL_CHAR;
+            ttl.vars[dest_index].word = calloc(s_len, sizeof(char));
+            if (!ttl.vars[dest_index].word)
+            {
+                panic_msg("allocating memory for word");
+            }
+            strcpy(ttl.vars[dest_index].word, ttl.vars[src_indx].word);
+            ttl.type_in_use[dest_index] = union_char;
+        }
+        else if (ttl.type_in_use[src_indx] == union_double)
+        {
+            ttl.vars[dest_index].num = ttl.vars[src_indx].num;
+            ttl.type_in_use[dest_index] = union_double;
+        }
+    }
+    else if (is_word(token_str))
+    {
+        ttl.vars[dest_index].word = calloc(strlen(token_str) + NULL_CHAR, sizeof(char));
+        if (!ttl.vars[dest_index].word)
+        {
+            panic_msg("allocating memory for word");
+        }
+        strcpy(ttl.vars[dest_index].word, token_str);
+        ttl.type_in_use[dest_index] = union_char;
+    }
 }
 
 void test(void)
@@ -1250,11 +1304,97 @@ void test(void)
     assert(!is_set(set_test10));
     free_tokens(set_test10);
     
-    exit(EXIT_FAILURE);
-
+//_______________________________________________________________________
     /*
     is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>
     */
+    //value of A is updated
+    int a_index = get_var_index('A');
+    char *final_value = "\"PURPLE\"";
+    Token *loop_test31 = new_token("LOOP");
+    Token *loop_test32 = new_token("A");
+    Token *loop_test33 = new_token("OVER");
+    Token *loop_test34 = new_token("{");
+    Token *loop_test35 = new_token("$A");
+    Token *loop_test36 = new_token("10");
+    Token *loop_test37 = new_token("\"PURPLE\"");
+    Token *loop_test38 = new_token("}");
+    Token *loop_test39 = new_token("END");
+    loop_test31->next = loop_test32;
+    loop_test32->next = loop_test33;
+    loop_test33->next = loop_test34;
+    loop_test34->next = loop_test35;
+    loop_test35->next = loop_test36;
+    loop_test36->next = loop_test37;
+    loop_test37->next = loop_test38;
+    loop_test38->next = loop_test39;
+    assert(is_loop(loop_test31));
+    assert(strcmp(final_value, ttl.vars[a_index].word) == 0);
+    assert(ttl.type_in_use[a_index] == union_char);
+    free_tokens(loop_test31);
+
+    int b_index = get_var_index('B');
+    // char *final_value = "\"PURPLE\"";
+    Token *loop_test40 = new_token("LOOP");
+    Token *loop_test41 = new_token("B");
+    Token *loop_test42 = new_token("OVER");
+    Token *loop_test43 = new_token("{");
+    Token *loop_test44 = new_token("$B");
+    Token *loop_test45 = new_token("\"PURPLE\"");
+    Token *loop_test46 = new_token("10");
+    Token *loop_test47 = new_token("}");
+    Token *loop_test48 = new_token("END");
+    loop_test40->next = loop_test41;
+    loop_test41->next = loop_test42;
+    loop_test42->next = loop_test43;
+    loop_test43->next = loop_test44;
+    loop_test44->next = loop_test45;
+    loop_test45->next = loop_test46;
+    loop_test46->next = loop_test47;
+    loop_test47->next = loop_test48;
+    assert(is_loop(loop_test40));
+    assert(fabs(10.0 - ttl.vars[b_index].num) < tolerance);
+    assert(ttl.type_in_use[b_index] == union_double);
+    free_tokens(loop_test40);
+
+    /*
+    update_var() 
+    can update var with a word, num, value of another variable
+    */
+    int dest_index = get_var_index('L');
+    char *tokens[] = {"\"PURPLE\"", "10", "$C"};
+    
+    //can update var with literal word
+    update_var(tokens[0], dest_index);
+    assert(strcmp(ttl.vars[dest_index].word, tokens[0]) == 0);
+    assert(ttl.type_in_use[dest_index] == union_char);
+    
+    //can update var with literal num
+    update_var(tokens[1], dest_index);
+    assert(fabs(10.0 - ttl.vars[dest_index].num) < tolerance);
+    assert(ttl.type_in_use[dest_index] == union_double);
+    
+    //can update var with num from another var
+    int src_index = get_var_index('C');
+    ttl.vars[src_index].num = 31.75;
+    ttl.type_in_use[src_index] = union_double;
+    update_var(tokens[2], dest_index);
+    assert(fabs(ttl.vars[src_index].num - ttl.vars[dest_index].num) < tolerance);
+    assert(ttl.type_in_use[dest_index] == union_double);
+
+    //can update var with word from another var
+    ttl.vars[src_index].word = calloc(strlen("\"BANDANA\"") + NULL_CHAR, sizeof(char));
+    if (!ttl.vars[src_index].word)
+    {
+        panic_msg("allocating memory for word in test");
+    }
+    ttl.type_in_use[src_index] = union_char;
+    update_var(tokens[2], dest_index);
+    assert(strcmp(ttl.vars[src_index].word, ttl.vars[src_index].word) == 0);
+    assert(ttl.type_in_use[src_index] == union_char);
+
+    exit(EXIT_FAILURE);
+
     //loop has list and list of instructions and end - true
     Token *loop_test = new_token("LOOP");
     Token *loop_test1 = new_token("A");
@@ -1303,6 +1443,7 @@ void test(void)
     free_tokens(loop_test);
 
     //false when no "END" found
+
     Token *loop_test22 = new_token("LOOP");
     Token *loop_test23 = new_token("A");
     Token *loop_test24 = new_token("OVER");
@@ -1376,7 +1517,7 @@ void test(void)
     Token *inslst_test3 = new_token("RIGHT");
     Token *inslst_test4 = new_token("61.0");
     Token *inslst_test5 = new_token("COLOUR");
-    Token *inslst_test6 = new_token("$A");
+    Token *inslst_test6 = new_token("\"RED\"");
     Token *inslst_test7 = new_token("LOOP");
     Token *inslst_test8 = new_token("C");
     Token *inslst_test9 = new_token("OVER");

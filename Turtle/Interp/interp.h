@@ -57,6 +57,7 @@ typedef struct token
 static Turtle ttl;
 
 void test(void);
+void update_var(char *token_str, int dest_index);
 void init_ttl();
 int get_var_index(char var_name);
 int next_row(int line_start, int step_n);

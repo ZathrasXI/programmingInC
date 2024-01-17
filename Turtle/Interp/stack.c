@@ -8,6 +8,7 @@
 #define EMPTY -1
 
 typedef struct {
+    //TODO could make this a better size
     double data[MAX_STACK_SIZE];
     int top;
 } Stack;
