@@ -450,7 +450,6 @@ bool is_set(Token *t)
             }
 
             int answer = evaluate(postfix_expr, token_count);
-            printf("%d\n",answer);
             int dest_index = get_var_index(t->next->str[0]);
             ttl.vars[dest_index].num = (double) answer;
             for (int i = 0; i < token_count; i++)
@@ -1130,8 +1129,35 @@ void test(void)
     ttl.vars[0].num = 0.0;
     free_tokens(set_test);
 
+    //can evaluate postfix expressions
+    ttl.vars[0].num = 0.0;
+    Token *set_test25 = new_token("SET");
+    Token *set_test26 = new_token("A");
+    Token *set_test27 = new_token("(");
+    Token *set_test28 = new_token("4");
+    Token *set_test29 = new_token("4");
+    Token *set_test30 = new_token("*");
+    Token *set_test31 = new_token("4");
+    Token *set_test32 = new_token("+");
+    Token *set_test33 = new_token(")");
+    set_test25->next = set_test26;
+    set_test26->next = set_test27;
+    set_test27->next = set_test28;
+    set_test28->next = set_test29;
+    set_test29->next = set_test30;
+    set_test30->next = set_test31;
+    set_test31->next = set_test32;
+    set_test32->next = set_test33;
+    assert(is_set(set_test25));
+    assert(fabs(ttl.vars[0].num - 20.0) < tolerance);
+    //teardown
+    ttl.vars[0].num = 0.0;
+    free_tokens(set_test25);
+
 
     exit(EXIT_FAILURE);
+
+
 
 
     //can assign word value of one variable to another variable
