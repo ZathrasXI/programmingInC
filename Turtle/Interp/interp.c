@@ -392,40 +392,6 @@ bool is_set(Token *t)
         is_pfix(t->next->next->next)
         )
         {
-            // when the statement has format `SET <letter> ( <num> | <var> )`
-            // if (strcmp(t->next->next->str, "(") == 0 &&
-            //     strcmp(t->next->next->next->next->str, ")") == 0)
-            //     {
-            //         int dest_index = get_var_index(t->next->str[0]);
-            //         if (is_number(t->next->next->next->str))
-            //         {
-            //             sscanf(t->next->next->next->str, "%lf", &ttl.vars[dest_index].num);
-            //         }
-            //         else if (is_var(t->next->next->next->str))
-            //         {
-            //             //assign the value of a variable to another variable
-            //             //value could be a number or a str
-            //             //when value is str
-            //             int target_index = get_var_index(t->next->next->next->str[1]);
-            //             if (ttl.type_in_use[target_index] == union_double)
-            //             {
-            //                 ttl.vars[dest_index].num = ttl.vars[target_index].num;
-            //                 ttl.type_in_use[dest_index] = union_double; 
-            //             } 
-            //             else if (ttl.type_in_use[target_index] == union_char)
-            //             {
-            //                 int len = strlen(ttl.vars[get_var_index(t->next->next->next->str[1])].word) + 1;
-            //                 ttl.vars[dest_index].word = calloc(len, sizeof(char));
-            //                 if (!ttl.vars[dest_index].word)
-            //                 {
-            //                     panic_msg("allocating space for word var");
-            //                 }
-            //                 strcpy(ttl.vars[dest_index].word, ttl.vars[get_var_index(t->next->next->next->str[1])].word);
-            //                 ttl.type_in_use[dest_index] = union_char;
-            //             }
-            //         }
-            //     }
-
             Token *start = t->next->next;
             int token_count = 0;
             while (strcmp(start->next->str, ")") != 0)
@@ -1205,38 +1171,6 @@ void test(void)
     ttl.vars[j_index].num = 0.0;
     ttl.vars[s_index].num = 0.0;
     free_tokens(set_test34);
-
-    //program exits when $VAR in postfix is used for a word
-    // int w_index = get_var_index('W');
-    // int z_index = get_var_index('Z');
-    // char *word = "\"COMPUTER\"";
-    // ttl.vars[w_index].word = calloc((int) strlen(word) + 1, sizeof(char));
-    // strcpy(ttl.vars[w_index].word, word);
-    // ttl.type_in_use[w_index] = union_char;
-    // ttl.vars[z_index].num = 0.0;
-
-    // Token *set_test43 = new_token("SET");
-    // Token *set_test44 = new_token("Z");
-    // Token *set_test45 = new_token("(");
-    // Token *set_test46 = new_token("2");
-    // Token *set_test47 = new_token("2");
-    // Token *set_test48 = new_token("*");
-    // Token *set_test49 = new_token("$W");
-    // Token *set_test50 = new_token("+");
-    // Token *set_test51 = new_token(")");
-    // set_test43->next = set_test44;
-    // set_test44->next = set_test45;
-    // set_test45->next = set_test46;
-    // set_test46->next = set_test47;
-    // set_test47->next = set_test48;
-    // set_test48->next = set_test49;
-    // set_test49->next = set_test50;
-    // set_test50->next = set_test51;
-    // assert(is_set(set_test43));
-    // //teardown
-    // free(ttl.vars[w_index].word);
-    // free_tokens(set_test43);
-    // ttl.vars[z_index].num = 0.0;
 
     //can assign word value of one variable to another variable
     char *test_word = "ZOOBZOOB";

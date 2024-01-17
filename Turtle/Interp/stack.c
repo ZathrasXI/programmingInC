@@ -19,14 +19,6 @@ bool push(Stack *stack, double value);
 double pop(Stack *stack);
 double evaluate(char **exp, int len);
 
-// int main(void)
-// {
-//     Stack *s = stack_init();
-//     char postfix[] = "68*9+";
-//     int result = evaluate(postfix);
-//     printf("result %d\n", result);
-//     return 0;
-// }
 
 Stack *stack_init(void)
 {
@@ -126,35 +118,6 @@ double evaluate(char **exp, int len)
             {
                 panic_msg("invalid character in postfix expression");
             }
-
-
-
-
-            // switch (exp[i])
-            // {
-            // case '+':
-            //     push(s, op1+op2);
-            //     break;
-            // case '-':
-            //     push(s, op1-op2);
-            //     break;
-            // case '*':
-            //     push(s, op1*op2);
-            //     break;
-            // case '/':
-            //     if (op2 == 0)
-            //     {
-            //         fprintf(stderr, "division by 0 not possible\n");
-            //         exit(EXIT_FAILURE);
-            //     }
-            //     push(s, op1/op2);
-            //     break;
-            // default:
-            // printf("%c\n", exp[i]);
-            //     fprintf(stderr, "invalid character\n");
-            //     exit(EXIT_FAILURE);
-            // }
-        
         }
     }
     double answer = pop(s);
