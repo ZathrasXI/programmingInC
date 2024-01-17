@@ -607,12 +607,12 @@ int get_var_index(char var_name)
 
 void update_var(char *token_str, int dest_index)
 {
-    if (is_number(token_str))
-    {
-        if (ttl.vars[dest_index].word)
+    if (ttl.type_in_use[dest_index] == union_char)
         {
             free(ttl.vars[dest_index].word);
         }
+    if (is_number(token_str))
+    {
         ttl.vars[dest_index].num = strtod(token_str, NULL);
         ttl.type_in_use[dest_index] = union_double;
     }
@@ -1304,18 +1304,20 @@ void test(void)
     assert(!is_set(set_test10));
     free_tokens(set_test10);
     
-//_______________________________________________________________________
     /*
     is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>
     */
     //value of A is updated
     int a_index = get_var_index('A');
+    int c_index = get_var_index('C');
+    ttl.vars[c_index].num = 100.01;
+    ttl.type_in_use[c_index] = union_double;
     char *final_value = "\"PURPLE\"";
     Token *loop_test31 = new_token("LOOP");
     Token *loop_test32 = new_token("A");
     Token *loop_test33 = new_token("OVER");
     Token *loop_test34 = new_token("{");
-    Token *loop_test35 = new_token("$A");
+    Token *loop_test35 = new_token("$C");
     Token *loop_test36 = new_token("10");
     Token *loop_test37 = new_token("\"PURPLE\"");
     Token *loop_test38 = new_token("}");
@@ -1332,7 +1334,7 @@ void test(void)
     assert(strcmp(final_value, ttl.vars[a_index].word) == 0);
     assert(ttl.type_in_use[a_index] == union_char);
     free_tokens(loop_test31);
-
+    
     /*
     update_var() 
     can update var with a word, num, value of another variable
@@ -1369,31 +1371,28 @@ void test(void)
     assert(strcmp(ttl.vars[src_index].word, ttl.vars[src_index].word) == 0);
     assert(ttl.type_in_use[src_index] == union_char);
 
-    exit(EXIT_FAILURE);
-
     //loop has list and list of instructions and end - true
     Token *loop_test = new_token("LOOP");
     Token *loop_test1 = new_token("A");
     Token *loop_test2 = new_token("OVER");
     Token *loop_test3 = new_token("{");
-    Token *loop_test4 = new_token("$A");
-    Token *loop_test5 = new_token("10");
-    Token *loop_test6 = new_token("\"PURPLE\"");
+    Token *loop_test4 = new_token("1");
+    Token *loop_test5 = new_token("2");
+    Token *loop_test6 = new_token("3");
     Token *loop_test7 = new_token("}");
     Token *loop_test8 = new_token("FORWARD");
-    Token *loop_test9 = new_token("1");
+    Token *loop_test9 = new_token("2");
     Token *loop_test10 = new_token("RIGHT");
-    Token *loop_test11 = new_token("2");
+    Token *loop_test11 = new_token("45");
     Token *loop_test12 = new_token("COLOUR");
-    Token *loop_test13 = new_token("\"PURPLE\"");
-    Token *loop_test14 = new_token("SET");
-    Token *loop_test15 = new_token("A");
-    Token *loop_test16 = new_token("(");
-    Token *loop_test17 = new_token("10");
-    Token *loop_test18 = new_token("$A");
-    Token *loop_test19 = new_token("+");
-    Token *loop_test20 = new_token(")");
-    Token *loop_test21 = new_token("END");
+    Token *loop_test13 = new_token("$A");
+    Token *loop_test14 = new_token("FORWARD");
+    Token *loop_test15 = new_token("2");
+    Token *loop_test16 = new_token("FORWARD");
+    Token *loop_test17 = new_token("2");
+    Token *loop_test18 = new_token("FORWARD");
+    Token *loop_test19 = new_token("2");
+    Token *loop_test20 = new_token("END");
     loop_test->next = loop_test1;
     loop_test1->next = loop_test2;
     loop_test2->next = loop_test3;
@@ -1414,7 +1413,6 @@ void test(void)
     loop_test17->next = loop_test18;
     loop_test18->next = loop_test19;
     loop_test19->next = loop_test20;
-    loop_test20->next = loop_test21;
     assert(is_loop(loop_test));
     free_tokens(loop_test);
 
@@ -1439,6 +1437,7 @@ void test(void)
     loop_test29->next = loop_test30;
     assert(!is_loop(loop_test22));
     free_tokens(loop_test22);
+    exit(EXIT_FAILURE);
 
     /*
     loop_closed()
