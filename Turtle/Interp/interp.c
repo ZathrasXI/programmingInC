@@ -433,12 +433,28 @@ bool is_set(Token *t)
                 token_count++;
                 start = start->next;
             }
+
+            Token *ps_head = t->next->next->next;
+            int src_index = get_var_index(ps_head->str[1]);
+            int dest_index = get_var_index(t->next->str[0]);
+            if (token_count == 1 && is_var(ps_head->str) && ttl.type_in_use[src_index] == union_char)
+            {
+                int len = strlen(ttl.vars[src_index].word) + NULL_CHAR;
+                ttl.vars[dest_index].word = calloc(len, sizeof(char));
+                if (!ttl.vars[dest_index].word)
+                {
+                    panic_msg("allocating space for word");
+                }
+                strcpy(ttl.vars[dest_index].word, ttl.vars[src_index].word);
+                ttl.type_in_use[dest_index] = union_char;
+                return true;
+            }
+
             char **postfix_expr = calloc(token_count, sizeof(char*));
             if (!postfix_expr)
             {
                 panic_msg("allocating memory for postfix expression\n");
             }
-            Token *ps_head = t->next->next->next;
             int i = 0;
             while (strcmp(ps_head->str, ")") != 0)
             {
@@ -448,10 +464,9 @@ bool is_set(Token *t)
                 ps_head = ps_head->next;
                 i++;
             }
-
             double answer = evaluate(postfix_expr, token_count);
-            int dest_index = get_var_index(t->next->str[0]);
-            ttl.vars[dest_index].num = (double) answer;
+            ttl.vars[dest_index].num = answer;
+            ttl.type_in_use[dest_index] = union_double;
             for (int i = 0; i < token_count; i++)
             {
                 free(postfix_expr[i]);
@@ -1114,6 +1129,7 @@ void test(void)
     */
     //can directly assign a number to a var
     ttl.vars[0].num = 0.0;
+    ttl.type_in_use[0] = union_char;
     Token *set_test = new_token("SET");
     Token *set_test1 = new_token("A");
     Token *set_test2 = new_token("(");
@@ -1125,12 +1141,14 @@ void test(void)
     set_test3->next = set_test4;
     assert(is_set(set_test));
     assert(fabs(ttl.vars[0].num - 4.0) < tolerance);
+    assert(ttl.type_in_use[0] == union_double);
     //teardown
     ttl.vars[0].num = 0.0;
     free_tokens(set_test);
 
     //can evaluate postfix expressions
     ttl.vars[0].num = 0.0;
+    ttl.type_in_use[0] = union_char;
     Token *set_test25 = new_token("SET");
     Token *set_test26 = new_token("A");
     Token *set_test27 = new_token("(");
@@ -1150,6 +1168,7 @@ void test(void)
     set_test32->next = set_test33;
     assert(is_set(set_test25));
     assert(fabs(ttl.vars[0].num - 20.0) < tolerance);
+    assert(ttl.type_in_use[0] == union_double);
     //teardown
     ttl.vars[0].num = 0.0;
     free_tokens(set_test25);
@@ -1157,8 +1176,10 @@ void test(void)
     //can evaluate postfix expression that contains a variable
     //variable has a num value
     int j_index = get_var_index('J');
-    int s_index = get_var_index('S');
     ttl.vars[j_index].num = 31.0;
+    ttl.type_in_use[j_index] = union_double;
+    int s_index = get_var_index('S');
+    ttl.type_in_use[s_index] = union_char;
 
     Token *set_test34 = new_token("SET");
     Token *set_test35 = new_token("S");
@@ -1179,15 +1200,43 @@ void test(void)
     set_test41->next = set_test42;
     assert(is_set(set_test34));
     assert(fabs(ttl.vars[s_index].num - 35.0) < tolerance);
+    assert(ttl.type_in_use[s_index] == union_double);
     //teardown
     ttl.vars[j_index].num = 0.0;
     ttl.vars[s_index].num = 0.0;
     free_tokens(set_test34);
 
-    exit(EXIT_FAILURE);
+    //program exits when $VAR in postfix is used for a word
+    // int w_index = get_var_index('W');
+    // int z_index = get_var_index('Z');
+    // char *word = "\"COMPUTER\"";
+    // ttl.vars[w_index].word = calloc((int) strlen(word) + 1, sizeof(char));
+    // strcpy(ttl.vars[w_index].word, word);
+    // ttl.type_in_use[w_index] = union_char;
+    // ttl.vars[z_index].num = 0.0;
 
-
-
+    // Token *set_test43 = new_token("SET");
+    // Token *set_test44 = new_token("Z");
+    // Token *set_test45 = new_token("(");
+    // Token *set_test46 = new_token("2");
+    // Token *set_test47 = new_token("2");
+    // Token *set_test48 = new_token("*");
+    // Token *set_test49 = new_token("$W");
+    // Token *set_test50 = new_token("+");
+    // Token *set_test51 = new_token(")");
+    // set_test43->next = set_test44;
+    // set_test44->next = set_test45;
+    // set_test45->next = set_test46;
+    // set_test46->next = set_test47;
+    // set_test47->next = set_test48;
+    // set_test48->next = set_test49;
+    // set_test49->next = set_test50;
+    // set_test50->next = set_test51;
+    // assert(is_set(set_test43));
+    // //teardown
+    // free(ttl.vars[w_index].word);
+    // free_tokens(set_test43);
+    // ttl.vars[z_index].num = 0.0;
 
     //can assign word value of one variable to another variable
     char *test_word = "ZOOBZOOB";
@@ -1218,11 +1267,12 @@ void test(void)
     free_tokens(set_test15);
 
     //can assign number of one variable to another variable
-    double test_num = 3.142;
     int m_index = get_var_index('M');
-    ttl.vars[m_index].num = test_num;
+    ttl.vars[m_index].num = 3.142;
     ttl.type_in_use[m_index] = union_double;
     z_index = get_var_index('Z');
+    ttl.vars[z_index].num = 10.0;
+    ttl.type_in_use[z_index] = union_double;
 
     Token *set_test20 = new_token("SET");
     Token *set_test21 = new_token("Z");
@@ -1234,11 +1284,12 @@ void test(void)
     set_test22->next = set_test23;
     set_test23->next = set_test24;
     assert(is_set(set_test20));
-    assert(fabs(ttl.vars[m_index].num - ttl.vars[get_var_index('Z')].num) < tolerance);
+    assert(fabs(ttl.vars[m_index].num - ttl.vars[z_index].num) < tolerance);
     assert(ttl.type_in_use[m_index] == union_double);
     assert(ttl.type_in_use[m_index] == ttl.type_in_use[z_index]);
     //teardown
     ttl.vars[m_index].num = 0.0;
+    ttl.vars[z_index].num = 0.0;
     free_tokens(set_test20);
 
     Token *set_test5 = new_token("DESET");
@@ -1265,6 +1316,7 @@ void test(void)
     assert(!is_set(set_test10));
     free_tokens(set_test10);
     
+    exit(EXIT_FAILURE);
 
     /*
     is_loop() <LOOP> ::= "LOOP" <LTR> "OVER" <LST> <INSLST>

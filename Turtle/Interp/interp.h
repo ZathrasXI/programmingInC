@@ -21,6 +21,8 @@
 #define MAX_VARS 26
 #define ASCII_TO_NUM 65
 #define PI 3.14159265358979323846
+#define TOLERANCE 0.000001
+#define NULL_CHAR 1
 
 typedef union var 
 {

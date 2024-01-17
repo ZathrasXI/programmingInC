@@ -83,13 +83,22 @@ double evaluate(char **exp, int len)
         }
         else if (is_var(exp[i]))
         {
-            //get index
-            //TODO check if is num or char type in use
-            int index = get_var_index(exp[i][1]);
-            bool pushed = push(s, ttl.vars[index].num);
-            if (!pushed)
+            int var_index = get_var_index(exp[i][1]);
+            if (ttl.type_in_use[var_index] == union_char)
             {
-                panic_msg("pushing value to stack, possible stack overflow");
+                panic_msg("can't evaluate postfix expression when variable contains a word");
+            }
+            else if (ttl.type_in_use[var_index] == union_double)
+            {
+                bool pushed = push(s, ttl.vars[var_index].num);
+                if (!pushed)
+                {
+                    panic_msg("pushing value to stack, possible stack overflow");
+                }
+            }
+            else
+            {
+                panic_msg("type in use not defined for variable");
             }
         }
         else
@@ -109,9 +118,8 @@ double evaluate(char **exp, int len)
             {
                 push(s, op1 * op2);
             }
-            else if (strcmp(exp[i], "/") == 0 && fabs(op2 - 0) < 0.0001)
+            else if (strcmp(exp[i], "/") == 0 && fabs(op2 - 0) < TOLERANCE)
             {
-                //TODO replace 0 with #define NO_DIVISION_BY_ZERO
                 push(s, op1 / op2);
             }
             else
@@ -149,7 +157,7 @@ double evaluate(char **exp, int len)
         
         }
     }
-    int answer = pop(s);
+    double answer = pop(s);
     free(s);
     return answer;
 }
