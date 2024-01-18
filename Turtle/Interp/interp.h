@@ -23,13 +23,21 @@
 #define PI 3.14159265358979323846
 #define TOLERANCE 0.000001
 #define NULL_CHAR 1
+#define MAX_STACK_SIZE 100
+#define EMPTY -1
+
+typedef struct {
+    //TODO make this dynamic/better size
+    double data[MAX_STACK_SIZE];
+    int top;
+} Stack;
 
 typedef union var 
 {
     double num;
     char *word;
 } Var;
-typedef enum {union_double, union_char} type_used;
+typedef enum {not_set, union_double, union_char} type_used;
 
 typedef struct loc
 {
@@ -56,7 +64,7 @@ typedef struct token
 
 static Turtle ttl;
 
-void test(void);
+//Parser & interpreter
 void update_var(char *token_str, int dest_index);
 void init_ttl();
 int get_var_index(char var_name);
@@ -74,6 +82,7 @@ bool is_word(char *c);
 bool is_col(Token *t);
 bool is_rgt(Token *t);
 bool is_forward(Token *t);
+bool is_item(char *c);
 bool is_items(Token *t);
 bool is_lst(Token *t);
 bool is_pfix(Token *t);
@@ -84,3 +93,41 @@ bool is_inslst(Token *t);
 bool loop_closed(Token *t);
 bool is_prog(Token *t);
 void panic_msg(char *msg);
+//Stack
+Stack *stack_init(void);
+bool is_empty(int top);
+bool is_full(int top);
+bool push(Stack *stack, double value);
+double pop(Stack *stack);
+double evaluate(char **exp, int len);
+//Testing
+void test(void);
+void test_stack(void);
+void test_ttl(void);
+void test_new_token(void);
+void test_is_num(void);
+void test_is_letter(void);
+void test_is_op(void);
+void test_is_var(void);
+void test_is_varnum(void);
+void test_deg_2_rad(void);
+void test_next_row_index(void);
+void test_next_col_index(void);
+void test_is_fwd(void);
+void test_is_rgt(void);
+void test_get_var_index(void);
+void test_is_word(void);
+void test_is_item(void);
+void test_items(void);
+void test_is_lst(void);
+void test_is_col(void);
+void test_is_pfix(void);
+void test_is_set(void);
+void test_update_var(void);
+void test_is_loop(void);
+void test_loop_closed(void);
+void test_is_inslst(void);
+void test_is_prog(void);
+
+
+

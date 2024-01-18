@@ -1,29 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdbool.h>
-#include <string.h>
-
-#define MAX_STACK_SIZE 100
-#define EMPTY -1
-
-typedef struct {
-    //TODO could make this a better size
-    double data[MAX_STACK_SIZE];
-    int top;
-} Stack;
-
-Stack *stack_init(void);
-bool is_empty(int top);
-bool is_full(int top);
-bool push(Stack *stack, double value);
-double pop(Stack *stack);
-double evaluate(char **exp, int len);
-
 
 Stack *stack_init(void)
 {
     Stack *s = calloc(1, sizeof(Stack));
+    if (!s)
+    {
+        panic_msg("allocating space for stack");
+    }
+    s->top = EMPTY;
     return s;
 }
 
@@ -52,7 +35,7 @@ double pop(Stack *stack)
 {
     if (is_empty(stack->top))
     {
-        exit(EXIT_FAILURE);
+        panic_msg("can't pop when stack is empty");
     }
     return stack->data[stack->top--];
 }
@@ -70,8 +53,7 @@ double evaluate(char **exp, int len)
             bool pushed = push(s, num);
             if (!pushed)
             {
-                fprintf(stderr,"stack overflow\n");
-                exit(EXIT_FAILURE);
+                panic_msg("stack overflow\n");
             }
         }
         else if (is_var(exp[i]))
@@ -98,7 +80,6 @@ double evaluate(char **exp, int len)
         {
             double op2 = pop(s);
             double op1 = pop(s);
-
             if (strcmp(exp[i], "+") == 0)
             {
                 push(s, op1 + op2);
@@ -111,12 +92,13 @@ double evaluate(char **exp, int len)
             {
                 push(s, op1 * op2);
             }
-            else if (strcmp(exp[i], "/") == 0 && fabs(op2 - 0) < TOLERANCE)
+            else if (strcmp(exp[i], "/") == 0  && fabs(op2 - 0) > TOLERANCE)
             {
                 push(s, op1 / op2);
             }
             else
             {
+                printf("else %s %lf\n\n", exp[i], op2);
                 panic_msg("invalid character in postfix expression");
             }
         }
