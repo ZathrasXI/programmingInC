@@ -1,9 +1,11 @@
 using `gcov` to assess test coverage
 
 ```
+--How i have tested 100% of source code--
+
 gcc -fprofile-arcs -ftest-coverage -o parse parse.c
 ./parse
-gcov parse.c
+gcov parse.c (TODO use gcov against interpreter)
 ```
 The output shows % of lines executed, which we can equate to coverage by the unit
 tests because when we executed the compiled file we didn't give it any files,
@@ -15,3 +17,15 @@ a significant drop in the % of lines executed. The code is being executed by
 Each directory has as a `gcov.sh` script which will run the above commands against
 the file in that directory.
 
+These tests tests are commented out:
+- pop_test1 within test_stack()
+- stack_word within test_stack()
+- type_not_in_use within test_stack()
+
+this is because they cause the program to exit.
+To test these bits of functionality, I uncomment a test, run the test, check that the
+error message is correct and that the exit code is non-zero using `echo $?` in the 
+terminal
+
+TODO:
+- Explain how I followed testing pyramind, and AAA

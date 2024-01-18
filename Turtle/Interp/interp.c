@@ -49,8 +49,7 @@ int main(int argc, char **argv)
     }
 
     free_tokens(head);
-    free(ttl.path);
-    // free(ttl.vars);
+    free_ttl();
     fclose(turtle_file);
     return 0;
 }
