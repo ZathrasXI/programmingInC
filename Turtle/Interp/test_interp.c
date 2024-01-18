@@ -31,7 +31,7 @@ void test(void)
     // test_is_inslst();
     // test_is_prog();
     test_tokenise();
-    // test_print();
+    test_print();
     //teardown
     free_ttl();
 }
@@ -1256,26 +1256,25 @@ void test_is_prog(void)
 
 void test_print(void)
 {
-    //arrange
-    //  have list of instructions
-    //  read them into LL
-    //  run the interpreter against them
-    //  compare output
+    /*
+    integration testing - testing tokenisation with interpreter and checking output
+    */
+    //forward.ttl
+    free_ttl();
+    init_ttl();
+    FILE *fwd = fopen("../TTLs/forward.ttl", "r");
+    Token *fwd_tokens = tokenise(fwd);
+    fclose(fwd);
+    assert(is_prog(fwd_tokens));
+    int diff = 16;
+    for (int i = ttl.len; i >= 0; i--)
+    {
+        assert(ttl.path[i].row == i - diff);
+        diff-=2;
+    }
+    free_tokens(fwd_tokens);
 
-
-
-    // //can create correct 2d array
-    // char output[WIDTH][HEIGHT];
-    // represent_coords(output, ttl.path);
-    // for (int row = 0; row < WIDTH; row++)
-    // {
-    //     for (int col = 0; col < HEIGHT; col++)
-    //     {
-    //         printf("%c ", output[row][col]);
-    //     }
-    //     printf("\n");
-    // }
-}
+ }
 
 void test_tokenise(void)
 {   
@@ -1289,8 +1288,8 @@ void test_tokenise(void)
         panic_msg("opening file for test");
     }
     Token *head = tokenise(f);
-    Token *current = head;
     fclose(f);
+    Token *current = head;
     assert(head);
     while (current->next)
     {

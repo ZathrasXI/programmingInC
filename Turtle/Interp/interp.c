@@ -181,7 +181,7 @@ bool is_forward(Token *t)
         {
             sscanf(t->next->str, "%d", &steps);
         }
-        else
+        else if (is_var(t->next->str))
         {
             steps = ttl.vars[get_var_index(t->next->str[1])].num;
         }
@@ -520,7 +520,6 @@ bool is_inslst(Token *t)
     {
         return true;
     }
-
     Token *next_ins = t;
     if (is_forward(t))
     {
@@ -568,10 +567,14 @@ bool is_inslst(Token *t)
         while (strcmp(next_ins->str, ")") != 0);
         next_ins = next_ins->next;
     }
-    if (is_ins(t) && is_inslst(next_ins))
+    if (is_inslst(next_ins))
     {
         return true;
     }
+    // if (is_ins(t) && is_inslst(next_ins))
+    // {
+    //     return true;
+    // }
     return false;
 }
 
