@@ -9,10 +9,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    char instruction_file_name[FILE_NAME_LEN];
-    strcpy(instruction_file_name, argv[1]);
-    
-    FILE *turtle_file = fopen(instruction_file_name, "r");
+    FILE *turtle_file = fopen(argv[1], "r");
     if (!turtle_file)
     {
         fprintf(stderr, "error opening file\n");
