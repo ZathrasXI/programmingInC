@@ -75,6 +75,7 @@ int next_row(int line_start, int step_n);
 int next_col(int line_start, int step_n);
 double degrees_to_radians(double degrees);
 Token *new_token(char *c);
+Token *tokenise(FILE *ttl_file);
 void free_tokens(Token* head);
 bool is_number(char *c);
 bool is_letter(char *c);
@@ -132,6 +133,7 @@ void test_loop_closed(void);
 void test_is_inslst(void);
 void test_is_prog(void);
 void test_print(void);
+void test_tokenise(void);
 void free_ttl(void);
 
 

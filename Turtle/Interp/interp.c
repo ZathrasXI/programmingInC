@@ -20,12 +20,45 @@ int main(int argc, char **argv)
         panic_msg("opening file");
     }
 
-    char buffer[TOKEN_LEN];
-    Token *current;
-    Token *head;
-    while (fscanf(turtle_file, "%s", buffer) == 1)
+    Token *head = tokenise(turtle_file);
+
+    exit(EXIT_FAILURE);
+
+    if (!is_prog(head))
     {
-        //TODO: count forward commands
+        panic_msg("file not parsed");
+    }
+
+    free_tokens(head);
+    free_ttl();
+    return 0;
+}
+
+Token *new_token(char *c)
+{
+    int len = strlen(c) + 1;
+    Token *new = (Token *) calloc(INIT_SIZE, sizeof(Token));
+    if (!new)
+    {
+        panic_msg("allocating memory for Token");
+    }
+    new->str = calloc(len, sizeof(char));
+    if (!new->str)
+    {
+        panic_msg("allocating memory a Token's string");
+    }
+    strcpy(new->str, c);
+    new->next = NULL;
+    return new;
+}
+
+Token *tokenise(FILE *ttl_file)
+{
+    char buffer[TOKEN_LEN];
+    Token *current = NULL;
+    Token *head = NULL;
+    while (fscanf(ttl_file, "%s", buffer) == 1)
+    {
         if (!head)
         {
             head = new_token(buffer);
@@ -37,36 +70,7 @@ int main(int argc, char **argv)
             current = current->next;
         }
     }
-
-
-
-    if (!is_prog(head))
-    {
-        panic_msg("file not parsed");
-    }
-
-    free_tokens(head);
-    free_ttl();
-    fclose(turtle_file);
-    return 0;
-}
-
-Token *new_token(char *c)
-{
-    int len = strlen(c);
-    Token *new = (Token *) calloc(INIT_SIZE, sizeof(Token));
-    if (!new)
-    {
-        panic_msg("allocating memory for Token");
-    }
-    new->str = (char *) calloc(len + 1, sizeof(char));
-    if (!new->str)
-    {
-        panic_msg("allocating memory a Token's string");
-    }
-    strcpy(new->str, c);
-    new->next = NULL;
-    return new;
+    return head;
 }
 
 void free_tokens(Token* head)

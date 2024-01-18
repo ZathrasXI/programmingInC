@@ -1,8 +1,9 @@
 
 void test(void)
 {
+    //setup 
     init_ttl();
-
+    //tests
     test_stack();
     test_ttl();
     test_new_token();
@@ -29,8 +30,9 @@ void test(void)
     test_loop_closed();
     // test_is_inslst();
     // test_is_prog();
-    test_print();
-
+    test_tokenise();
+    // test_print();
+    //teardown
     free_ttl();
 }
 
@@ -1254,6 +1256,14 @@ void test_is_prog(void)
 
 void test_print(void)
 {
+    //arrange
+    //  have list of instructions
+    //  read them into LL
+    //  run the interpreter against them
+    //  compare output
+
+
+
     // //can create correct 2d array
     // char output[WIDTH][HEIGHT];
     // represent_coords(output, ttl.path);
@@ -1265,6 +1275,30 @@ void test_print(void)
     //     }
     //     printf("\n");
     // }
+}
+
+void test_tokenise(void)
+{   
+    //head is not NULL
+    //check tokens read properly
+    char *tkns[] = {"START", "SET", "A", "(", "1", ")", "END"};
+    FILE *f = fopen("../TTLs/set1.ttl", "r");
+    int i = 0;
+    if (!f)
+    {
+        panic_msg("opening file for test");
+    }
+    Token *head = tokenise(f);
+    Token *current = head;
+    fclose(f);
+    assert(head);
+    while (current->next)
+    {
+        assert(strcmp(current->str, tkns[i]) == 0);
+        i++;
+        current = current->next;
+    }
+    free_tokens(head);
 }
 
 void free_ttl(void)
