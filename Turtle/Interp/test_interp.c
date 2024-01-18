@@ -1,6 +1,8 @@
 
 void test(void)
 {
+    init_ttl();
+
     test_stack();
     test_ttl();
     test_new_token();
@@ -27,6 +29,9 @@ void test(void)
     test_loop_closed();
     // test_is_inslst();
     // test_is_prog();
+    test_print();
+
+    free_ttl();
 }
 
 void test_stack(void)
@@ -34,14 +39,12 @@ void test_stack(void)
     //can init
     Stack *s_test = stack_init();
     assert(s_test);
-    //teardown
     free(s_test);
 
     //is empty on init
     Stack *empty = stack_init();
     assert(!is_full(empty->top));
     assert(is_empty(empty->top));
-    //teardown
     free(empty);
 
     //is full
@@ -779,6 +782,8 @@ void test_is_set(void)
     assert(ttl.type_in_use[z_index] == union_char);
     assert(strcmp(ttl.vars[z_index].word, ttl.vars[d_index].word) == 0);
     //teardown
+    ttl.type_in_use[d_index] = not_set;
+    ttl.type_in_use[z_index] = not_set;
     free(ttl.vars[d_index].word);
     free(ttl.vars[z_index].word);
     free_tokens(set_test15);
@@ -1153,7 +1158,7 @@ void test_is_prog(void)
     Token *prog18 = new_token("FORWARD");
     Token *prog19 = new_token("$Z");
     Token *prog20 = new_token("RIGHT");
-    Token *prog21 = new_token("$A");
+    Token *prog21 = new_token("45");
     Token *prog22 = new_token("END");
     Token *prog23 = new_token("END");
     Token *prog24 = new_token("END");
@@ -1247,9 +1252,34 @@ void test_is_prog(void)
     free_tokens(full_prog1);    
 }
 
+void test_print(void)
+{
+    // //can create correct 2d array
+    // char output[WIDTH][HEIGHT];
+    // represent_coords(output, ttl.path);
+    // for (int row = 0; row < WIDTH; row++)
+    // {
+    //     for (int col = 0; col < HEIGHT; col++)
+    //     {
+    //         printf("%c ", output[row][col]);
+    //     }
+    //     printf("\n");
+    // }
+}
 
-
-
+void free_ttl(void)
+{
+    free(ttl.path);
+    for (int i = 0; i < 26; i++)
+    {
+        if (ttl.type_in_use[i] == union_char)
+        {
+            free(ttl.vars[i].word);
+        }
+    }
+    free(ttl.vars);
+    free(ttl.type_in_use);
+}
 
 
 

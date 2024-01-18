@@ -16,6 +16,8 @@
 //TODO find less rigid alternative
 #define PATH 100
 //2D array is 51 wide, 33 high
+#define WIDTH 51
+#define HEIGHT 33
 #define COL_START 25
 #define ROW_START 16
 #define MAX_VARS 26
@@ -65,6 +67,7 @@ typedef struct token
 static Turtle ttl;
 
 //Parser & interpreter
+void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index);
 void init_ttl();
 int get_var_index(char var_name);
@@ -128,6 +131,8 @@ void test_is_loop(void);
 void test_loop_closed(void);
 void test_is_inslst(void);
 void test_is_prog(void);
+void test_print(void);
+void free_ttl(void);
 
 
 

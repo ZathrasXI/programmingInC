@@ -5,8 +5,8 @@
 
 int main(int argc, char **argv)
 {
-    init_ttl();
     test();
+    init_ttl();
 
     if (argc == ONE_ARG)
     {
@@ -649,8 +649,6 @@ void update_var(char *token_str, int dest_index)
     }
 }
 
-
-
 void init_ttl()
 {
     ttl.len = 0;
@@ -672,7 +670,6 @@ void init_ttl()
     {
         panic_msg("allocating memory for type_used array");
     }
-
 }
 
 void panic_msg(char *msg)
