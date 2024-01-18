@@ -15,23 +15,8 @@ int main(int argc, char **argv)
         fprintf(stderr, "error opening file\n");
         exit(EXIT_FAILURE);
     }
-
-    char buffer[TOKEN_LEN];
-    Token *current;
-    Token *head;
-    while (fscanf(turtle_file, "%s", buffer) == 1)
-    {
-        if (!head)
-        {
-            head = new_token(buffer);
-            current = head;
-        }
-        else
-        {
-            current->next = new_token(buffer);
-            current = current->next;
-        }
-    }
+    //TODO test this
+    Token *head = tokenise(turtle_file);
 
     if (!is_prog(head))
     {
@@ -62,6 +47,27 @@ Token *new_token(char *c)
     strcpy(new->str, c);
     new->next = NULL;
     return new;
+}
+
+Token *tokenise(FILE *ttl_file)
+{
+    char buffer[TOKEN_LEN];
+    Token *current = NULL;
+    Token *head = NULL;
+    while (fscanf(ttl_file, "%s", buffer) == 1)
+    {
+        if (!head)
+        {
+            head = new_token(buffer);
+            current = head;
+        }
+        else
+        {
+            current->next = new_token(buffer);
+            current = current->next;
+        }
+    }
+    return head;
 }
 
 void free_tokens(Token* head)

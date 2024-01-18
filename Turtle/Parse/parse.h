@@ -23,6 +23,7 @@ typedef struct token
 
 void test(void);
 Token *new_token(char *c);
+Token *tokenise(FILE *ttl_file);
 void free_tokens(Token* head);
 bool is_number(char *c);
 bool is_letter(char *c);
