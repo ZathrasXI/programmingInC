@@ -68,7 +68,7 @@ static Turtle ttl;
 
 //Parser & interpreter
 void find_end_points(int x0, int y0, int len, int x1_y1[2]);
-void calulcate_line_coords(int x0, int y0, int x1, int y1);
+void calculate_line_coords(int x0, int y0, int x1, int y1);
 void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index);
 void init_ttl();
@@ -134,7 +134,7 @@ void test_is_loop(void);
 void test_loop_closed(void);
 void test_is_inslst(void);
 void test_is_prog(void);
-void test_print(void);
+void test_integration(void);
 void test_tokenise(void);
 void free_ttl(void);
 

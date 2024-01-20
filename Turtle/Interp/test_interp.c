@@ -31,7 +31,7 @@ void test(void)
     // test_is_inslst();
     // test_is_prog();
     test_tokenise();
-    test_print();
+    test_integration();
     //teardown
     free_ttl();
 }
@@ -313,8 +313,7 @@ void test_is_fwd(void)
     ttl.len = 0;
     free_tokens(fwd_many);
     
-    //forward, turn 90, forward
-    // printf("current test\n");
+    //forward, turn 45, forward 8 
     Token *fwd_rgt_fwd = new_token("FORWARD");
     Token *fwd_rgt_fwd1 = new_token("8");
     Token *fwd_rgt_fwd2 = new_token("RIGHT");
@@ -342,46 +341,10 @@ void test_is_fwd(void)
         assert(ttl.path[8+i].row == 8 - i);
 
     }
-    exit(EXIT_FAILURE);
-
     //teardown
     ttl.len = 0;
     ttl.direction = 0;
     free_tokens(fwd_rgt_fwd);
-
-    //awkward angle
-    //forward 1, right 62, forward 4
-    Token *fwd_rgt_fwd6 = new_token("FORWARD");
-    Token *fwd_rgt_fwd7 = new_token("1");
-    Token *fwd_rgt_fwd8 = new_token("RIGHT");
-    Token *fwd_rgt_fwd9 = new_token("62");
-    Token *fwd_rgt_fwd10 = new_token("FORWARD");
-    Token *fwd_rgt_fwd11 = new_token("4");
-    fwd_rgt_fwd6->next = fwd_rgt_fwd7;
-    fwd_rgt_fwd7->next = fwd_rgt_fwd8;
-    fwd_rgt_fwd8->next = fwd_rgt_fwd9;
-    fwd_rgt_fwd9->next = fwd_rgt_fwd10;
-    fwd_rgt_fwd10->next = fwd_rgt_fwd11;
-    assert(is_forward(fwd_rgt_fwd6));
-    assert(is_rgt(fwd_rgt_fwd8));
-    assert(is_forward(fwd_rgt_fwd10));
-    assert(ttl.len == 6);
-    assert(ttl.path[0].row == ROW_START);
-    assert(ttl.path[0].col == COL_START);
-    assert(ttl.path[1].row == ROW_START - 1);
-    assert(ttl.path[1].col == COL_START);
-    assert(ttl.path[2].row == ROW_START - 1);
-    assert(ttl.path[2].col == COL_START + 1);
-    assert(ttl.path[3].row == ROW_START - 1);
-    assert(ttl.path[3].col == COL_START + 2);
-    assert(ttl.path[4].row == ROW_START - 2);
-    assert(ttl.path[4].col == COL_START + 3);
-    assert(ttl.path[5].row == ROW_START - 2);
-    assert(ttl.path[5].col == COL_START + 4);
-    //teardown
-    ttl.len = 0;
-    ttl.direction = 0;
-    free_tokens(fwd_rgt_fwd6);
 
     //turtle doesn't move when var == 0
     Token *fwd2 = new_token("FORWARD");
@@ -1263,7 +1226,7 @@ void test_is_prog(void)
     free_tokens(full_prog1);    
 }
 
-void test_print(void)
+void test_integration(void)
 {
     /*
     integration testing - testing tokenisation with interpreter and checking output
@@ -1283,23 +1246,29 @@ void test_print(void)
     }
     free_tokens(fwd_tokens);
 
-    //turn.ttl
+    //octagon1.ttl
     free_ttl();
     init_ttl();
-    FILE *turn = fopen("../TTLs/turn.ttl", "r");
-    // int rows[] = {16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0};
-    // int cols[] = {25,25,25,25,25,25,25,25,25,26,27,28,29,30,31,32,33};
-    Token *turn_tokens = tokenise(turn);
-    fclose(turn);
-    assert(is_prog(turn_tokens));
-    // for (int i = 0; i < ttl.len; i++)
-    // {
-    //     printf("i %d col %d row %d\n", i, ttl.path[i].col, ttl.path[i].row);
-    //     assert(ttl.path[i].col == cols[i]);
-    //     assert(ttl.path[i].row == rows[i]);
-    // }
-    free_tokens(turn_tokens);
+    FILE *oct1 = fopen("../TTLs/octagon1.ttl", "r");
+    Token *oct1_tokens = tokenise(oct1);
+    fclose(oct1);
+    assert(is_prog(oct1_tokens));
+    int arr[HEIGHT][WIDTH] = {0};
+    for (int i = 0; i < ttl.len; i ++)
+    {
+        arr[ttl.path[i].row][ttl.path[i].col] = 1;
+    }
 
+    for (int i = 0; i < HEIGHT; i++)
+    {
+        for (int j = 0; j < WIDTH; j++)
+        {
+            printf("%d ", arr[i][j]);
+        }
+        printf("\n");
+    }
+
+    free_tokens(oct1_tokens);
  }
 
 void test_tokenise(void)

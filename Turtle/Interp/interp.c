@@ -204,7 +204,7 @@ bool is_forward(Token *t)
             // }
             int x1_y1[2];
             find_end_points(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, steps, x1_y1);
-            calulcate_line_coords(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, x1_y1[0], x1_y1[1]);
+            calculate_line_coords(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, x1_y1[0], x1_y1[1]);
 
         }
         return true;
@@ -688,41 +688,68 @@ void panic_msg(char *msg)
 
 void find_end_points(int x0, int y0, int input_length, int x_y[2])
 {
-    // x1 should be 0 when drawing a straight line, but it's 1
     float x1 = round(x0 + (input_length * sin(ttl.direction)));
     float y1 = round(y0 - (input_length * cos(ttl.direction)));
-    
-    // printf("start x %d start y %d end x %d end y %d\n", x0, y0, x1, y1);
     x_y[0] = (int) round(x1);
     x_y[1] = (int) round(y1);
-    // calulcate_line_coords((int) round(x0), (int) round(y0), (int) x1, (int) y1, r);
 }
 
-void calulcate_line_coords(int x0, int y0, int x1, int y1)
+void calculate_line_coords(int x0, int y0, int x1, int y1)
 {
-    int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
-    int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
-    int err = dx+dy, e2; /* error value e_xy */
-    //TODO: while loop
-    for (;;)
-    { /* loop */
-        //TODO: test left shift `err<<2` should have the same effect, but be quicker
-        e2 = 2*err;
+    int dx = abs(x1-x0); 
+    int dy = -abs(y1-y0); 
+    int err = dx+dy, e2; 
+    int sx, sy;
+    if (x0 < x1)
+    {
+        sx = 1;
+    }
+    else
+    {
+        sx = -1;
+    }
+    if (y0 < y1)
+    {
+        sy = 1;
+    }
+    else
+    {
+        sy = -1;
+    }
+    bool end_x = false;
+    bool end_y = false;
+    bool end_of_line = false;
+    while(!end_of_line)
+    { 
+        e2 = err * 2;
         if (e2 >= dy) 
-        { /* e_xy+e_x > 0 */
-            if (x0 == x1) break;
-            err += dy; x0 += sx;
+        { 
+            if (!end_y && x0 == x1)
+            {
+                end_x = true;
+            }
+            else
+            {
+                err += dy; x0 += sx;
+            }
         }
-        if (e2 <= dx) 
-        { /* e_xy+e_y < 0 */
-            if (y0 == y1) break;
-            err += dx; y0 += sy;
+        if (!end_x && e2 <= dx) 
+        { 
+            if (y0 == y1)
+            {
+                end_y = true;
+            }
+            else
+            {
+                err += dx; y0 += sy;
+            }
         }
-        ttl.path[ttl.len].col = x0;
-        ttl.path[ttl.len].row = y0;
-        ttl.len++;
-        // r->s[r->len].col = x0;
-        // r->s[r->len].row = y0;
-        // r->len++;
+        end_of_line = end_x || end_y;
+        if (!end_of_line)
+        {
+            ttl.path[ttl.len].col = x0;
+            ttl.path[ttl.len].row = y0;
+            ttl.len++;
+        }
     }
 }
