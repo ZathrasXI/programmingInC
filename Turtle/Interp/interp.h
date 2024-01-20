@@ -67,6 +67,8 @@ typedef struct token
 static Turtle ttl;
 
 //Parser & interpreter
+void find_end_points(int x0, int y0, int len, int x1_y1[2]);
+void calulcate_line_coords(int x0, int y0, int x1, int y1);
 void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index);
 void init_ttl();

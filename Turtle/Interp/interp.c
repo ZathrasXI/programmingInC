@@ -187,20 +187,25 @@ bool is_forward(Token *t)
         }
         if (steps > 0)
         {
+            //TODO: put this in init()
             if (ttl.len == 0)
             {
                 ttl.path[ttl.len].col = COL_START;
                 ttl.path[ttl.len].row = ROW_START;
                 ttl.len++;
             }
-            int row_line_start = next_row(ttl.path[ttl.len-1].row, 1);
-            int col_line_start = next_col(ttl.path[ttl.len-1].col, 1);
-            for (int i = 0; i < steps; i++)
-            {
-                ttl.path[ttl.len].row = next_row(row_line_start, i);
-                ttl.path[ttl.len].col = next_col(col_line_start, i);
-                ttl.len++;
-            }
+            // int row_line_start = next_row(ttl.path[ttl.len-1].row, 1);
+            // int col_line_start = next_col(ttl.path[ttl.len-1].col, 1);
+            // for (int i = 0; i < steps; i++)
+            // {
+            //     ttl.path[ttl.len].row = next_row(row_line_start, i);
+            //     ttl.path[ttl.len].col = next_col(col_line_start, i);
+            //     ttl.len++;
+            // }
+            int x1_y1[2];
+            find_end_points(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, steps, x1_y1);
+            calulcate_line_coords(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, x1_y1[0], x1_y1[1]);
+
         }
         return true;
     }
@@ -679,4 +684,45 @@ void panic_msg(char *msg)
 {
     fprintf(stderr, "error: %s\n", msg);
     exit(EXIT_FAILURE);
+}
+
+void find_end_points(int x0, int y0, int input_length, int x_y[2])
+{
+    // x1 should be 0 when drawing a straight line, but it's 1
+    float x1 = round(x0 + (input_length * sin(ttl.direction)));
+    float y1 = round(y0 - (input_length * cos(ttl.direction)));
+    
+    // printf("start x %d start y %d end x %d end y %d\n", x0, y0, x1, y1);
+    x_y[0] = (int) round(x1);
+    x_y[1] = (int) round(y1);
+    // calulcate_line_coords((int) round(x0), (int) round(y0), (int) x1, (int) y1, r);
+}
+
+void calulcate_line_coords(int x0, int y0, int x1, int y1)
+{
+    int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+    int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
+    int err = dx+dy, e2; /* error value e_xy */
+    //TODO: while loop
+    for (;;)
+    { /* loop */
+        //TODO: test left shift `err<<2` should have the same effect, but be quicker
+        e2 = 2*err;
+        if (e2 >= dy) 
+        { /* e_xy+e_x > 0 */
+            if (x0 == x1) break;
+            err += dy; x0 += sx;
+        }
+        if (e2 <= dx) 
+        { /* e_xy+e_y < 0 */
+            if (y0 == y1) break;
+            err += dx; y0 += sy;
+        }
+        ttl.path[ttl.len].col = x0;
+        ttl.path[ttl.len].row = y0;
+        ttl.len++;
+        // r->s[r->len].col = x0;
+        // r->s[r->len].row = y0;
+        // r->len++;
+    }
 }

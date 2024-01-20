@@ -304,7 +304,7 @@ void test_is_fwd(void)
     fwd_many->next=fwd_many1;
     assert(is_forward(fwd_many));
     assert(ttl.len == steps + 1);
-    for (int i = 0; i < steps; i++)
+    for (int i = 0; i < ttl.len; i++)
     {
         assert(ttl.path[i].row == ROW_START - i);
         assert(ttl.path[i].col == COL_START);
@@ -314,12 +314,13 @@ void test_is_fwd(void)
     free_tokens(fwd_many);
     
     //forward, turn 90, forward
+    // printf("current test\n");
     Token *fwd_rgt_fwd = new_token("FORWARD");
-    Token *fwd_rgt_fwd1 = new_token("1");
+    Token *fwd_rgt_fwd1 = new_token("8");
     Token *fwd_rgt_fwd2 = new_token("RIGHT");
-    Token *fwd_rgt_fwd3 = new_token("90");
+    Token *fwd_rgt_fwd3 = new_token("45");
     Token *fwd_rgt_fwd4 = new_token("FORWARD");
-    Token *fwd_rgt_fwd5 = new_token("1");
+    Token *fwd_rgt_fwd5 = new_token("8");
     fwd_rgt_fwd->next = fwd_rgt_fwd1;
     fwd_rgt_fwd1->next = fwd_rgt_fwd2;
     fwd_rgt_fwd2->next = fwd_rgt_fwd3;
@@ -328,13 +329,21 @@ void test_is_fwd(void)
     assert(is_forward(fwd_rgt_fwd));
     assert(is_rgt(fwd_rgt_fwd2));
     assert(is_forward(fwd_rgt_fwd4));
-    assert(ttl.len == 3);
-    assert(ttl.path[0].col == COL_START);
-    assert(ttl.path[0].row == ROW_START);
-    assert(ttl.path[1].col == COL_START);
-    assert(ttl.path[1].row == ROW_START - 1);
-    assert(ttl.path[2].col == COL_START + 1);
-    assert(ttl.path[2].row == ROW_START - 1);
+    assert(ttl.len == 15);
+    for(int i = 0; i <= 8; i++)
+    {
+        assert(ttl.path[i].col == COL_START);
+        assert(ttl.path[i].row == ROW_START - i);
+
+    }
+    for(int i = 1; i <= 6; i++)
+    {
+        assert(ttl.path[8+i].col == COL_START + i);
+        assert(ttl.path[8+i].row == 8 - i);
+
+    }
+    exit(EXIT_FAILURE);
+
     //teardown
     ttl.len = 0;
     ttl.direction = 0;
@@ -1273,6 +1282,23 @@ void test_print(void)
         diff-=2;
     }
     free_tokens(fwd_tokens);
+
+    //turn.ttl
+    free_ttl();
+    init_ttl();
+    FILE *turn = fopen("../TTLs/turn.ttl", "r");
+    // int rows[] = {16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0};
+    // int cols[] = {25,25,25,25,25,25,25,25,25,26,27,28,29,30,31,32,33};
+    Token *turn_tokens = tokenise(turn);
+    fclose(turn);
+    assert(is_prog(turn_tokens));
+    // for (int i = 0; i < ttl.len; i++)
+    // {
+    //     printf("i %d col %d row %d\n", i, ttl.path[i].col, ttl.path[i].row);
+    //     assert(ttl.path[i].col == cols[i]);
+    //     assert(ttl.path[i].row == rows[i]);
+    // }
+    free_tokens(turn_tokens);
 
  }
 
