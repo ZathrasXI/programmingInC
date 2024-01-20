@@ -900,7 +900,7 @@ void test_is_loop(void)
     Token *loop_test10 = new_token("RIGHT");
     Token *loop_test11 = new_token("45");
     Token *loop_test12 = new_token("COLOUR");
-    Token *loop_test13 = new_token("$A");
+    Token *loop_test13 = new_token("\"RED\"");
     Token *loop_test14 = new_token("FORWARD");
     Token *loop_test15 = new_token("2");
     Token *loop_test16 = new_token("FORWARD");
@@ -1262,35 +1262,37 @@ void test_integration(void)
     }
     free_tokens(turn_tokens);
 
-    //octagon1.ttl
-    // free_ttl();
-    // init_ttl();
-    // FILE *oct1 = fopen("../TTLs/octagon1.ttl", "r");
-    // Token *oct1_tokens = tokenise(oct1);
-    // fclose(oct1);
-    // assert(is_prog(oct1_tokens));
-    // char arr[HEIGHT][WIDTH];
-    // for (int i = 0; i < HEIGHT; i++)
-    // {
-    //     for (int j = 0; j < WIDTH; j++)
-    //     {
-    //         arr[i][j] = ' ';
-    //     }
-    // }
-    // for (int i = 0; i < ttl.len; i++)
-    // {
-    //     arr[ttl.path[i].row][ttl.path[i].col] = 'W';
-    // }
+    // octagon2.ttl
+    printf("test\n\n");
+    free_ttl();
+    init_ttl();
+    FILE *oct1 = fopen("../TTLs/octagon2.ttl", "r");
+    Token *oct1_tokens = tokenise(oct1);
+    fclose(oct1);
+    assert(is_prog(oct1_tokens));
+    char arr[HEIGHT][WIDTH];
+    for (int i = 0; i < HEIGHT; i++)
+    {
+        for (int j = 0; j < WIDTH; j++)
+        {
+            arr[i][j] = ' ';
+        }
+    }
+    for (int i = 0; i < ttl.len; i++)
+    {
+        arr[ttl.path[i].row][ttl.path[i].col] = 'W';
+        printf("col %d row %d\n", ttl.path[i].col, ttl.path[i].row);
+    }
 
-    // for (int i = 0; i < HEIGHT; i++)
-    // {
-    //     for (int j = 0; j < WIDTH; j++)
-    //     {
-    //         printf("%c", arr[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // free_tokens(oct1_tokens);
+    for (int i = 0; i < HEIGHT; i++)
+    {
+        for (int j = 0; j < WIDTH; j++)
+        {
+            printf("%c", arr[i][j]);
+        }
+        printf("\n");
+    }
+    free_tokens(oct1_tokens);
  }
 
 void test_tokenise(void)

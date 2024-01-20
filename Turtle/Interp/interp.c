@@ -459,25 +459,31 @@ bool is_loop(Token *t)
         )
         {
             Token *start_of_lst = t->next->next->next->next;
+            Token *iter = start_of_lst;
             int list_len = 0;
             while (strcmp(start_of_lst->str, "}") != 0)
             {
                 start_of_lst = start_of_lst->next;
                 list_len++;
             }
-            if (is_inslst(start_of_lst->next))
+ 
+            Token *start_of_ins = start_of_lst->next;
+            Token *current = start_of_ins;
+            int var_index = get_var_index(t->next->str[0]);
+            while (is_item(iter->str))
             {
-                Token *iter = t->next->next->next->next;
-                int var_index = get_var_index(t->next->str[0]);
-                while (strcmp(iter->str, "}") != 0)
+                //iterate through items
+                update_var(iter->str, var_index);
+                iter = iter->next;
+                //go through list of instructions
+                while (current && is_ins(current))
                 {
-                    update_var(iter->str, var_index);
-
-                    iter = iter->next;
+                    current = current->next->next;
                 }
-
-                return true;
+                current = start_of_ins;
+                //return to top when ->next == "END"
             }
+            return true;
         }
     return false;
 }
