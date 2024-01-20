@@ -1246,29 +1246,51 @@ void test_integration(void)
     }
     free_tokens(fwd_tokens);
 
-    //octagon1.ttl
+    //turn.ttl
     free_ttl();
     init_ttl();
-    FILE *oct1 = fopen("../TTLs/octagon1.ttl", "r");
-    Token *oct1_tokens = tokenise(oct1);
-    fclose(oct1);
-    assert(is_prog(oct1_tokens));
-    int arr[HEIGHT][WIDTH] = {0};
-    for (int i = 0; i < ttl.len; i ++)
+    FILE *turn = fopen("../TTLs/turn.ttl", "r");
+    Token *turn_tokens = tokenise(turn);
+    fclose(turn);
+    assert(is_prog(turn_tokens));
+    int rows[] = {16,15,14,13,12,11,10,9,8,7,6,5,4,3,2};
+    int cols[] = {25,25,25,25,25,25,25,25,25,26,27,28,29,30,31};
+    for (int i = 0; i < ttl.len; i++)
     {
-        arr[ttl.path[i].row][ttl.path[i].col] = 1;
+        assert(ttl.path[i].row == rows[i]);
+        assert(ttl.path[i].col == cols[i]);
     }
+    free_tokens(turn_tokens);
 
-    for (int i = 0; i < HEIGHT; i++)
-    {
-        for (int j = 0; j < WIDTH; j++)
-        {
-            printf("%d ", arr[i][j]);
-        }
-        printf("\n");
-    }
+    //octagon1.ttl
+    // free_ttl();
+    // init_ttl();
+    // FILE *oct1 = fopen("../TTLs/octagon1.ttl", "r");
+    // Token *oct1_tokens = tokenise(oct1);
+    // fclose(oct1);
+    // assert(is_prog(oct1_tokens));
+    // char arr[HEIGHT][WIDTH];
+    // for (int i = 0; i < HEIGHT; i++)
+    // {
+    //     for (int j = 0; j < WIDTH; j++)
+    //     {
+    //         arr[i][j] = ' ';
+    //     }
+    // }
+    // for (int i = 0; i < ttl.len; i++)
+    // {
+    //     arr[ttl.path[i].row][ttl.path[i].col] = 'W';
+    // }
 
-    free_tokens(oct1_tokens);
+    // for (int i = 0; i < HEIGHT; i++)
+    // {
+    //     for (int j = 0; j < WIDTH; j++)
+    //     {
+    //         printf("%c", arr[i][j]);
+    //     }
+    //     printf("\n");
+    // }
+    // free_tokens(oct1_tokens);
  }
 
 void test_tokenise(void)
