@@ -1274,34 +1274,22 @@ void test_integration(void)
     free_tokens(turn_tokens);
 
     // octagon2.ttl
-    // free_ttl();
-    // init_ttl();
-    // FILE *oct1 = fopen("../TTLs/octagon2.ttl", "r");
-    // Token *oct1_tokens = tokenise(oct1);
-    // fclose(oct1);
-    // assert(is_prog(oct1_tokens));
-    // char arr[HEIGHT][WIDTH];
-    // for (int i = 0; i < HEIGHT; i++)
-    // {
-    //     for (int j = 0; j < WIDTH; j++)
-    //     {
-    //         arr[i][j] = ' ';
-    //     }
-    // }
-    // for (int i = 0; i < ttl.len; i++)
-    // {
-    //     arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
-    // }
-
-    // for (int i = 0; i < HEIGHT; i++)
-    // {
-    //     for (int j = 0; j < WIDTH; j++)
-    //     {
-    //         printf("%c", arr[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    // free_tokens(oct1_tokens);
+    free_ttl();
+    init_ttl();
+    FILE *oct2 = fopen("../TTLs/octagon2.ttl", "r");
+    Token *oct2_tokens = tokenise(oct2);
+    fclose(oct2);
+    int oct2_cols[] = {25,25,25,25,25,25,26,27,28,29,30,31,32,33,34,35,36,37,38,38,38,38,38,38,37,36,35,34,33,32,31,30,29,28,27,26,25};
+    int oct2_rows[] = {16,15,14,13,12,11,10,9,8,7,7,7,7,7,7,8,9,10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20,19,18,17,16};
+    char oct2_colours[] = {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
+    assert(is_prog(oct2_tokens));
+    for (int i = 0; i < ttl.len; i++)
+    {
+        assert(ttl.path[i].col == oct2_cols[i]);
+        assert(ttl.path[i].row == oct2_rows[i]);
+        assert(ttl.path[i].colour == oct2_colours[i]);
+    }
+    free_tokens(oct2_tokens);
 
     //downarrow
     free_ttl();
