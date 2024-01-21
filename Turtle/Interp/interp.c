@@ -505,22 +505,23 @@ bool is_loop(Token *t)
                 list_len++;
             }
             Token *start_of_ins = start_of_lst->next;
-            Token *current = start_of_ins;
+            // Token *current = start_of_ins;
             int var_index = get_var_index(t->next->str[0]);
             while (is_item(iter->str))
             {
-                //iterate through items
                 update_var(iter->str, var_index);
+                is_inslst(start_of_ins);
                 iter = iter->next;
-                //go through list of instructions
-                while (current && is_ins(current))
-                {
-                    current = current->next->next;
-                }
-                current = start_of_ins;
-                //return to top when ->next == "END"
+                // while (current && is_ins(current))
+                // {
+                //     printf("%s\n", current->str);
+                //     current = current->next->next;
+                // }
+                // current = start_of_ins;
+                
+                //for each thing in list
+
             }
-            printf("loop end direction %lf\n", ttl.direction);
             return true;
         }
     return false;
@@ -565,44 +566,27 @@ bool is_ins(Token *t)
 
 bool is_inslst(Token *t)
 {
-    Token *next_ins = t;
-    if (strcmp("END", t->str) == 0 && t->next)
+    if (!t)
     {
-        next_ins = next_ins->next;
-        // return true;
+        return false;
     }
-    else if (strcmp("END", t->str) == 0)
+    Token *next_ins = t;
+    if (strcmp("END", t->str) == 0)
     {
         return true;
     }
     
     if (is_forward(t))
     {
-        do
-        {
-            next_ins = next_ins->next;
-        } 
-        while (strcmp(next_ins->str, "FOWARD") == 0 || 
-            is_varnum(next_ins->str));
+        return is_inslst(t->next->next);
     }
     else if (is_rgt(t))
     {
-        do
-        {
-            next_ins = next_ins->next;
-        }
-        while (strcmp(next_ins->str, "RIGHT") == 0 || 
-            is_varnum(next_ins->str));
+        return is_inslst(t->next->next);
     }
     else if (is_col(t))
     {
-        do
-        {
-            next_ins = next_ins->next;
-        } 
-        while (strcmp(next_ins->str, "COLOUR") == 0 || 
-            is_var(next_ins->str) || 
-            is_word(next_ins->str));
+        return is_inslst(t->next->next);
     }
     else if (is_loop(t))
     {
@@ -612,6 +596,7 @@ bool is_inslst(Token *t)
         } 
         while (strcmp(next_ins->str, "END") != 0);
         next_ins = next_ins->next;
+        return is_inslst(next_ins);
     }
     else if (is_set(t))
     {
@@ -621,15 +606,8 @@ bool is_inslst(Token *t)
         } 
         while (strcmp(next_ins->str, ")") != 0);
         next_ins = next_ins->next;
+        return is_inslst(next_ins);
     }
-    if (is_inslst(next_ins))
-    {
-        return true;
-    }
-    // if (is_ins(t) && is_inslst(next_ins))
-    // {
-    //     return true;
-    // }
     return false;
 }
 

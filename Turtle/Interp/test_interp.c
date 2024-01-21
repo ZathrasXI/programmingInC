@@ -874,7 +874,6 @@ void test_is_loop(void)
     int c_index = get_var_index('C');
     ttl.vars[c_index].num = 100.01;
     ttl.type_in_use[c_index] = union_double;
-    char *final_value = "\"PURPLE\"";
     Token *loop_test31 = new_token("LOOP");
     Token *loop_test32 = new_token("A");
     Token *loop_test33 = new_token("OVER");
@@ -893,7 +892,7 @@ void test_is_loop(void)
     loop_test37->next = loop_test38;
     loop_test38->next = loop_test39;
     assert(is_loop(loop_test31));
-    assert(strcmp(final_value, ttl.vars[a_index].word) == 0);
+    assert(strcmp("\"PURPLE\"", ttl.vars[a_index].word) == 0);
     assert(ttl.type_in_use[a_index] == union_char);
     free_tokens(loop_test31);
 
@@ -1307,6 +1306,7 @@ void test_integration(void)
     free_tokens(oct1_tokens);
 
     //downarrow
+    printf("downarrow.ttl\n");
     free_ttl();
     init_ttl();
     FILE *down_arrow = fopen("../TTLs/downarrow.ttl", "r");
@@ -1323,6 +1323,26 @@ void test_integration(void)
         assert(ttl.path[i].colour == arrow_colours[i]);
     }
     free_tokens(down_arrow_tokens);
+
+    //spiral
+    printf("spiral @@@@\n");
+    free_ttl();
+    init_ttl();
+    FILE *spiral = fopen("../TTLs/spiral.ttl", "r");
+    Token *spiral_tokens = tokenise(spiral);
+    fclose(spiral);
+    // int spiral_cols[] = {};
+    // int spiral_rows[] = {};
+    // char spiral_colours[] = {};
+    assert(is_prog(spiral_tokens));
+    for (int i = 0; i < ttl.len; i++)
+    {
+        // assert(ttl.path[i].col == spiral_cols[i]);
+        // assert(ttl.path[i].row == spiral_rows[i]);
+        // assert(ttl.path[i].colour == spiral_colours[i]);
+        printf("%d %d %c\n", ttl.path[i].col, ttl.path[i].row, ttl.path[i].colour);
+    }
+    free_tokens(spiral_tokens);
  }
 
 void test_tokenise(void)
