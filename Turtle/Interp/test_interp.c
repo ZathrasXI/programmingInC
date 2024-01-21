@@ -1304,42 +1304,22 @@ void test_integration(void)
     // free_tokens(oct1_tokens);
 
     //downarrow
-    printf("\n\ntest \n\n");
     free_ttl();
     init_ttl();
     FILE *down_arrow = fopen("../TTLs/downarrow.ttl", "r");
     Token *down_arrow_tokens = tokenise(down_arrow);
     fclose(down_arrow);
+    int arrow_cols[] = {25,25,25,25,25,25,26,27,28,29,30,30,30,30,30,30,29,28,27,26,25,24,23,22,23,23,24,24,25,26,26,27,27,28,29,29,30,30,31,32,32,33,33,34,33,32,31,30,29,28,27,26,25,24,23};
+    int arrow_rows[] = {16,15,14,13,12,11,11,11,11,11,11,12,13,14,15,16,16,16,16,16,16,16,16,16,17,18,19,20,21,22,23,24,25,26,25,24,23,22,21,20,19,18,17,16,16,16,16,16,16,16,16,16,16,16,16};
+    char arrow_colours[] = {'W','R','R','R','R','G','G','G','G','G','Y','Y','Y','Y','Y','B','B','B','B','B','K','K','K','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
     assert(is_prog(down_arrow_tokens));
-    char arr[HEIGHT][WIDTH];
-    for (int i = 0; i < HEIGHT; i++)
-    {
-        for (int j = 0; j < WIDTH; j++)
-        {
-            arr[i][j] = ' ';
-        }
-    }
-    // printf("direction %lf colour %c\n", ttl.direction, ttl.colour);
     for (int i = 0; i < ttl.len; i++)
     {
-        // printf("col %d row %d colour %c\n", ttl.path[i].col, ttl.path[i].row, ttl.path[i].colour);
-        // arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
-    }
-       for (int i = 0; i < ttl.len; i++)
-    {
-        // printf("col %d row %d colour %c\n", ttl.path[i].col, ttl.path[i].row, ttl.path[i].colour);
-        arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
-    }
-    for (int i = 0; i < HEIGHT; i++)
-    {
-        for (int j = 0; j < WIDTH; j++)
-        {
-            printf("%c", arr[i][j]);
-        }
-        printf("\n");
+        assert(ttl.path[i].col == arrow_cols[i]);
+        assert(ttl.path[i].row == arrow_rows[i]);
+        assert(ttl.path[i].colour == arrow_colours[i]);
     }
     free_tokens(down_arrow_tokens);
-    printf("\nend\n\n");
  }
 
 void test_tokenise(void)
