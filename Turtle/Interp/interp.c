@@ -504,7 +504,6 @@ bool is_loop(Token *t)
                 start_of_lst = start_of_lst->next;
                 list_len++;
             }
- 
             Token *start_of_ins = start_of_lst->next;
             Token *current = start_of_ins;
             int var_index = get_var_index(t->next->str[0]);
@@ -521,6 +520,7 @@ bool is_loop(Token *t)
                 current = start_of_ins;
                 //return to top when ->next == "END"
             }
+            printf("loop end direction %lf\n", ttl.direction);
             return true;
         }
     return false;
@@ -565,11 +565,17 @@ bool is_ins(Token *t)
 
 bool is_inslst(Token *t)
 {
-    if (strcmp("END", t->str) == 0)
+    Token *next_ins = t;
+    if (strcmp("END", t->str) == 0 && t->next)
+    {
+        next_ins = next_ins->next;
+        // return true;
+    }
+    else if (strcmp("END", t->str) == 0)
     {
         return true;
     }
-    Token *next_ins = t;
+    
     if (is_forward(t))
     {
         do
@@ -604,7 +610,7 @@ bool is_inslst(Token *t)
         {
             next_ins = next_ins->next;
         } 
-        while (strcmp(next_ins->str, "}") != 0);
+        while (strcmp(next_ins->str, "END") != 0);
         next_ins = next_ins->next;
     }
     else if (is_set(t))

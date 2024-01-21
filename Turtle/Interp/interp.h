@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <regex.h>
 #include <math.h>
+#include <unistd.h>
 
 #define TOKEN_LEN 30
 #define ONE_ARG 1

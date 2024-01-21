@@ -1304,6 +1304,7 @@ void test_integration(void)
     // free_tokens(oct1_tokens);
 
     //downarrow
+    printf("\n\ntest \n\n");
     free_ttl();
     init_ttl();
     FILE *down_arrow = fopen("../TTLs/downarrow.ttl", "r");
@@ -1318,11 +1319,17 @@ void test_integration(void)
             arr[i][j] = ' ';
         }
     }
+    // printf("direction %lf colour %c\n", ttl.direction, ttl.colour);
     for (int i = 0; i < ttl.len; i++)
     {
+        // printf("col %d row %d colour %c\n", ttl.path[i].col, ttl.path[i].row, ttl.path[i].colour);
+        // arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
+    }
+       for (int i = 0; i < ttl.len; i++)
+    {
+        // printf("col %d row %d colour %c\n", ttl.path[i].col, ttl.path[i].row, ttl.path[i].colour);
         arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
     }
-
     for (int i = 0; i < HEIGHT; i++)
     {
         for (int j = 0; j < WIDTH; j++)
@@ -1332,6 +1339,7 @@ void test_integration(void)
         printf("\n");
     }
     free_tokens(down_arrow_tokens);
+    printf("\nend\n\n");
  }
 
 void test_tokenise(void)
