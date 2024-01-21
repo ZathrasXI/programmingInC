@@ -45,6 +45,7 @@ typedef struct loc
 {
     int row;
     int col;
+    char colour;
 } Loc;
 
 typedef struct turtle 

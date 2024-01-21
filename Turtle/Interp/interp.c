@@ -192,6 +192,7 @@ bool is_forward(Token *t)
             {
                 ttl.path[ttl.len].col = COL_START;
                 ttl.path[ttl.len].row = ROW_START;
+                ttl.path[ttl.len].colour = 'W';
                 ttl.len++;
             }
             // int row_line_start = next_row(ttl.path[ttl.len-1].row, 1);
@@ -755,6 +756,7 @@ void calculate_line_coords(int x0, int y0, int x1, int y1)
         {
             ttl.path[ttl.len].col = x0;
             ttl.path[ttl.len].row = y0;
+            ttl.path[ttl.len].colour = ttl.colour;
             ttl.len++;
         }
     }

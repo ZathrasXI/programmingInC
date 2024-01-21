@@ -281,6 +281,8 @@ void test_next_col_index(void)
 
 void test_is_fwd(void)
 {
+    free_ttl();
+    init_ttl();
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
@@ -292,6 +294,8 @@ void test_is_fwd(void)
     assert(ttl.len == 2);
     assert(ttl.path[0].col == COL_START);
     assert(ttl.path[0].row == ROW_START);
+    assert(ttl.path[0].colour == 'W');
+    assert(ttl.path[1].colour == 'W');
     
     //teardown
     ttl.len = 0;
@@ -1263,10 +1267,9 @@ void test_integration(void)
     free_tokens(turn_tokens);
 
     // octagon2.ttl
-    printf("test\n\n");
     free_ttl();
     init_ttl();
-    FILE *oct1 = fopen("../TTLs/octagon2.ttl", "r");
+    FILE *oct1 = fopen("../TTLs/downarrow.ttl", "r");
     Token *oct1_tokens = tokenise(oct1);
     fclose(oct1);
     assert(is_prog(oct1_tokens));
@@ -1280,7 +1283,7 @@ void test_integration(void)
     }
     for (int i = 0; i < ttl.len; i++)
     {
-        arr[ttl.path[i].row][ttl.path[i].col] = 'W';
+        arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
         printf("col %d row %d\n", ttl.path[i].col, ttl.path[i].row);
     }
 
