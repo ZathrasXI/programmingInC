@@ -775,10 +775,13 @@ void calculate_line_coords(int x0, int y0, int x1, int y1)
         end_of_line = end_x || end_y;
         if (!end_of_line)
         {
-            ttl.path[ttl.len].col = x0;
-            ttl.path[ttl.len].row = y0;
-            ttl.path[ttl.len].colour = ttl.colour;
-            ttl.len++;
+            if (x0 < WIDTH && y0 < HEIGHT)
+            {
+                ttl.path[ttl.len].col = x0;
+                ttl.path[ttl.len].row = y0;
+                ttl.path[ttl.len].colour = ttl.colour;
+                ttl.len++;
+            }
         }
     }
 }

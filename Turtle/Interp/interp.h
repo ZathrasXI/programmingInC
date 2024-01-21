@@ -15,7 +15,7 @@
 #define STR_ONLY_QUOTES 2
 #define SPACE_ASCII 32
 //TODO find less rigid alternative
-#define PATH 100
+#define PATH 1000
 //2D array is 51 wide, 33 high
 #define WIDTH 51
 #define HEIGHT 33
