@@ -320,30 +320,36 @@ void test_is_fwd(void)
     //forward, turn 45, forward 8 
     Token *fwd_rgt_fwd = new_token("FORWARD");
     Token *fwd_rgt_fwd1 = new_token("8");
-    Token *fwd_rgt_fwd2 = new_token("RIGHT");
-    Token *fwd_rgt_fwd3 = new_token("45");
-    Token *fwd_rgt_fwd4 = new_token("FORWARD");
-    Token *fwd_rgt_fwd5 = new_token("8");
+    Token *fwd_rgt_fwd2 = new_token("COLOUR");
+    Token *fwd_rgt_fwd3 = new_token("\"RED\"");
+    Token *fwd_rgt_fwd4 = new_token("RIGHT");
+    Token *fwd_rgt_fwd5 = new_token("45");
+    Token *fwd_rgt_fwd6 = new_token("FORWARD");
+    Token *fwd_rgt_fwd7 = new_token("8");
     fwd_rgt_fwd->next = fwd_rgt_fwd1;
     fwd_rgt_fwd1->next = fwd_rgt_fwd2;
     fwd_rgt_fwd2->next = fwd_rgt_fwd3;
     fwd_rgt_fwd3->next = fwd_rgt_fwd4;
     fwd_rgt_fwd4->next = fwd_rgt_fwd5;
+    fwd_rgt_fwd5->next = fwd_rgt_fwd6;
+    fwd_rgt_fwd6->next = fwd_rgt_fwd7;
     assert(is_forward(fwd_rgt_fwd));
-    assert(is_rgt(fwd_rgt_fwd2));
-    assert(is_forward(fwd_rgt_fwd4));
+    assert(is_rgt(fwd_rgt_fwd4));
+    assert(is_col(fwd_rgt_fwd2));
+    assert(is_forward(fwd_rgt_fwd6));
     assert(ttl.len == 15);
     for(int i = 0; i <= 8; i++)
     {
         assert(ttl.path[i].col == COL_START);
         assert(ttl.path[i].row == ROW_START - i);
-
     }
+    //most recent step changes colour when colour is changed
+    assert(ttl.path[8].colour == 'R');
     for(int i = 1; i <= 6; i++)
     {
         assert(ttl.path[8+i].col == COL_START + i);
         assert(ttl.path[8+i].row == 8 - i);
-
+        assert(ttl.path[8+i].colour == 'R');
     }
     //teardown
     ttl.len = 0;
@@ -404,7 +410,7 @@ void test_is_rgt(void)
     ttl.direction = 0;
     free_tokens(rgt_test4);
 
-
+    //false when given a word
     Token *rgt_test6 = new_token("RIGHT");
     Token *rgt_test7 = new_token("\"WORD\"");
     rgt_test6->next=rgt_test7;
@@ -549,11 +555,12 @@ void test_is_lst(void)
 
 void test_is_col(void)
 {
+    free_ttl();
+    init_ttl();
 /*
     is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
     */
-    //ttl.colour is updated when given valid colour via variable
-    ttl.len = 0;
+    //ttl.colour updated when given valid colour via variable
     char *magenta = "\"MAGENTA\"";
     int len = strlen(magenta) + 1;
     ttl.vars[25].word = calloc(len, sizeof(char));
@@ -1267,12 +1274,42 @@ void test_integration(void)
     free_tokens(turn_tokens);
 
     // octagon2.ttl
+    // free_ttl();
+    // init_ttl();
+    // FILE *oct1 = fopen("../TTLs/octagon2.ttl", "r");
+    // Token *oct1_tokens = tokenise(oct1);
+    // fclose(oct1);
+    // assert(is_prog(oct1_tokens));
+    // char arr[HEIGHT][WIDTH];
+    // for (int i = 0; i < HEIGHT; i++)
+    // {
+    //     for (int j = 0; j < WIDTH; j++)
+    //     {
+    //         arr[i][j] = ' ';
+    //     }
+    // }
+    // for (int i = 0; i < ttl.len; i++)
+    // {
+    //     arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
+    // }
+
+    // for (int i = 0; i < HEIGHT; i++)
+    // {
+    //     for (int j = 0; j < WIDTH; j++)
+    //     {
+    //         printf("%c", arr[i][j]);
+    //     }
+    //     printf("\n");
+    // }
+    // free_tokens(oct1_tokens);
+
+    //downarrow
     free_ttl();
     init_ttl();
-    FILE *oct1 = fopen("../TTLs/downarrow.ttl", "r");
-    Token *oct1_tokens = tokenise(oct1);
-    fclose(oct1);
-    assert(is_prog(oct1_tokens));
+    FILE *down_arrow = fopen("../TTLs/downarrow.ttl", "r");
+    Token *down_arrow_tokens = tokenise(down_arrow);
+    fclose(down_arrow);
+    assert(is_prog(down_arrow_tokens));
     char arr[HEIGHT][WIDTH];
     for (int i = 0; i < HEIGHT; i++)
     {
@@ -1284,7 +1321,6 @@ void test_integration(void)
     for (int i = 0; i < ttl.len; i++)
     {
         arr[ttl.path[i].row][ttl.path[i].col] = ttl.path[i].colour;
-        printf("col %d row %d\n", ttl.path[i].col, ttl.path[i].row);
     }
 
     for (int i = 0; i < HEIGHT; i++)
@@ -1295,7 +1331,7 @@ void test_integration(void)
         }
         printf("\n");
     }
-    free_tokens(oct1_tokens);
+    free_tokens(down_arrow_tokens);
  }
 
 void test_tokenise(void)

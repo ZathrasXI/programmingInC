@@ -330,40 +330,77 @@ bool is_col(Token *t)
         */
        //TODO check that letters are correct
        //TODO enumerate letters
+       bool path_exists = ttl.len > 0;
         if (strcmp(str, "\"BLACK\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'K';
+            }
             ttl.colour = 'K';
         }
         else if (strcmp(str, "\"RED\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'R';
+            }
             ttl.colour = 'R';
         }
         else if (strcmp(str, "\"GREEN\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'G';
+            }
             ttl.colour = 'G';
         }
         else if (strcmp(str, "\"BLUE\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'B';
+            }
             ttl.colour = 'B';
         }
         else if (strcmp(str, "\"YELLOW\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'Y';
+            }
             ttl.colour = 'Y';
         }
         else if (strcmp(str, "\"CYAN\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'C';
+            }
             ttl.colour = 'C';
         }
         else if (strcmp(str, "\"MAGENTA\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'M';
+            }
             ttl.colour = 'M';
         }
         else if (strcmp(str, "\"WHITE\"") == 0)
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'W';
+            }
             ttl.colour = 'W';
         }
         else
         {
+            if (path_exists)
+            {
+                ttl.path[ttl.len-1].colour = 'W';
+            }
             ttl.colour = 'W';
         }
         free(str);
