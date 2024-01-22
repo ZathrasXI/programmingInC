@@ -22,8 +22,6 @@ int main(int argc, char **argv)
 
     Token *head = tokenise(turtle_file);
 
-    exit(EXIT_FAILURE);
-
     if (!is_prog(head))
     {
         panic_msg("file not parsed");
