@@ -10,6 +10,7 @@
 
 #define TOKEN_LEN 30
 #define ONE_ARG 1
+#define OUTPUT_FILE 3
 #define FILE_NAME_LEN 200
 #define INIT_SIZE 1
 #define STR_ONLY_QUOTES 2
@@ -30,7 +31,7 @@
 #define EMPTY -1
 
 typedef struct {
-    //TODO make this dynamic/better size
+    //TODO is this a good size?
     double data[MAX_STACK_SIZE];
     int top;
 } Stack;
@@ -69,6 +70,7 @@ typedef struct token
 static Turtle ttl;
 
 //Parser & interpreter
+bool create_file(char *name);
 void find_end_points(int x0, int y0, int len, int x1_y1[2]);
 void calculate_line_coords(int x0, int y0, int x1, int y1);
 void represent_coords(char **screen);
@@ -138,6 +140,7 @@ void test_is_inslst(void);
 void test_is_prog(void);
 void test_integration(void);
 void test_tokenise(void);
+void test_printing(void);
 void free_ttl(void);
 
 

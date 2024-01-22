@@ -13,6 +13,13 @@ int main(int argc, char **argv)
         printf("Usage: ./interpreter <turtle file>\n");
         exit(EXIT_FAILURE);
     }
+    else if (argc == OUTPUT_FILE)
+    {
+        if (!create_file(argv[2]))
+        {
+            panic_msg("error creating file");
+        }
+    }
     
     FILE *turtle_file = fopen(argv[1], "r");
     if (!turtle_file)
@@ -782,4 +789,15 @@ void calculate_line_coords(int x0, int y0, int x1, int y1)
             }
         }
     }
+}
+
+bool create_file(char *name)
+{
+    FILE *f = fopen(name, "w");
+    if (!f)
+    {
+        return false;
+    }
+    fclose(f);
+    return true;
 }

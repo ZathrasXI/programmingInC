@@ -32,6 +32,7 @@ void test(void)
     test_is_prog();
     test_tokenise();
     test_integration();
+    test_printing();
     //teardown
     free_ttl();
 }
@@ -1398,7 +1399,17 @@ void free_ttl(void)
     free(ttl.type_in_use);
 }
 
+void test_printing(void)
+{
+    //create a file with correct name
+    char *f1 = "terrapin";
+    assert(create_file(f1));
+    assert(access(f1, F_OK) != -1);
+    remove(f1);
 
+    //printing to file
+    
+}
 
 
 
