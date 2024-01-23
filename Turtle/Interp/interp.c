@@ -200,7 +200,7 @@ bool is_forward(Token *t, Turtle *ttl)
                 ttl->len++;
             }
             int x1_y1[2];
-            find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1);
+            find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
             // TODO: printing to screen - ttl->path[ttl->len].is_fwd = true;??
             calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, x1_y1[0], x1_y1[1], ttl);
 
@@ -210,12 +210,11 @@ bool is_forward(Token *t, Turtle *ttl)
     return false;
 }
 
-bool is_rgt(Token *t)
+bool is_rgt(Token *t, Turtle *ttl)
 {
     char *rgt = "RIGHT";
     if (strcmp(rgt, t->str) == 0 &&
-        is_varnum(t->next->str)
-    )
+        is_varnum(t->next->str))
     {
         double degrees;
         if (is_number(t->next->str))
@@ -224,9 +223,9 @@ bool is_rgt(Token *t)
         }
         else 
         {
-            degrees = ttl.vars[get_var_index(t->next->str[1])].num;
+            degrees = ttl->vars[get_var_index(t->next->str[1])].num;
         }
-        ttl.direction += degrees_to_radians(degrees);
+        ttl->direction += degrees_to_radians(degrees);
         return true;
     }
     return false;
@@ -550,7 +549,7 @@ bool is_ins(Token *t, Turtle *ttl)
 {
     if (
         is_forward(t, ttl) ||
-        is_rgt(t) ||
+        is_rgt(t, ttl) ||
         is_col(t, ttl) ||
         is_loop(t, ttl) ||
         is_set(t)
@@ -577,7 +576,7 @@ bool is_inslst(Token *t, Turtle *ttl)
     {
         return is_inslst(t->next->next, ttl);
     }
-    else if (is_rgt(t))
+    else if (is_rgt(t, ttl))
     {
         return is_inslst(t->next->next, ttl);
     }
@@ -716,10 +715,10 @@ void panic_msg(char *msg)
     exit(EXIT_FAILURE);
 }
 
-void find_end_points(int x0, int y0, int input_length, int x_y[2])
+void find_end_points(int x0, int y0, int input_length, int x_y[2], Turtle *ttl)
 {
-    float x1 = round(x0 + (input_length * sin(ttl.direction)));
-    float y1 = round(y0 - (input_length * cos(ttl.direction)));
+    float x1 = round(x0 + (input_length * sin(ttl->direction)));
+    float y1 = round(y0 - (input_length * cos(ttl->direction)));
     x_y[0] = (int) round(x1);
     x_y[1] = (int) round(y1);
 }

@@ -72,7 +72,7 @@ static Turtle ttl;
 
 //Parser & interpreter
 bool create_file(char *name);
-void find_end_points(int x0, int y0, int len, int x1_y1[2]);
+void find_end_points(int x0, int y0, int len, int x1_y1[2], Turtle *ttl);
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index);
@@ -91,7 +91,7 @@ bool is_var(char *c);
 bool is_varnum(char *c);
 bool is_word(char *c);
 bool is_col(Token *t, Turtle *ttl);
-bool is_rgt(Token *t);
+bool is_rgt(Token *t, Turtle *ttl);
 bool is_forward(Token *t, Turtle *ttl);
 bool is_item(char *c);
 bool is_items(Token *t);

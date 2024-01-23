@@ -13,7 +13,7 @@ void test(void)
     // test_next_row_index();
     // test_next_col_index();
     test_is_fwd();
-    // test_is_rgt();
+    test_is_rgt();
     // test_get_var_index();
     test_is_word();
     test_is_item();
@@ -332,7 +332,7 @@ void test_is_fwd(void)
     fwd_rgt_fwd5->next = fwd_rgt_fwd6;
     fwd_rgt_fwd6->next = fwd_rgt_fwd7;
     assert(is_forward(fwd_rgt_fwd, ttl_fwd1));
-    assert(is_rgt(fwd_rgt_fwd4));
+    assert(is_rgt(fwd_rgt_fwd4, ttl_fwd1));
     assert(is_col(fwd_rgt_fwd2, ttl_fwd1));
     assert(is_forward(fwd_rgt_fwd6, ttl_fwd1));
     assert(ttl_fwd1->len == 15);
@@ -374,51 +374,51 @@ void test_is_fwd(void)
     free_tokens(fwd4);    
 }
 
-// void test_is_rgt(void)
-// {
-// /*
-//     is_rgt() <RGT> ::= "RIGHT" <VARNUM>
-//     */
-//     ttl.direction = 0;
-//     double one_degree_in_rads = 0.017453;
-//     Token *rgt_test = new_token("RIGHT");
-//     Token *rgt_test1 = new_token("1");
-//     rgt_test->next=rgt_test1;
-//     assert(is_rgt(rgt_test));
-//     assert(fabs(ttl.direction - one_degree_in_rads) < TOLERANCE);
-//     //teardown
-//     ttl.direction = 0;
-//     free_tokens(rgt_test);
+void test_is_rgt(void)
+{
+/*
+    is_rgt() <RGT> ::= "RIGHT" <VARNUM>
+    */
+    Turtle *rgt0 = init_ttl();
+    double one_degree_in_rads = 0.017453;
+    Token *rgt_test = new_token("RIGHT");
+    Token *rgt_test1 = new_token("1");
+    rgt_test->next=rgt_test1;
+    assert(is_rgt(rgt_test, rgt0));
+    assert(fabs(rgt0->direction - one_degree_in_rads) < TOLERANCE);
+    //teardown
+    free_tokens(rgt_test);
     
-//     // no rotation when variable == 0
-//     double zero_direction = 0.0;
-//     Token *rgt_test2 = new_token("RIGHT");
-//     Token *rgt_test3 = new_token("$A");
-//     rgt_test2->next=rgt_test3;
-//     assert(is_rgt(rgt_test2));
-//     assert(fabs(zero_direction - ttl.direction) < TOLERANCE);
-//     //teardown
-//     free_tokens(rgt_test2);
+    // no rotation when variable == 0
+    double zero_direction = 0.0;
+    Token *rgt_test2 = new_token("RIGHT");
+    Token *rgt_test3 = new_token("$A");
+    rgt_test2->next=rgt_test3;
+    assert(is_rgt(rgt_test2, rgt0));
+    assert(fabs(zero_direction - ttl.direction) < TOLERANCE);
+    //teardown
+    rgt0->direction = 0;
+    free_tokens(rgt_test2);
 
-//     //direction == $var converted to rads
-//     ttl.vars[0].num = 359;
-//     double rads = degrees_to_radians(ttl.vars[0].num);
-//     Token *rgt_test4 = new_token("RIGHT");
-//     Token *rgt_test5 = new_token("$A");
-//     rgt_test4->next=rgt_test5;
-//     assert(is_rgt(rgt_test4));
-//     assert(fabs(ttl.direction - rads) < TOLERANCE);
-//     //teardown
-//     ttl.direction = 0;
-//     free_tokens(rgt_test4);
+    //direction == $var converted to rads
+    rgt0->vars[0].num = 359;
+    double rads = degrees_to_radians(rgt0->vars[0].num);
+    Token *rgt_test4 = new_token("RIGHT");
+    Token *rgt_test5 = new_token("$A");
+    rgt_test4->next=rgt_test5;
+    assert(is_rgt(rgt_test4, rgt0));
+    assert(fabs(rgt0->direction - rads) < TOLERANCE);
+    //teardown
+    free_tokens(rgt_test4);
 
-//     //false when given a word
-//     Token *rgt_test6 = new_token("RIGHT");
-//     Token *rgt_test7 = new_token("\"WORD\"");
-//     rgt_test6->next=rgt_test7;
-//     assert(!is_rgt(rgt_test6));
-//     free_tokens(rgt_test6);    
-// }
+    //false when given a word
+    Token *rgt_test6 = new_token("RIGHT");
+    Token *rgt_test7 = new_token("\"WORD\"");
+    rgt_test6->next=rgt_test7;
+    assert(!is_rgt(rgt_test6, rgt0));
+    free_tokens(rgt_test6);    
+    free_ttl(rgt0);
+}
 
 // void test_get_var_index(void)
 // {
