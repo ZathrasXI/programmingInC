@@ -22,7 +22,7 @@ void test(void)
     // test_is_item();
     // test_items();
     // test_is_lst();
-    // test_is_col();
+    test_is_col();
     // test_is_pfix();
     // test_is_set();
     // test_update_var();
@@ -560,73 +560,76 @@ void test_is_fwd(void)
 //     free_tokens(lst_test10);    
 // }
 
-// void test_is_col(void)
-// {
-//     ////free_ttl();
-//     init_ttl();
-// /*
-//     is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
-//     */
-//     //ttl.colour updated when given valid colour via variable
-//     char *magenta = "\"MAGENTA\"";
-//     int len = strlen(magenta) + 1;
-//     ttl.vars[25].word = calloc(len, sizeof(char));
-//     if (!ttl.vars[25].word)
-//     {
-//         panic_msg("allocating memory for test");
-//     }
-//     strcpy(ttl.vars[25].word, magenta);
-//     Token *col_test = new_token("COLOUR");
-//     Token *col_test1 = new_token("$Z");
-//     col_test->next=col_test1;
-//     assert(is_col(col_test));
-//     assert(ttl.colour == 'M');
-//     free(ttl.vars[25].word);
-//     free_tokens(col_test);
+void test_is_col(void)
+{
+/*
+    is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
+    */
+    //ttl.colour updated when given valid colour via variable
+    Turtle *col_ttl = init_ttl();
+    char *magenta = "\"MAGENTA\"";
+    int len = strlen(magenta) + 1;
+    col_ttl->vars[25].word = calloc(len, sizeof(char));
+    if (!col_ttl->vars[25].word)
+    {
+        panic_msg("allocating memory for test");
+    }
+    strcpy(col_ttl->vars[25].word, magenta);
+    Token *col_test = new_token("COLOUR");
+    Token *col_test1 = new_token("$Z");
+    col_test->next=col_test1;
+    assert(is_col(col_test, col_ttl));
+    assert(col_ttl->colour == 'M');
+    //teardown
+    free(col_ttl->vars[25].word);
+    free_tokens(col_test);
+    free_ttl(col_ttl);
 
-//     //ttl.colour not updated when given invalid colour via variable
-//     ttl.len = 0;
-//     char *rust = "\"RUST\"";
-//     len = strlen(rust) + 1;
-//     ttl.vars[0].word = calloc(len, sizeof(char));
-//     if (!ttl.vars[0].word)
-//     {
-//         panic_msg("allocating memory for test");
-//     }
-//     strcpy(ttl.vars[0].word, rust);
-//     Token *col_test8 = new_token("COLOUR");
-//     Token *col_test9 = new_token("$A");
-//     col_test8->next=col_test9;
-//     assert(is_col(col_test8));
-//     assert(ttl.colour == 'W');
-//     free(ttl.vars[0].word);
-//     free_tokens(col_test8);
+    //ttl.colour not updated when given invalid colour via variable
+    Turtle *rust_col_ttl = init_ttl();
+    char *rust = "\"RUST\"";
+    len = strlen(rust) + 1;
+    rust_col_ttl->vars[0].word = calloc(len, sizeof(char));
+    if (!rust_col_ttl->vars[0].word)
+    {
+        panic_msg("allocating memory for test");
+    }
+    strcpy(rust_col_ttl->vars[0].word, rust);
+    Token *col_test8 = new_token("COLOUR");
+    Token *col_test9 = new_token("$A");
+    col_test8->next=col_test9;
+    assert(is_col(col_test8, rust_col_ttl));
+    assert(rust_col_ttl->colour == 'W');
+    free(rust_col_ttl->vars[0].word);
+    free_tokens(col_test8);
+    free_ttl(rust_col_ttl);
 
 
-//     //ttl.colour is updated when given valid colour directly
-//     ttl.len = 0;
-//     Token *col_test6 = new_token("COLOUR");
-//     Token *col_test7 = new_token("\"CYAN\"");
-//     col_test6->next=col_test7;
-//     assert(is_col(col_test6));
-//     assert(ttl.colour == 'C');
-//     free_tokens(col_test6);
+    // //ttl.colour is updated when given valid colour directly
+    Turtle *colours_ttl = init_ttl();
+    Token *col_test6 = new_token("COLOUR");
+    Token *col_test7 = new_token("\"CYAN\"");
+    col_test6->next=col_test7;
+    assert(is_col(col_test6, colours_ttl));
+    assert(colours_ttl->colour == 'C');
+    free_tokens(col_test6);
 
-//     //ttl.colour not updated when given invalid colour directly
-//     Token *col_test2 = new_token("COLOUR");
-//     Token *col_test3 = new_token("\"FOX\"");
-//     col_test2->next=col_test3;
-//     assert(is_col(col_test2));
-//     assert(ttl.colour == 'W');
-//     free_tokens(col_test2);
+    //ttl.colour not updated when given invalid colour directly
+    Token *col_test2 = new_token("COLOUR");
+    Token *col_test3 = new_token("\"FOX\"");
+    col_test2->next=col_test3;
+    assert(is_col(col_test2, colours_ttl));
+    assert(colours_ttl->colour == 'W');
+    free_tokens(col_test2);
     
-//     // invalid syntax
-//     Token *col_test4 = new_token("COLOUR");
-//     Token *col_test5 = new_token("END");
-//     col_test4->next=col_test5;
-//     assert(!is_col(col_test4));
-//     free_tokens(col_test4);    
-// }
+    // invalid syntax
+    Token *col_test4 = new_token("COLOUR");
+    Token *col_test5 = new_token("END");
+    col_test4->next=col_test5;
+    assert(!is_col(col_test4, colours_ttl));
+    free_tokens(col_test4);   
+    free_ttl(colours_ttl);
+}
 
 // void test_is_pfix(void)
 // {
