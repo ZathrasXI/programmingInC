@@ -6,7 +6,7 @@
 int main(int argc, char **argv)
 {
     test();
-    init_ttl();
+    // init_ttl();
 
     if (argc == ONE_ARG)
     {
@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     }
 
     free_tokens(head);
-    free_ttl();
+    // free_ttl();
     return 0;
 }
 
@@ -683,27 +683,32 @@ void update_var(char *token_str, int dest_index)
     }
 }
 
-void init_ttl()
+Turtle *init_ttl(void)
 {
-    ttl.len = 0;
-    ttl.capacity = PATH;
-    ttl.direction = 0;
-    ttl.colour = 'W';
-    ttl.path = calloc(PATH, sizeof(Loc));
-    if (!ttl.path)
+    Turtle *t = malloc(sizeof(Turtle));
+    if (!t)
     {
-        panic_msg("allocating memory for turtle's path");
+        panic_msg("allocating memory for Turtle");
     }
-    ttl.vars = calloc(MAX_VARS, sizeof(Var));
-    if (!ttl.vars)
-    {
-        panic_msg("allocating memory for turtle's variables");
-    }
-    ttl.type_in_use = calloc(MAX_VARS, sizeof(type_used));
-    if (!ttl.type_in_use)
-    {
-        panic_msg("allocating memory for type_used array");
-    }
+    t->len = 0;
+    t->capacity = PATH;
+    t->direction = 0;
+    t->colour = 'W';
+    // if (!t->path)
+    // {
+    //     panic_msg("allocating memory for turtle's path");
+    // }
+    // t->vars = calloc(MAX_VARS, sizeof(Var));
+    // if (!t->vars)
+    // {
+    //     panic_msg("allocating memory for turtle's variables");
+    // }
+    // t->type_in_use = calloc(MAX_VARS, sizeof(type_used));
+    // if (!t->type_in_use)
+    // {
+    //     panic_msg("allocating memory for type_used array");
+    // }
+    return t;
 }
 
 void panic_msg(char *msg)

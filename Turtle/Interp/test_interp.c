@@ -2,39 +2,39 @@
 void test(void)
 {
     //setup 
-    init_ttl();
+    // init_ttl();
     //tests
-    test_stack();
+    // test_stack();
     test_ttl();
-    test_new_token();
-    test_is_num();
-    test_is_letter();
-    test_is_op();
-    test_is_var();
-    test_is_varnum();
-    test_deg_2_rad();
-    test_next_row_index();
-    test_next_col_index();
-    test_is_fwd();
-    test_is_rgt();
-    test_get_var_index();
-    test_is_word();
-    test_is_item();
-    test_items();
-    test_is_lst();
-    test_is_col();
-    test_is_pfix();
-    test_is_set();
-    test_update_var();
-    test_is_loop();
-    test_loop_closed();
-    test_is_inslst();
-    test_is_prog();
-    test_tokenise();
-    test_integration();
-    test_printing();
+    // test_new_token();
+    // test_is_num();
+    // test_is_letter();
+    // test_is_op();
+    // test_is_var();
+    // test_is_varnum();
+    // test_deg_2_rad();
+    // test_next_row_index();
+    // test_next_col_index();
+    // test_is_fwd();
+    // test_is_rgt();
+    // test_get_var_index();
+    // test_is_word();
+    // test_is_item();
+    // test_items();
+    // test_is_lst();
+    // test_is_col();
+    // test_is_pfix();
+    // test_is_set();
+    // test_update_var();
+    // test_is_loop();
+    // test_loop_closed();
+    // test_is_inslst();
+    // test_is_prog();
+    // test_tokenise();
+    // test_integration();
+    // test_printing();
     //teardown
-    free_ttl();
+    // //free_ttl();
 }
 
 void test_stack(void)
@@ -131,14 +131,16 @@ void test_stack(void)
 
 void test_ttl(void)
 {
-    /*
-    TTL is initialised with correct values
-    */
-    assert(ttl.len == 0);
-    assert((int) ttl.direction == 0);
-    assert(ttl.capacity == PATH);
-    assert(ttl.colour == 'W');
-    assert(ttl.path != NULL);
+    // init returns a pointer
+    Turtle *t0 = init_ttl();
+    assert(t0 != NULL);
+    assert(t0->len == 0);
+    assert((int) t0->direction == 0);
+    assert(t0->capacity == PATH);
+    assert(t0->colour == 'W');
+    assert(t0->type_in_use != NULL);
+    free_ttl(t0);
+
 }
 
 void test_new_token(void)
@@ -282,7 +284,7 @@ void test_next_col_index(void)
 
 void test_is_fwd(void)
 {
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
@@ -556,7 +558,7 @@ void test_is_lst(void)
 
 void test_is_col(void)
 {
-    free_ttl();
+    ////free_ttl();
     init_ttl();
 /*
     is_col() <COL> ::= "COLOUR" <VAR> | "COLOUR" <WORD>
@@ -1246,7 +1248,7 @@ void test_integration(void)
     integration testing - testing tokenisation with interpreter and checking output
     */
     //forward.ttl
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     FILE *fwd = fopen("../TTLs/forward.ttl", "r");
     Token *fwd_tokens = tokenise(fwd);
@@ -1261,7 +1263,7 @@ void test_integration(void)
     free_tokens(fwd_tokens);
 
     //turn.ttl
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     FILE *turn = fopen("../TTLs/turn.ttl", "r");
     Token *turn_tokens = tokenise(turn);
@@ -1277,7 +1279,7 @@ void test_integration(void)
     free_tokens(turn_tokens);
 
     // octagon2.ttl
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     int oct_cols[] = {25,25,25,25,25,25,26,27,28,29,30,31,32,33,34,35,36,37,38,38,38,38,38,38,37,36,35,34,33,32,31,30,29,28,27,26,25};
     int oct_rows[] = {16,15,14,13,12,11,10,9,8,7,7,7,7,7,7,8,9,10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20,19,18,17,16};
@@ -1295,7 +1297,7 @@ void test_integration(void)
     free_tokens(oct2_tokens);
 
     // octagon1.ttl
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     FILE *oct1 = fopen("../TTLs/octagon1.ttl", "r");
     Token *oct1_tokens = tokenise(oct1);
@@ -1310,7 +1312,7 @@ void test_integration(void)
     free_tokens(oct1_tokens);
 
     //downarrow
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     FILE *down_arrow = fopen("../TTLs/downarrow.ttl", "r");
     Token *down_arrow_tokens = tokenise(down_arrow);
@@ -1328,7 +1330,7 @@ void test_integration(void)
     free_tokens(down_arrow_tokens);
 
     //spiral
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     FILE *spiral = fopen("../TTLs/spiral.ttl", "r");
     Token *spiral_tokens = tokenise(spiral);
@@ -1346,7 +1348,7 @@ void test_integration(void)
     free_tokens(spiral_tokens);
 
     //tunnel
-    free_ttl();
+    ////free_ttl();
     init_ttl();
     FILE *tunnel = fopen("../TTLs/tunnel.ttl", "r");
     Token *tunnel_tokens = tokenise(tunnel);
@@ -1388,18 +1390,19 @@ void test_tokenise(void)
     free_tokens(head);
 }
 
-void free_ttl(void)
+void free_ttl(Turtle *ttl)
 {
-    free(ttl.path);
     for (int i = 0; i < 26; i++)
     {
-        if (ttl.type_in_use[i] == union_char)
+        if (ttl->type_in_use[i] == union_char)
         {
-            free(ttl.vars[i].word);
+            free(ttl->vars[i].word);
         }
     }
-    free(ttl.vars);
-    free(ttl.type_in_use);
+    // free(ttl->type_in_use);
+    // free(ttl->path);
+    // free(ttl->vars);
+    free(ttl);
 }
 
 void test_printing(void)

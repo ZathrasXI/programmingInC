@@ -52,13 +52,13 @@ typedef struct loc
 
 typedef struct turtle 
 {
-    Loc *path;
+    Loc path[PATH];
     int len;
     int capacity;
     char colour;
     double direction;
-    Var *vars;
-    type_used *type_in_use;
+    Var vars[MAX_VARS];
+    type_used type_in_use[MAX_VARS];
 } Turtle;
 
 typedef struct token
@@ -76,7 +76,7 @@ void find_end_points(int x0, int y0, int len, int x1_y1[2]);
 void calculate_line_coords(int x0, int y0, int x1, int y1);
 void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index);
-void init_ttl();
+Turtle *init_ttl();
 int get_var_index(char var_name);
 int next_row(int line_start, int step_n);
 int next_col(int line_start, int step_n);
@@ -142,7 +142,7 @@ void test_is_prog(void);
 void test_integration(void);
 void test_tokenise(void);
 void test_printing(void);
-void free_ttl(void);
+void free_ttl(Turtle *ttl);
 
 
 
