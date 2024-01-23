@@ -6,7 +6,7 @@
 int main(int argc, char **argv)
 {
     test();
-    // init_ttl();
+    Turtle *ttl = init_ttl();
 
     if (argc == ONE_ARG)
     {
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
     Token *head = tokenise(turtle_file);
 
-    if (!is_prog(head))
+    if (!is_prog(head, ttl))
     {
         panic_msg("file not parsed");
     }
@@ -174,7 +174,7 @@ bool is_varnum(char *c)
     return false;
 }
 
-bool is_forward(Token *t)
+bool is_forward(Token *t, Turtle *ttl)
 {
     char *fwd = "FORWARD";
     if (strcmp(fwd, t->str) == 0 &&
@@ -188,22 +188,21 @@ bool is_forward(Token *t)
         }
         else if (is_var(t->next->str))
         {
-            steps = ttl.vars[get_var_index(t->next->str[1])].num;
+            steps = ttl->vars[get_var_index(t->next->str[1])].num;
         }
         if (steps > 0)
         {
-            //TODO: put this in init()
-            if (ttl.len == 0)
+            if (ttl->len == 0)
             {
-                ttl.path[ttl.len].col = COL_START;
-                ttl.path[ttl.len].row = ROW_START;
-                ttl.path[ttl.len].colour = 'W';
-                ttl.len++;
+                ttl->path[ttl->len].col = COL_START;
+                ttl->path[ttl->len].row = ROW_START;
+                ttl->path[ttl->len].colour = 'W';
+                ttl->len++;
             }
             int x1_y1[2];
-            find_end_points(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, steps, x1_y1);
-            // ttl.path[ttl.len].is_fwd = true;??
-            calculate_line_coords(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, x1_y1[0], x1_y1[1]);
+            find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1);
+            // TODO: printing to screen - ttl->path[ttl->len].is_fwd = true;??
+            calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, x1_y1[0], x1_y1[1], ttl);
 
         }
         return true;
@@ -289,7 +288,7 @@ bool is_lst(Token *t)
     return false;
 }
 
-bool is_col(Token *t)
+bool is_col(Token *t, Turtle *ttl)
 {
     char *col = "COLOUR";
     if (strcmp(col, t->str) == 0 &&
@@ -304,13 +303,13 @@ bool is_col(Token *t)
         if (is_var(t->next->str))
         {
             int index = get_var_index(t->next->str[1]);
-            int len = strlen(ttl.vars[index].word) + 1;
+            int len = strlen(ttl->vars[index].word) + 1;
             str = calloc(len, sizeof(char));
             if (!str)
             {
                 panic_msg("allocating memory for string (colour)");
             }
-            strcpy(str, ttl.vars[index].word);
+            strcpy(str, ttl->vars[index].word);
         }
         else
         {
@@ -328,78 +327,78 @@ bool is_col(Token *t)
         */
        //TODO check that letters are correct
        //TODO enumerate letters
-       bool path_exists = ttl.len > 0;
+       bool path_exists = ttl->len > 0;
         if (strcmp(str, "\"BLACK\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'K';
+                ttl->path[ttl->len-1].colour = 'K';
             }
-            ttl.colour = 'K';
+            ttl->colour = 'K';
         }
         else if (strcmp(str, "\"RED\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'R';
+                ttl->path[ttl->len-1].colour = 'R';
             }
-            ttl.colour = 'R';
+            ttl->colour = 'R';
         }
         else if (strcmp(str, "\"GREEN\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'G';
+                ttl->path[ttl->len-1].colour = 'G';
             }
-            ttl.colour = 'G';
+            ttl->colour = 'G';
         }
         else if (strcmp(str, "\"BLUE\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'B';
+                ttl->path[ttl->len-1].colour = 'B';
             }
-            ttl.colour = 'B';
+            ttl->colour = 'B';
         }
         else if (strcmp(str, "\"YELLOW\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'Y';
+                ttl->path[ttl->len-1].colour = 'Y';
             }
-            ttl.colour = 'Y';
+            ttl->colour = 'Y';
         }
         else if (strcmp(str, "\"CYAN\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'C';
+                ttl->path[ttl->len-1].colour = 'C';
             }
-            ttl.colour = 'C';
+            ttl->colour = 'C';
         }
         else if (strcmp(str, "\"MAGENTA\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'M';
+                ttl->path[ttl->len-1].colour = 'M';
             }
-            ttl.colour = 'M';
+            ttl->colour = 'M';
         }
         else if (strcmp(str, "\"WHITE\"") == 0)
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'W';
+                ttl->path[ttl->len-1].colour = 'W';
             }
-            ttl.colour = 'W';
+            ttl->colour = 'W';
         }
         else
         {
             if (path_exists)
             {
-                ttl.path[ttl.len-1].colour = 'W';
+                ttl->path[ttl->len-1].colour = 'W';
             }
-            ttl.colour = 'W';
+            ttl->colour = 'W';
         }
         free(str);
         return true;
@@ -485,7 +484,7 @@ bool is_set(Token *t)
     return false;
 }
 
-bool is_loop(Token *t)
+bool is_loop(Token *t, Turtle *ttl)
 {
     if (strcmp(t->str, "LOOP") == 0 &&
         loop_closed(t) &&
@@ -508,7 +507,7 @@ bool is_loop(Token *t)
             while (is_item(iter->str))
             {
                 update_var(iter->str, var_index);
-                is_inslst(start_of_ins);
+                is_inslst(start_of_ins, ttl);
                 iter = iter->next;
                 // while (current && is_ins(current))
                 // {
@@ -547,13 +546,13 @@ bool loop_closed(Token *t)
     return false;
 }
 
-bool is_ins(Token *t)
+bool is_ins(Token *t, Turtle *ttl)
 {
     if (
-        is_forward(t) ||
+        is_forward(t, ttl) ||
         is_rgt(t) ||
-        is_col(t) ||
-        is_loop(t) ||
+        is_col(t, ttl) ||
+        is_loop(t, ttl) ||
         is_set(t)
     )
     {
@@ -562,7 +561,7 @@ bool is_ins(Token *t)
     return false;
 }
 
-bool is_inslst(Token *t)
+bool is_inslst(Token *t, Turtle *ttl)
 {
     if (!t)
     {
@@ -574,19 +573,19 @@ bool is_inslst(Token *t)
         return true;
     }
     
-    if (is_forward(t))
+    if (is_forward(t, ttl))
     {
-        return is_inslst(t->next->next);
+        return is_inslst(t->next->next, ttl);
     }
     else if (is_rgt(t))
     {
-        return is_inslst(t->next->next);
+        return is_inslst(t->next->next, ttl);
     }
-    else if (is_col(t))
+    else if (is_col(t, ttl))
     {
-        return is_inslst(t->next->next);
+        return is_inslst(t->next->next, ttl);
     }
-    else if (is_loop(t))
+    else if (is_loop(t, ttl))
     {
         do
         {
@@ -594,7 +593,7 @@ bool is_inslst(Token *t)
         } 
         while (strcmp(next_ins->str, "END") != 0);
         next_ins = next_ins->next;
-        return is_inslst(next_ins);
+        return is_inslst(next_ins, ttl);
     }
     else if (is_set(t))
     {
@@ -604,16 +603,16 @@ bool is_inslst(Token *t)
         } 
         while (strcmp(next_ins->str, ")") != 0);
         next_ins = next_ins->next;
-        return is_inslst(next_ins);
+        return is_inslst(next_ins, ttl);
     }
     return false;
 }
 
-bool is_prog(Token *t)   
+bool is_prog(Token *t, Turtle *ttl)   
 {
     if (strcmp(t->str, "START") == 0 && 
         t->next &&
-        is_inslst(t->next))
+        is_inslst(t->next, ttl))
     {
         return true;
     }
@@ -725,7 +724,7 @@ void find_end_points(int x0, int y0, int input_length, int x_y[2])
     x_y[1] = (int) round(y1);
 }
 
-void calculate_line_coords(int x0, int y0, int x1, int y1)
+void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
 {
     int dx = abs(x1-x0); 
     int dy = -abs(y1-y0); 
@@ -781,10 +780,10 @@ void calculate_line_coords(int x0, int y0, int x1, int y1)
         {
             if (x0 < WIDTH && y0 < HEIGHT)
             {
-                ttl.path[ttl.len].col = x0;
-                ttl.path[ttl.len].row = y0;
-                ttl.path[ttl.len].colour = ttl.colour;
-                ttl.len++;
+                ttl->path[ttl->len].col = x0;
+                ttl->path[ttl->len].row = y0;
+                ttl->path[ttl->len].colour = ttl->colour;
+                ttl->len++;
             }
         }
     }
