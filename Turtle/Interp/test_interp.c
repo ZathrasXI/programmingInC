@@ -1,7 +1,7 @@
 
 void test(void)
 {
-    // test_stack();
+    test_stack();
     test_ttl();
     test_new_token();
     test_is_num();
@@ -67,6 +67,7 @@ void test_stack(void)
     assert(fabs(pop(pop_test) - 123) < TOLERANCE);
     free(pop_test);
 
+    //This test exits the program!
     //when stack is already empty
     //program will exit with message
     //"can't pop when stack is empty"
@@ -74,51 +75,58 @@ void test_stack(void)
     // pop(pop_test1);
     // free(pop_test1);
 
-    // /*
-    // evaluate()
-    // */
-    // // can evaluate expression of numbers...
-    // // addition
-    // char *exp[] = {"2", "2", "+", "2", "+"};
-    // int len = 5;
-    // assert(fabs(evaluate(exp, len) - 6) < TOLERANCE);
-    // //multiplication
-    // char *exp2[] = {"2", "2", "*", "2", "*"};
-    // assert(fabs(evaluate(exp2, len) - 8) < TOLERANCE);
-    // //division
-    // char *exp3[] = {"2", "2", "/", "2", "/"};
-    // assert(fabs(evaluate(exp3, len) - 0.5) < TOLERANCE);
-    // //subtraction
-    // char *exp4[] = {"2", "2", "-", "2", "-"};
-    // assert(fabs(evaluate(exp4, len) + 2) < TOLERANCE);
+    /*
+    evaluate()
+    */
+    // can evaluate expression of numbers...
+    // addition
+    Turtle *ttl_eval = init_ttl();
+    char *exp[] = {"2", "2", "+", "2", "+"};
+    int len = 5;
+    assert(fabs(evaluate(exp, len, ttl_eval) - 6) < TOLERANCE);
+    //multiplication
+    char *exp2[] = {"2", "2", "*", "2", "*"};
+    assert(fabs(evaluate(exp2, len, ttl_eval) - 8) < TOLERANCE);
+    //division
+    char *exp3[] = {"2", "2", "/", "2", "/"};
+    assert(fabs(evaluate(exp3, len, ttl_eval) - 0.5) < TOLERANCE);
+    //subtraction
+    char *exp4[] = {"2", "2", "-", "2", "-"};
+    assert(fabs(evaluate(exp4, len, ttl_eval) + 2) < TOLERANCE);
+    free_ttl(ttl_eval);
 
-    // //can evaluate an expression of variables that contain numbers
-    // // 2 2 + 3 * 2 / 6 - = 0
-    // ttl.vars[2].num = 2; //$C
-    // ttl.type_in_use[2] = union_double;
-    // ttl.vars[3].num = 3; //$D
-    // ttl.type_in_use[3] = union_double;
-    // ttl.vars[6].num = 6; //$G
-    // ttl.type_in_use[6] = union_double;
-    // char *exp5[] = {"$C", "$C", "+", "$D", "*", "$C", "/", "$G", "-"};
-    // assert(fabs(evaluate(exp5, 9) - 0) < TOLERANCE);
+    //can evaluate an expression of variables that contain numbers
+    // 2 2 + 3 * 2 / 6 - = 0
+    Turtle *ttl_eval1 = init_ttl();
+    ttl_eval1->vars[2].num = 2; //$C
+    ttl_eval1->type_in_use[2] = union_double;
+    ttl_eval1->vars[3].num = 3; //$D
+    ttl_eval1->type_in_use[3] = union_double;
+    ttl_eval1->vars[6].num = 6; //$G
+    ttl_eval1->type_in_use[6] = union_double;
+    char *exp5[] = {"$C", "$C", "+", "$D", "*", "$C", "/", "$G", "-"};
+    assert(fabs(evaluate(exp5, 9, ttl_eval1) - 0) < TOLERANCE);
+    free_ttl(ttl_eval1);
 
     //program exits when variable contains a word
+    // Turtle *ttl_exit = init_ttl();
     // char *stack_word = "STACK";
-    // ttl.vars[2].word = calloc(strlen(stack_word) + 1, sizeof(char));
-    // ttl.type_in_use[2] = union_char;
-    // if (!ttl.vars[2].word)
+    // ttl_exit->vars[2].word = calloc(strlen(stack_word) + 1, sizeof(char));
+    // ttl_exit->type_in_use[2] = union_char;
+    // if (!ttl_exit->vars[2].word)
     // {
     //     panic_msg("allocating space for word in stack test");
     // }
-    // ttl.type_in_use[2] = union_char;
+    // ttl_exit->type_in_use[2] = union_char;
     // char *exp6[] = {"2", "$C", "+"};
-    // evaluate(exp6, strlen(stack_word) + 1);
+    // evaluate(exp6, strlen(stack_word) + 1, ttl_exit);
+    // free_ttl(ttl_exit);
 
     //program exits when type_in_use not yet set
+    // Turtle *ttl_exit1 = init_ttl();
     // char *type_not_in_use[] = {"$C", "3", "-"};
-    // ttl.type_in_use[2] = not_set;
-    // evaluate(type_not_in_use, 3);
+    // ttl_exit1->type_in_use[2] = not_set;
+    // evaluate(type_not_in_use, 3, ttl_exit1);
 
 }
 
@@ -1415,9 +1423,6 @@ void free_ttl(Turtle *ttl)
             free(ttl->vars[i].word);
         }
     }
-    // free(ttl->type_in_use);
-    // free(ttl->path);
-    // free(ttl->vars);
     free(ttl);
 }
 
