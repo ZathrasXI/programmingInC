@@ -10,8 +10,6 @@ void test(void)
     test_is_var();
     test_is_varnum();
     test_deg_2_rad();
-    // test_next_row_index();
-    // test_next_col_index();
     test_is_fwd();
     test_is_rgt();
     test_get_var_index();
@@ -232,50 +230,6 @@ void test_deg_2_rad(void)
     assert(fabs(62 * (PI/180) - degrees_to_radians(62)) < TOLERANCE);
     assert(fabs(PI - degrees_to_radians(180)) < TOLERANCE);
 }
-
-// void test_next_row_index(void)
-// {
-//     /*
-//     get index for row
-//     */
-//     //1 step facing north
-//     ttl.direction = 0;
-//     assert(next_row(ROW_START, 1) == ROW_START - 1);
-//     //1 step east
-//     ttl.direction = degrees_to_radians(90);
-//     assert(next_row(ROW_START, 1) == ROW_START);
-//     //1 step south
-//     ttl.direction = degrees_to_radians(180);
-//     assert(next_row(ROW_START, 1) == ROW_START + 1);
-//     //1 step west
-//     ttl.direction = degrees_to_radians(270);
-//     assert(next_row(ROW_START, 1) == ROW_START);
-//     //1 step NE
-//     ttl.direction = degrees_to_radians(45);
-//     assert(next_row(ROW_START, 1) == ROW_START - 1);
-//     //teardown
-//     ttl.direction = 0;    
-// }
-
-// void test_next_col_index(void)
-// {
-//     /*
-//     get index for column
-//     */
-//     // 1 step north
-//     ttl.direction = 0;
-//     assert(next_col(COL_START, 1) == COL_START);
-//     // 1 step NE
-//     ttl.direction = degrees_to_radians(45);
-//     assert(next_col(COL_START, 1) == COL_START + 1);
-//     //1 step south
-//     ttl.direction = degrees_to_radians(180);
-//     assert(next_col(COL_START, 1) == COL_START);
-//     //1 step west
-//     ttl.direction = degrees_to_radians(270);
-//     assert(next_col(COL_START, 1) == COL_START -1 );
-//     ttl.direction = 0;    
-// }
 
 void test_is_fwd(void)
 {

@@ -67,8 +67,6 @@ typedef struct token
     struct token *next;
 } Token;
 
-//TODO no global variables
-static Turtle ttl;
 
 //Parser & interpreter
 bool create_file(char *name);
@@ -78,8 +76,6 @@ void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index, Turtle *ttl);
 Turtle *init_ttl();
 int get_var_index(char var_name);
-int next_row(int line_start, int step_n);
-int next_col(int line_start, int step_n);
 double degrees_to_radians(double degrees);
 Token *new_token(char *c);
 Token *tokenise(FILE *ttl_file);

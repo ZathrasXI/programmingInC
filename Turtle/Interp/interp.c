@@ -618,16 +618,6 @@ bool is_prog(Token *t, Turtle *ttl)
     return false;
 }
 
-int next_row(int line_start, int step_n)
-{
-    return line_start - (int)round(step_n * cos(ttl.direction));
-}
-
-int next_col(int line_start, int step_n)
-{
-    return line_start + (int)round(step_n * sin(ttl.direction));
-}
-
 double degrees_to_radians(double degrees)
 {
     return degrees * (PI / 180);
@@ -692,20 +682,6 @@ Turtle *init_ttl(void)
     t->capacity = PATH;
     t->direction = 0;
     t->colour = 'W';
-    // if (!t->path)
-    // {
-    //     panic_msg("allocating memory for turtle's path");
-    // }
-    // t->vars = calloc(MAX_VARS, sizeof(Var));
-    // if (!t->vars)
-    // {
-    //     panic_msg("allocating memory for turtle's variables");
-    // }
-    // t->type_in_use = calloc(MAX_VARS, sizeof(type_used));
-    // if (!t->type_in_use)
-    // {
-    //     panic_msg("allocating memory for type_used array");
-    // }
     return t;
 }
 
