@@ -1,9 +1,6 @@
 
 void test(void)
 {
-    //setup 
-    // init_ttl();
-    //tests
     // test_stack();
     test_ttl();
     test_new_token();
@@ -18,23 +15,21 @@ void test(void)
     test_is_fwd();
     // test_is_rgt();
     // test_get_var_index();
-    // test_is_word();
-    // test_is_item();
-    // test_items();
+    test_is_word();
+    test_is_item();
+    test_items();
     // test_is_lst();
     test_is_col();
-    // test_is_pfix();
+    test_is_pfix();
     // test_is_set();
     // test_update_var();
     // test_is_loop();
     // test_loop_closed();
     // test_is_inslst();
     // test_is_prog();
-    // test_tokenise();
+    test_tokenise();
     // test_integration();
     // test_printing();
-    //teardown
-    // //free_ttl();
 }
 
 void test_stack(void)
@@ -438,75 +433,75 @@ void test_is_fwd(void)
 //     }    
 // }
 
-// void test_is_word(void)
-// {
-//     /*
-//     is_word() a string as defined by scanf("%s"), must be encapsulated by ""
-//     */
-//     assert(is_word("\"potatoes\""));
-//     assert(is_word("\"178\""));
-//     assert(is_word("\"RED!\""));
-//     assert(!is_word("\"BIRD IS THE ____\""));
-//     assert(!is_word("178"));
-//     assert(!is_word("\"\""));
-//     assert(!is_word("potatoes"));    
-// }
+void test_is_word(void)
+{
+    /*
+    is_word() a string as defined by scanf("%s"), must be encapsulated by ""
+    */
+    assert(is_word("\"potatoes\""));
+    assert(is_word("\"178\""));
+    assert(is_word("\"RED!\""));
+    assert(!is_word("\"BIRD IS THE ____\""));
+    assert(!is_word("178"));
+    assert(!is_word("\"\""));
+    assert(!is_word("potatoes"));    
+}
 
-// void test_is_item(void)
-// {
-//     /*
-//     is_item() <ITEM> ::= <VARNUM> | <WORD>
-//     */
-//     assert(is_item("$A"));
-//     assert(is_item("\"a\""));
-//     assert(is_item("99"));
-//     assert(!is_item("$1"));
-//     assert(!is_item("a"));
-//     assert(!is_item("9A"));    
-// }
+void test_is_item(void)
+{
+    /*
+    is_item() <ITEM> ::= <VARNUM> | <WORD>
+    */
+    assert(is_item("$A"));
+    assert(is_item("\"a\""));
+    assert(is_item("99"));
+    assert(!is_item("$1"));
+    assert(!is_item("a"));
+    assert(!is_item("9A"));    
+}
 
-// void test_items(void)
-// {
-//     /*
-//     is_items() <ITEMS> ::= '}' | <ITEM> <ITEMS>
-//     */
-//     Token *items_test = new_token("}");
-//     assert(is_items(items_test));
-//     free_tokens(items_test);
+void test_items(void)
+{
+    /*
+    is_items() <ITEMS> ::= '}' | <ITEM> <ITEMS>
+    */
+    Token *items_test = new_token("}");
+    assert(is_items(items_test));
+    free_tokens(items_test);
 
-//     //false when next item == NULL
-//     Token *items_test1 = new_token("$A");
-//     assert(!is_items(items_test1));
-//     free_tokens(items_test1);
+    //false when next item == NULL
+    Token *items_test1 = new_token("$A");
+    assert(!is_items(items_test1));
+    free_tokens(items_test1);
 
-//     // false next item is not an item or "}"
-//     Token *items_test2 = new_token("$A");
-//     Token *items_test3 = new_token("$A");
-//     Token *items_test4 = new_token("$A");
-//     Token *items_test5 = new_token("!");
-//     items_test2->next = items_test3;
-//     items_test3->next = items_test4;
-//     items_test4->next = items_test5;
-//     assert(!is_items(items_test2));
-//     free_tokens(items_test2);
+    // false next item is not an item or "}"
+    Token *items_test2 = new_token("$A");
+    Token *items_test3 = new_token("$A");
+    Token *items_test4 = new_token("$A");
+    Token *items_test5 = new_token("!");
+    items_test2->next = items_test3;
+    items_test3->next = items_test4;
+    items_test4->next = items_test5;
+    assert(!is_items(items_test2));
+    free_tokens(items_test2);
 
-//     // true when "}" can be found
-//     Token *items_test6 = new_token("$A");
-//     Token *items_test7 = new_token("\"MAGENTA\"");
-//     items_test6->next = items_test7;
-//     Token *items_test8 = new_token("$C");
-//     items_test7->next = items_test8;
-//     Token *items_test9 = new_token("\"$D\"");
-//     items_test8->next = items_test9;
-//     Token *items_test10 = new_token("$E");
-//     items_test9->next = items_test10;
-//     Token *items_test11 = new_token("\"ONE\"");
-//     items_test10->next = items_test11;
-//     Token *items_test12 = new_token("}");
-//     items_test11->next = items_test12;
-//     assert(is_items(items_test6));
-//     free_tokens(items_test6);    
-// }
+    // true when "}" can be found
+    Token *items_test6 = new_token("$A");
+    Token *items_test7 = new_token("\"MAGENTA\"");
+    items_test6->next = items_test7;
+    Token *items_test8 = new_token("$C");
+    items_test7->next = items_test8;
+    Token *items_test9 = new_token("\"$D\"");
+    items_test8->next = items_test9;
+    Token *items_test10 = new_token("$E");
+    items_test9->next = items_test10;
+    Token *items_test11 = new_token("\"ONE\"");
+    items_test10->next = items_test11;
+    Token *items_test12 = new_token("}");
+    items_test11->next = items_test12;
+    assert(is_items(items_test6));
+    free_tokens(items_test6);    
+}
 
 // void test_is_lst(void)
 // {
@@ -631,43 +626,43 @@ void test_is_col(void)
     free_ttl(colours_ttl);
 }
 
-// void test_is_pfix(void)
-// {
-//     /*
-//     is_pfix() <PFIX> ::= ")" | <OP> <PFIX> | <VARNUM> <PFIX>
-//     */
-//    // true when given ")"
-//     Token *pfix_test = new_token(")");
-//     assert(is_pfix(pfix_test));
-//     free_tokens(pfix_test);
+void test_is_pfix(void)
+{
+    /*
+    is_pfix() <PFIX> ::= ")" | <OP> <PFIX> | <VARNUM> <PFIX>
+    */
+   // true when given ")"
+    Token *pfix_test = new_token(")");
+    assert(is_pfix(pfix_test));
+    free_tokens(pfix_test);
 
-//     // true when <OP> ")"
-//     Token *pfix_test1 = new_token("+");
-//     Token *pfix_test2 = new_token(")");
-//     pfix_test1->next=pfix_test2;
-//     assert(is_pfix(pfix_test1));
-//     free_tokens(pfix_test1);
+    // true when <OP> ")"
+    Token *pfix_test1 = new_token("+");
+    Token *pfix_test2 = new_token(")");
+    pfix_test1->next=pfix_test2;
+    assert(is_pfix(pfix_test1));
+    free_tokens(pfix_test1);
 
-//     // true when <VARNUM> and <OP> in list")"
-//     Token *pfix_test3 = new_token("$A");
-//     Token *pfix_test4 = new_token("10");
-//     Token *pfix_test5 = new_token("+");
-//     Token *pfix_test6 = new_token(")");
-//     pfix_test3->next = pfix_test4;
-//     pfix_test4->next = pfix_test5;
-//     pfix_test5->next = pfix_test6;
-//     assert(is_pfix(pfix_test3));
-//     free_tokens(pfix_test3);
+    // true when <VARNUM> and <OP> in list")"
+    Token *pfix_test3 = new_token("$A");
+    Token *pfix_test4 = new_token("10");
+    Token *pfix_test5 = new_token("+");
+    Token *pfix_test6 = new_token(")");
+    pfix_test3->next = pfix_test4;
+    pfix_test4->next = pfix_test5;
+    pfix_test5->next = pfix_test6;
+    assert(is_pfix(pfix_test3));
+    free_tokens(pfix_test3);
 
-//     // false when no ")" at end
-//     Token *pfix_test7 = new_token("$A");
-//     Token *pfix_test8 = new_token("10");
-//     Token *pfix_test9 = new_token("+");
-//     pfix_test7->next = pfix_test8;
-//     pfix_test8->next = pfix_test9;
-//     assert(!is_pfix(pfix_test7));
-//     free_tokens(pfix_test7);    
-// }
+    // false when no ")" at end
+    Token *pfix_test7 = new_token("$A");
+    Token *pfix_test8 = new_token("10");
+    Token *pfix_test9 = new_token("+");
+    pfix_test7->next = pfix_test8;
+    pfix_test8->next = pfix_test9;
+    assert(!is_pfix(pfix_test7));
+    free_tokens(pfix_test7);    
+}
 
 // void test_is_set(void)
 // {
@@ -1373,29 +1368,29 @@ void test_is_col(void)
 //     free_tokens(tunnel_tokens);
 //  }
 
-// void test_tokenise(void)
-// {   
-//     //head is not NULL
-//     //check tokens read properly
-//     char *tkns[] = {"START", "SET", "A", "(", "1", ")", "END"};
-//     FILE *f = fopen("../TTLs/set1.ttl", "r");
-//     int i = 0;
-//     if (!f)
-//     {
-//         panic_msg("opening file for test");
-//     }
-//     Token *head = tokenise(f);
-//     fclose(f);
-//     Token *current = head;
-//     assert(head);
-//     while (current->next)
-//     {
-//         assert(strcmp(current->str, tkns[i]) == 0);
-//         i++;
-//         current = current->next;
-//     }
-//     free_tokens(head);
-// }
+void test_tokenise(void)
+{   
+    //head is not NULL
+    //check tokens read properly
+    char *tkns[] = {"START", "SET", "A", "(", "1", ")", "END"};
+    FILE *f = fopen("../TTLs/set1.ttl", "r");
+    int i = 0;
+    if (!f)
+    {
+        panic_msg("opening file for test");
+    }
+    Token *head = tokenise(f);
+    fclose(f);
+    Token *current = head;
+    assert(head);
+    while (current->next)
+    {
+        assert(strcmp(current->str, tkns[i]) == 0);
+        i++;
+        current = current->next;
+    }
+    free_tokens(head);
+}
 
 
 // void test_printing(void)
