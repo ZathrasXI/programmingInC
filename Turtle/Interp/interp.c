@@ -505,7 +505,7 @@ bool is_loop(Token *t, Turtle *ttl)
             int var_index = get_var_index(t->next->str[0]);
             while (is_item(iter->str))
             {
-                update_var(iter->str, var_index);
+                update_var(iter->str, var_index, ttl);
                 is_inslst(start_of_ins, ttl);
                 iter = iter->next;
                 // while (current && is_ins(current))
@@ -638,46 +638,46 @@ int get_var_index(char var_name)
     return var_name - ASCII_TO_NUM;
 }
 
-void update_var(char *token_str, int dest_index)
+void update_var(char *token_str, int dest_index, Turtle *ttl)
 {
-    if (ttl.type_in_use[dest_index] == union_char)
+    if (ttl->type_in_use[dest_index] == union_char)
         {
-            free(ttl.vars[dest_index].word);
+            free(ttl->vars[dest_index].word);
         }
     if (is_number(token_str))
     {
-        ttl.vars[dest_index].num = strtod(token_str, NULL);
-        ttl.type_in_use[dest_index] = union_double;
+        ttl->vars[dest_index].num = strtod(token_str, NULL);
+        ttl->type_in_use[dest_index] = union_double;
     }
     else if (is_var(token_str))
     {
         int src_indx = get_var_index(token_str[1]);
-        if (ttl.type_in_use[src_indx] == union_char)
+        if (ttl->type_in_use[src_indx] == union_char)
         {
-            int s_len = strlen(ttl.vars[src_indx].word) + NULL_CHAR;
-            ttl.vars[dest_index].word = calloc(s_len, sizeof(char));
-            if (!ttl.vars[dest_index].word)
+            int s_len = strlen(ttl->vars[src_indx].word) + NULL_CHAR;
+            ttl->vars[dest_index].word = calloc(s_len, sizeof(char));
+            if (!ttl->vars[dest_index].word)
             {
                 panic_msg("allocating memory for word");
             }
-            strcpy(ttl.vars[dest_index].word, ttl.vars[src_indx].word);
-            ttl.type_in_use[dest_index] = union_char;
+            strcpy(ttl->vars[dest_index].word, ttl->vars[src_indx].word);
+            ttl->type_in_use[dest_index] = union_char;
         }
-        else if (ttl.type_in_use[src_indx] == union_double)
+        else if (ttl->type_in_use[src_indx] == union_double)
         {
-            ttl.vars[dest_index].num = ttl.vars[src_indx].num;
-            ttl.type_in_use[dest_index] = union_double;
+            ttl->vars[dest_index].num = ttl->vars[src_indx].num;
+            ttl->type_in_use[dest_index] = union_double;
         }
     }
     else if (is_word(token_str))
     {
-        ttl.vars[dest_index].word = calloc(strlen(token_str) + NULL_CHAR, sizeof(char));
-        if (!ttl.vars[dest_index].word)
+        ttl->vars[dest_index].word = calloc(strlen(token_str) + NULL_CHAR, sizeof(char));
+        if (!ttl->vars[dest_index].word)
         {
             panic_msg("allocating memory for word");
         }
-        strcpy(ttl.vars[dest_index].word, token_str);
-        ttl.type_in_use[dest_index] = union_char;
+        strcpy(ttl->vars[dest_index].word, token_str);
+        ttl->type_in_use[dest_index] = union_char;
     }
 }
 

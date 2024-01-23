@@ -22,7 +22,7 @@ void test(void)
     test_is_col();
     test_is_pfix();
     test_is_set();
-    // test_update_var();
+    test_update_var();
     // test_is_loop();
     test_loop_closed();
     // test_is_inslst();
@@ -842,45 +842,52 @@ void test_is_set(void)
     free(false_set_ttl);
 }
 
-// void test_update_var(void)
-// {
-//    /*
-//     update_var() 
-//     can update var with a word, num, value of another variable
-//     */
-//     int dest_index = get_var_index('L');
-//     char *tokens[] = {"\"PURPLE\"", "10", "$C"};
+void test_update_var(void)
+{
+   /*
+    update_var() 
+    can update var with a word, num, value of another variable
+    */
+    int dest_index = get_var_index('L');
+    char *tokens[] = {"\"PURPLE\"", "10", "$C"};
     
-//     //can update var with literal word
-//     update_var(tokens[0], dest_index);
-//     assert(strcmp(ttl.vars[dest_index].word, tokens[0]) == 0);
-//     assert(ttl.type_in_use[dest_index] == union_char);
+    //can update var with literal word
+    Turtle *update1 = init_ttl();
+    update_var(tokens[0], dest_index, update1);
+    assert(strcmp(update1->vars[dest_index].word, tokens[0]) == 0);
+    assert(update1->type_in_use[dest_index] == union_char);
+    free_ttl(update1);
     
-//     //can update var with literal num
-//     update_var(tokens[1], dest_index);
-//     assert(fabs(10.0 - ttl.vars[dest_index].num) < TOLERANCE);
-//     assert(ttl.type_in_use[dest_index] == union_double);
+    //can update var with literal num
+    Turtle *update2 = init_ttl();
+    update_var(tokens[1], dest_index, update2);
+    assert(fabs(10.0 - update2->vars[dest_index].num) < TOLERANCE);
+    assert(update2->type_in_use[dest_index] == union_double);
+    free_ttl(update2);
     
-//     //can update var with num from another var
-//     int src_index = get_var_index('C');
-//     ttl.vars[src_index].num = 31.75;
-//     ttl.type_in_use[src_index] = union_double;
-//     update_var(tokens[2], dest_index);
-//     assert(fabs(ttl.vars[src_index].num - ttl.vars[dest_index].num) < TOLERANCE);
-//     assert(ttl.type_in_use[dest_index] == union_double);
+    //can update var with num from another var
+    Turtle *update3 = init_ttl();
+    int src_index = get_var_index('C');
+    update3->vars[src_index].num = 31.75;
+    update3->type_in_use[src_index] = union_double;
+    update_var(tokens[2], dest_index,update3);
+    assert(fabs(update3->vars[src_index].num - update3->vars[dest_index].num) < TOLERANCE);
+    assert(update3->type_in_use[dest_index] == union_double);
+    free_ttl(update3);
 
-//     //can update var with word from another var
-//     ttl.vars[src_index].word = calloc(strlen("\"BANDANA\"") + NULL_CHAR, sizeof(char));
-//     if (!ttl.vars[src_index].word)
-//     {
-//         panic_msg("allocating memory for word in test");
-//     }
-//     ttl.type_in_use[src_index] = union_char;
-//     update_var(tokens[2], dest_index);
-//     assert(strcmp(ttl.vars[src_index].word, ttl.vars[src_index].word) == 0);
-//     assert(ttl.type_in_use[src_index] == union_char); 
-//     free(ttl.vars[src_index].word);
-//}
+    //can update var with word from another var
+    Turtle *update4 = init_ttl();
+    update4->vars[src_index].word = calloc(strlen("\"BANDANA\"") + NULL_CHAR, sizeof(char));
+    if (!update4->vars[src_index].word)
+    {
+        panic_msg("allocating memory for word in test");
+    }
+    update4->type_in_use[src_index] = union_char;
+    update_var(tokens[2], dest_index,update4);
+    assert(strcmp(update4->vars[src_index].word, update4->vars[src_index].word) == 0);
+    assert(update4->type_in_use[src_index] == union_char); 
+    free_ttl(update4);
+}
 
 // void test_is_loop(void)
 // {
