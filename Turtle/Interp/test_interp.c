@@ -25,7 +25,7 @@ void test(void)
     test_update_var();
     test_is_loop();
     test_loop_closed();
-    // test_is_inslst();
+    test_is_inslst();
     // test_is_prog();
     test_tokenise();
     // test_integration();
@@ -1036,114 +1036,120 @@ void test_loop_closed(void)
     free_tokens(closed_loop8);    
 }
 
-// void test_is_inslst(void)
-// {
-//     /*
-//     is_inslst() <INSLST> ::= "END" | <INS> <INSLST>
-//     */
-//     //true when str == END
-//     Token *inslst_test = new_token("END");
-//     assert(is_inslst(inslst_test));
-//     free_tokens(inslst_test);
+void test_is_inslst(void)
+{
+    /*
+    is_inslst() <INSLST> ::= "END" | <INS> <INSLST>
+    */
+    //true when str == END
+    Turtle *ttl_inslst = init_ttl();
+    Token *inslst_test = new_token("END");
+    assert(is_inslst(inslst_test, ttl_inslst));
+    free_tokens(inslst_test);
+    free_ttl(ttl_inslst);
 
-//     // ins list contains ins followed by LOOP, requires 2 END statements
-//     Token *inslst_test1 = new_token("FORWARD");
-//     Token *inslst_test2 = new_token("1");
-//     Token *inslst_test3 = new_token("RIGHT");
-//     Token *inslst_test4 = new_token("61.0");
-//     Token *inslst_test5 = new_token("COLOUR");
-//     Token *inslst_test6 = new_token("\"RED\"");
-//     Token *inslst_test7 = new_token("LOOP");
-//     Token *inslst_test8 = new_token("C");
-//     Token *inslst_test9 = new_token("OVER");
-//     Token *inslst_test10 = new_token("{");
-//     Token *inslst_test11 = new_token("1");
-//     Token *inslst_test12 = new_token("2");
-//     Token *inslst_test13 = new_token("3");
-//     Token *inslst_test14 = new_token("}");
-//     Token *inslst_test15 = new_token("SET");
-//     Token *inslst_test16 = new_token("Z");
-//     Token *inslst_test17 = new_token("(");
-//     Token *inslst_test18 = new_token("$C");
-//     Token *inslst_test19 = new_token("1");
-//     Token *inslst_test20 = new_token("+");
-//     Token *inslst_test21 = new_token(")");
-//     Token *inslst_test22 = new_token("END");
-//     Token *inslst_test23 = new_token("END");
-//     inslst_test1->next=inslst_test2;
-//     inslst_test2->next=inslst_test3;
-//     inslst_test3->next=inslst_test4;
-//     inslst_test4->next=inslst_test5;
-//     inslst_test5->next=inslst_test6;
-//     inslst_test6->next=inslst_test7;
-//     inslst_test7->next=inslst_test8;
-//     inslst_test8->next=inslst_test9;
-//     inslst_test9->next=inslst_test10;
-//     inslst_test10->next=inslst_test11;
-//     inslst_test11->next=inslst_test12;
-//     inslst_test12->next=inslst_test13;
-//     inslst_test13->next=inslst_test14;
-//     inslst_test14->next=inslst_test15;
-//     inslst_test15->next=inslst_test16;
-//     inslst_test16->next=inslst_test17;
-//     inslst_test17->next=inslst_test18;
-//     inslst_test18->next=inslst_test19;
-//     inslst_test19->next=inslst_test20;
-//     inslst_test20->next=inslst_test21;
-//     inslst_test21->next=inslst_test22;
-//     inslst_test22->next=inslst_test23;
-//     assert(is_inslst(inslst_test1));
-//     free_tokens(inslst_test1);
+    // ins list contains ins followed by LOOP, requires 2 END statements
+    Turtle *ttl_inslst1 = init_ttl();
+    Token *inslst_test1 = new_token("FORWARD");
+    Token *inslst_test2 = new_token("1");
+    Token *inslst_test3 = new_token("RIGHT");
+    Token *inslst_test4 = new_token("61.0");
+    Token *inslst_test5 = new_token("COLOUR");
+    Token *inslst_test6 = new_token("\"RED\"");
+    Token *inslst_test7 = new_token("LOOP");
+    Token *inslst_test8 = new_token("C");
+    Token *inslst_test9 = new_token("OVER");
+    Token *inslst_test10 = new_token("{");
+    Token *inslst_test11 = new_token("1");
+    Token *inslst_test12 = new_token("2");
+    Token *inslst_test13 = new_token("3");
+    Token *inslst_test14 = new_token("}");
+    Token *inslst_test15 = new_token("SET");
+    Token *inslst_test16 = new_token("Z");
+    Token *inslst_test17 = new_token("(");
+    Token *inslst_test18 = new_token("$C");
+    Token *inslst_test19 = new_token("1");
+    Token *inslst_test20 = new_token("+");
+    Token *inslst_test21 = new_token(")");
+    Token *inslst_test22 = new_token("END");
+    Token *inslst_test23 = new_token("END");
+    inslst_test1->next=inslst_test2;
+    inslst_test2->next=inslst_test3;
+    inslst_test3->next=inslst_test4;
+    inslst_test4->next=inslst_test5;
+    inslst_test5->next=inslst_test6;
+    inslst_test6->next=inslst_test7;
+    inslst_test7->next=inslst_test8;
+    inslst_test8->next=inslst_test9;
+    inslst_test9->next=inslst_test10;
+    inslst_test10->next=inslst_test11;
+    inslst_test11->next=inslst_test12;
+    inslst_test12->next=inslst_test13;
+    inslst_test13->next=inslst_test14;
+    inslst_test14->next=inslst_test15;
+    inslst_test15->next=inslst_test16;
+    inslst_test16->next=inslst_test17;
+    inslst_test17->next=inslst_test18;
+    inslst_test18->next=inslst_test19;
+    inslst_test19->next=inslst_test20;
+    inslst_test20->next=inslst_test21;
+    inslst_test21->next=inslst_test22;
+    inslst_test22->next=inslst_test23;
+    assert(is_inslst(inslst_test1, ttl_inslst1));
+    free_tokens(inslst_test1);
+    free_ttl(ttl_inslst1);
     
-//     //nested for loop
-//     Token *nestd_loop = new_token("LOOP");
-//     Token *nestd_loop2 = new_token("C");
-//     Token *nestd_loop3 = new_token("OVER");
-//     Token *nestd_loop4 = new_token("{");
-//     Token *nestd_loop5 = new_token("\"BLUE\"");
-//     Token *nestd_loop6 = new_token("\"GREEN\"");
-//     Token *nestd_loop7 = new_token("}");
-//     Token *nestd_loop8 = new_token("COLOUR");
-//     Token *nestd_loop9 = new_token("$C");
-//     Token *nestd_loop10 = new_token("LOOP");
-//     Token *nestd_loop11 = new_token("Z");
-//     Token *nestd_loop12 = new_token("OVER");
-//     Token *nestd_loop13 = new_token("{");
-//     Token *nestd_loop14 = new_token("1");
-//     Token *nestd_loop15 = new_token("2");
-//     Token *nestd_loop16 = new_token("3");
-//     Token *nestd_loop17 = new_token("}");
-//     Token *nestd_loop18 = new_token("FORWARD");
-//     Token *nestd_loop19 = new_token("$Z");
-//     Token *nestd_loop20 = new_token("RIGHT");
-//     Token *nestd_loop21 = new_token("$A");
-//     Token *nestd_loop22 = new_token("END");
-//     Token *nestd_loop23 = new_token("END");
-//     nestd_loop->next=nestd_loop2;
-//     nestd_loop2->next=nestd_loop3;
-//     nestd_loop3->next=nestd_loop4;
-//     nestd_loop4->next=nestd_loop5;
-//     nestd_loop5->next=nestd_loop6;
-//     nestd_loop6->next=nestd_loop7;
-//     nestd_loop7->next=nestd_loop8;
-//     nestd_loop8->next=nestd_loop9;
-//     nestd_loop9->next=nestd_loop10;
-//     nestd_loop10->next=nestd_loop11;
-//     nestd_loop11->next=nestd_loop12;
-//     nestd_loop12->next=nestd_loop13;
-//     nestd_loop13->next=nestd_loop14;
-//     nestd_loop14->next=nestd_loop15;
-//     nestd_loop15->next=nestd_loop16;
-//     nestd_loop16->next=nestd_loop17;
-//     nestd_loop17->next=nestd_loop18;
-//     nestd_loop18->next=nestd_loop19;
-//     nestd_loop19->next=nestd_loop20;
-//     nestd_loop20->next=nestd_loop21;
-//     nestd_loop21->next=nestd_loop22;
-//     nestd_loop22->next=nestd_loop23;
-//     assert(is_inslst(nestd_loop));
-//     free_tokens(nestd_loop);    
-// }
+    //nested for loop
+    Turtle *ttl_inslst2 = init_ttl();
+    Token *nestd_loop = new_token("LOOP");
+    Token *nestd_loop2 = new_token("C");
+    Token *nestd_loop3 = new_token("OVER");
+    Token *nestd_loop4 = new_token("{");
+    Token *nestd_loop5 = new_token("\"BLUE\"");
+    Token *nestd_loop6 = new_token("\"GREEN\"");
+    Token *nestd_loop7 = new_token("}");
+    Token *nestd_loop8 = new_token("COLOUR");
+    Token *nestd_loop9 = new_token("$C");
+    Token *nestd_loop10 = new_token("LOOP");
+    Token *nestd_loop11 = new_token("Z");
+    Token *nestd_loop12 = new_token("OVER");
+    Token *nestd_loop13 = new_token("{");
+    Token *nestd_loop14 = new_token("1");
+    Token *nestd_loop15 = new_token("2");
+    Token *nestd_loop16 = new_token("3");
+    Token *nestd_loop17 = new_token("}");
+    Token *nestd_loop18 = new_token("FORWARD");
+    Token *nestd_loop19 = new_token("$Z");
+    Token *nestd_loop20 = new_token("RIGHT");
+    Token *nestd_loop21 = new_token("$A");
+    Token *nestd_loop22 = new_token("END");
+    Token *nestd_loop23 = new_token("END");
+    nestd_loop->next=nestd_loop2;
+    nestd_loop2->next=nestd_loop3;
+    nestd_loop3->next=nestd_loop4;
+    nestd_loop4->next=nestd_loop5;
+    nestd_loop5->next=nestd_loop6;
+    nestd_loop6->next=nestd_loop7;
+    nestd_loop7->next=nestd_loop8;
+    nestd_loop8->next=nestd_loop9;
+    nestd_loop9->next=nestd_loop10;
+    nestd_loop10->next=nestd_loop11;
+    nestd_loop11->next=nestd_loop12;
+    nestd_loop12->next=nestd_loop13;
+    nestd_loop13->next=nestd_loop14;
+    nestd_loop14->next=nestd_loop15;
+    nestd_loop15->next=nestd_loop16;
+    nestd_loop16->next=nestd_loop17;
+    nestd_loop17->next=nestd_loop18;
+    nestd_loop18->next=nestd_loop19;
+    nestd_loop19->next=nestd_loop20;
+    nestd_loop20->next=nestd_loop21;
+    nestd_loop21->next=nestd_loop22;
+    nestd_loop22->next=nestd_loop23;
+    assert(is_inslst(nestd_loop, ttl_inslst2));
+    free_tokens(nestd_loop);    
+    free_ttl(ttl_inslst2);
+}
 
 // void test_is_prog(void)
 // {
