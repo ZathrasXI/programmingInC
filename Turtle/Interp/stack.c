@@ -40,7 +40,7 @@ double pop(Stack *stack)
     return stack->data[stack->top--];
 }
 
-double evaluate(char **exp, int len)
+double evaluate(char **exp, int len, Turtle *ttl)
 {
     Stack *s = stack_init();
     
@@ -59,13 +59,13 @@ double evaluate(char **exp, int len)
         else if (is_var(exp[i]))
         {
             int var_index = get_var_index(exp[i][1]);
-            if (ttl.type_in_use[var_index] == union_char)
+            if (ttl->type_in_use[var_index] == union_char)
             {
                 panic_msg("can't evaluate postfix expression when variable contains a word");
             }
-            else if (ttl.type_in_use[var_index] == union_double)
+            else if (ttl->type_in_use[var_index] == union_double)
             {
-                bool pushed = push(s, ttl.vars[var_index].num);
+                bool pushed = push(s, ttl->vars[var_index].num);
                 if (!pushed)
                 {
                     panic_msg("pushing value to stack, possible stack overflow");

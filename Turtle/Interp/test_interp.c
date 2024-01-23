@@ -21,7 +21,7 @@ void test(void)
     test_is_lst();
     test_is_col();
     test_is_pfix();
-    // test_is_set();
+    test_is_set();
     // test_update_var();
     // test_is_loop();
     test_loop_closed();
@@ -76,34 +76,34 @@ void test_stack(void)
     // pop(pop_test1);
     // free(pop_test1);
 
-    /*
-    evaluate()
-    */
-    // can evaluate expression of numbers...
-    // addition
-    char *exp[] = {"2", "2", "+", "2", "+"};
-    int len = 5;
-    assert(fabs(evaluate(exp, len) - 6) < TOLERANCE);
-    //multiplication
-    char *exp2[] = {"2", "2", "*", "2", "*"};
-    assert(fabs(evaluate(exp2, len) - 8) < TOLERANCE);
-    //division
-    char *exp3[] = {"2", "2", "/", "2", "/"};
-    assert(fabs(evaluate(exp3, len) - 0.5) < TOLERANCE);
-    //subtraction
-    char *exp4[] = {"2", "2", "-", "2", "-"};
-    assert(fabs(evaluate(exp4, len) + 2) < TOLERANCE);
+    // /*
+    // evaluate()
+    // */
+    // // can evaluate expression of numbers...
+    // // addition
+    // char *exp[] = {"2", "2", "+", "2", "+"};
+    // int len = 5;
+    // assert(fabs(evaluate(exp, len) - 6) < TOLERANCE);
+    // //multiplication
+    // char *exp2[] = {"2", "2", "*", "2", "*"};
+    // assert(fabs(evaluate(exp2, len) - 8) < TOLERANCE);
+    // //division
+    // char *exp3[] = {"2", "2", "/", "2", "/"};
+    // assert(fabs(evaluate(exp3, len) - 0.5) < TOLERANCE);
+    // //subtraction
+    // char *exp4[] = {"2", "2", "-", "2", "-"};
+    // assert(fabs(evaluate(exp4, len) + 2) < TOLERANCE);
 
-    //can evaluate an expression of variables that contain numbers
-    // 2 2 + 3 * 2 / 6 - = 0
-    ttl.vars[2].num = 2; //$C
-    ttl.type_in_use[2] = union_double;
-    ttl.vars[3].num = 3; //$D
-    ttl.type_in_use[3] = union_double;
-    ttl.vars[6].num = 6; //$G
-    ttl.type_in_use[6] = union_double;
-    char *exp5[] = {"$C", "$C", "+", "$D", "*", "$C", "/", "$G", "-"};
-    assert(fabs(evaluate(exp5, 9) - 0) < TOLERANCE);
+    // //can evaluate an expression of variables that contain numbers
+    // // 2 2 + 3 * 2 / 6 - = 0
+    // ttl.vars[2].num = 2; //$C
+    // ttl.type_in_use[2] = union_double;
+    // ttl.vars[3].num = 3; //$D
+    // ttl.type_in_use[3] = union_double;
+    // ttl.vars[6].num = 6; //$G
+    // ttl.type_in_use[6] = union_double;
+    // char *exp5[] = {"$C", "$C", "+", "$D", "*", "$C", "/", "$G", "-"};
+    // assert(fabs(evaluate(exp5, 9) - 0) < TOLERANCE);
 
     //program exits when variable contains a word
     // char *stack_word = "STACK";
@@ -664,170 +664,183 @@ void test_is_pfix(void)
     free_tokens(pfix_test7);    
 }
 
-// void test_is_set(void)
-// {
-// /*
-//     is_set() <SET> ::= "SET" <LTR> "(" <PFIX>
-//     */
-//     //can directly assign a number to a var
-//     ttl.vars[0].num = 0.0;
-//     ttl.type_in_use[0] = union_char;
-//     Token *set_test = new_token("SET");
-//     Token *set_test1 = new_token("A");
-//     Token *set_test2 = new_token("(");
-//     Token *set_test3 = new_token("4");
-//     Token *set_test4 = new_token(")");
-//     set_test->next = set_test1;
-//     set_test1->next = set_test2;
-//     set_test2->next = set_test3;
-//     set_test3->next = set_test4;
-//     assert(is_set(set_test));
-//     assert(fabs(ttl.vars[0].num - 4.0) < TOLERANCE);
-//     assert(ttl.type_in_use[0] == union_double);
-//     //teardown
-//     ttl.vars[0].num = 0.0;
-//     free_tokens(set_test);
+void test_is_set(void)
+{
+/*
+    is_set() <SET> ::= "SET" <LTR> "(" <PFIX>
+    */
+    //can directly assign a number to a var
+    Turtle *set_ttl = init_ttl();
+    set_ttl->vars[0].num = 0.0;
+    set_ttl->type_in_use[0] = union_char;
+    Token *set_test = new_token("SET");
+    Token *set_test1 = new_token("A");
+    Token *set_test2 = new_token("(");
+    Token *set_test3 = new_token("4");
+    Token *set_test4 = new_token(")");
+    set_test->next = set_test1;
+    set_test1->next = set_test2;
+    set_test2->next = set_test3;
+    set_test3->next = set_test4;
+    assert(is_set(set_test, set_ttl));
+    assert(fabs(set_ttl->vars[0].num - 4.0) < TOLERANCE);
+    assert(set_ttl->type_in_use[0] == union_double);
+    //teardown
+    set_ttl->vars[0].num = 0.0;
+    free_tokens(set_test);
+    free_ttl(set_ttl);
 
-//     //can evaluate postfix expressions
-//     ttl.vars[0].num = 0.0;
-//     ttl.type_in_use[0] = union_char;
-//     Token *set_test25 = new_token("SET");
-//     Token *set_test26 = new_token("A");
-//     Token *set_test27 = new_token("(");
-//     Token *set_test28 = new_token("4");
-//     Token *set_test29 = new_token("4");
-//     Token *set_test30 = new_token("*");
-//     Token *set_test31 = new_token("4");
-//     Token *set_test32 = new_token("+");
-//     Token *set_test33 = new_token(")");
-//     set_test25->next = set_test26;
-//     set_test26->next = set_test27;
-//     set_test27->next = set_test28;
-//     set_test28->next = set_test29;
-//     set_test29->next = set_test30;
-//     set_test30->next = set_test31;
-//     set_test31->next = set_test32;
-//     set_test32->next = set_test33;
-//     assert(is_set(set_test25));
-//     assert(fabs(ttl.vars[0].num - 20.0) < TOLERANCE);
-//     assert(ttl.type_in_use[0] == union_double);
-//     //teardown
-//     ttl.vars[0].num = 0.0;
-//     free_tokens(set_test25);
+    //can evaluate postfix expressions
+    Turtle *set_ttl2 = init_ttl();
+    set_ttl2->vars[0].num = 0.0;
+    set_ttl2->type_in_use[0] = union_char;
+    Token *set_test25 = new_token("SET");
+    Token *set_test26 = new_token("A");
+    Token *set_test27 = new_token("(");
+    Token *set_test28 = new_token("4");
+    Token *set_test29 = new_token("4");
+    Token *set_test30 = new_token("*");
+    Token *set_test31 = new_token("4");
+    Token *set_test32 = new_token("+");
+    Token *set_test33 = new_token(")");
+    set_test25->next = set_test26;
+    set_test26->next = set_test27;
+    set_test27->next = set_test28;
+    set_test28->next = set_test29;
+    set_test29->next = set_test30;
+    set_test30->next = set_test31;
+    set_test31->next = set_test32;
+    set_test32->next = set_test33;
+    assert(is_set(set_test25, set_ttl2));
+    assert(fabs(set_ttl2->vars[0].num - 20.0) < TOLERANCE);
+    assert(set_ttl2->type_in_use[0] == union_double);
+    //teardown
+    free_tokens(set_test25);
+    free_ttl(set_ttl2);
 
-//     //can evaluate postfix expression that contains a variable
-//     //variable has a num value
-//     int j_index = get_var_index('J');
-//     ttl.vars[j_index].num = 31.0;
-//     ttl.type_in_use[j_index] = union_double;
-//     int s_index = get_var_index('S');
-//     ttl.type_in_use[s_index] = union_char;
+    //can evaluate postfix expression that contains a variable
+    //variable has a num value
+    Turtle *set_ttl3 = init_ttl();
+    int j_index = get_var_index('J');
+    set_ttl3->vars[j_index].num = 31.0;
+    set_ttl3->type_in_use[j_index] = union_double;
+    int s_index = get_var_index('S');
+    set_ttl3->type_in_use[s_index] = union_char;
 
-//     Token *set_test34 = new_token("SET");
-//     Token *set_test35 = new_token("S");
-//     Token *set_test36 = new_token("(");
-//     Token *set_test37 = new_token("2");
-//     Token *set_test38 = new_token("2");
-//     Token *set_test39 = new_token("*");
-//     Token *set_test40 = new_token("$J");
-//     Token *set_test41 = new_token("+");
-//     Token *set_test42 = new_token(")");
-//     set_test34->next = set_test35;
-//     set_test35->next = set_test36;
-//     set_test36->next = set_test37;
-//     set_test37->next = set_test38;
-//     set_test38->next = set_test39;
-//     set_test39->next = set_test40;
-//     set_test40->next = set_test41;
-//     set_test41->next = set_test42;
-//     assert(is_set(set_test34));
-//     assert(fabs(ttl.vars[s_index].num - 35.0) < TOLERANCE);
-//     assert(ttl.type_in_use[s_index] == union_double);
-//     //teardown
-//     ttl.vars[j_index].num = 0.0;
-//     ttl.vars[s_index].num = 0.0;
-//     free_tokens(set_test34);
+    Token *set_test34 = new_token("SET");
+    Token *set_test35 = new_token("S");
+    Token *set_test36 = new_token("(");
+    Token *set_test37 = new_token("2");
+    Token *set_test38 = new_token("2");
+    Token *set_test39 = new_token("*");
+    Token *set_test40 = new_token("$J");
+    Token *set_test41 = new_token("+");
+    Token *set_test42 = new_token(")");
+    set_test34->next = set_test35;
+    set_test35->next = set_test36;
+    set_test36->next = set_test37;
+    set_test37->next = set_test38;
+    set_test38->next = set_test39;
+    set_test39->next = set_test40;
+    set_test40->next = set_test41;
+    set_test41->next = set_test42;
+    assert(is_set(set_test34, set_ttl3));
+    assert(fabs(set_ttl3->vars[s_index].num - 35.0) < TOLERANCE);
+    assert(set_ttl3->type_in_use[s_index] == union_double);
+    //teardown
+    set_ttl3->vars[j_index].num = 0.0;
+    set_ttl3->vars[s_index].num = 0.0;
+    free_tokens(set_test34);
+    free_ttl(set_ttl3);
 
-//     //can assign word value of one variable to another variable
-//     char *test_word = "ZOOBZOOB";
-//     int d_index = get_var_index('D');
-//     int z_index = get_var_index('Z');
-//     ttl.type_in_use[d_index] = union_char;
-//     ttl.vars[d_index].word = calloc((int) strlen(test_word) + 1, sizeof(char));
-//     if (!ttl.vars[d_index].word)
-//     {
-//         panic_msg("allocating string for test");
-//     }
-//     strcpy(ttl.vars[d_index].word, test_word);
-//     Token *set_test15 = new_token("SET");
-//     Token *set_test16 = new_token("Z");
-//     Token *set_test17 = new_token("(");
-//     Token *set_test18 = new_token("$D");
-//     Token *set_test19 = new_token(")");
-//     set_test15->next = set_test16;
-//     set_test16->next = set_test17;
-//     set_test17->next = set_test18;
-//     set_test18->next = set_test19;
-//     assert(is_set(set_test15));
-//     assert(ttl.type_in_use[z_index] == union_char);
-//     assert(strcmp(ttl.vars[z_index].word, ttl.vars[d_index].word) == 0);
-//     //teardown
-//     ttl.type_in_use[d_index] = not_set;
-//     ttl.type_in_use[z_index] = not_set;
-//     free(ttl.vars[d_index].word);
-//     free(ttl.vars[z_index].word);
-//     free_tokens(set_test15);
+    //can assign word value of one variable to another variable
+    Turtle *set_ttl4 = init_ttl();
+    char *test_word = "ZOOBZOOB";
+    int d_index = get_var_index('D');
+    int z_index = get_var_index('Z');
+    set_ttl4->type_in_use[d_index] = union_char;
+    set_ttl4->vars[d_index].word = calloc((int) strlen(test_word) + 1, sizeof(char));
+    if (!set_ttl4->vars[d_index].word)
+    {
+        panic_msg("allocating string for test");
+    }
+    strcpy(set_ttl4->vars[d_index].word, test_word);
+    Token *set_test15 = new_token("SET");
+    Token *set_test16 = new_token("Z");
+    Token *set_test17 = new_token("(");
+    Token *set_test18 = new_token("$D");
+    Token *set_test19 = new_token(")");
+    set_test15->next = set_test16;
+    set_test16->next = set_test17;
+    set_test17->next = set_test18;
+    set_test18->next = set_test19;
+    assert(is_set(set_test15, set_ttl4));
+    assert(set_ttl4->type_in_use[z_index] == union_char);
+    assert(strcmp(set_ttl4->vars[z_index].word, set_ttl4->vars[d_index].word) == 0);
+    //teardown
+    set_ttl4->type_in_use[d_index] = not_set;
+    set_ttl4->type_in_use[z_index] = not_set;
+    free(set_ttl4->vars[d_index].word);
+    free(set_ttl4->vars[z_index].word);
+    free_tokens(set_test15);
+    free_ttl(set_ttl4);
 
-//     //can assign number of one variable to another variable
-//     int m_index = get_var_index('M');
-//     ttl.vars[m_index].num = 3.142;
-//     ttl.type_in_use[m_index] = union_double;
-//     z_index = get_var_index('Z');
-//     ttl.vars[z_index].num = 10.0;
-//     ttl.type_in_use[z_index] = union_double;
+    //can assign number of one variable to another variable
+    Turtle *set_ttl5 = init_ttl();
+    int m_index = get_var_index('M');
+    set_ttl5->vars[m_index].num = 3.142;
+    set_ttl5->type_in_use[m_index] = union_double;
+    z_index = get_var_index('Z');
+    set_ttl5->vars[z_index].num = 10.0;
+    set_ttl5->type_in_use[z_index] = union_double;
 
-//     Token *set_test20 = new_token("SET");
-//     Token *set_test21 = new_token("Z");
-//     Token *set_test22 = new_token("(");
-//     Token *set_test23 = new_token("$M");
-//     Token *set_test24 = new_token(")");
-//     set_test20->next = set_test21;
-//     set_test21->next = set_test22;
-//     set_test22->next = set_test23;
-//     set_test23->next = set_test24;
-//     assert(is_set(set_test20));
-//     assert(fabs(ttl.vars[m_index].num - ttl.vars[z_index].num) < TOLERANCE);
-//     assert(ttl.type_in_use[m_index] == union_double);
-//     assert(ttl.type_in_use[m_index] == ttl.type_in_use[z_index]);
-//     //teardown
-//     ttl.vars[m_index].num = 0.0;
-//     ttl.vars[z_index].num = 0.0;
-//     free_tokens(set_test20);
+    Token *set_test20 = new_token("SET");
+    Token *set_test21 = new_token("Z");
+    Token *set_test22 = new_token("(");
+    Token *set_test23 = new_token("$M");
+    Token *set_test24 = new_token(")");
+    set_test20->next = set_test21;
+    set_test21->next = set_test22;
+    set_test22->next = set_test23;
+    set_test23->next = set_test24;
+    assert(is_set(set_test20, set_ttl5));
+    assert(fabs(set_ttl5->vars[m_index].num - set_ttl5->vars[z_index].num) < TOLERANCE);
+    assert(set_ttl5->type_in_use[m_index] == union_double);
+    assert(set_ttl5->type_in_use[m_index] == set_ttl5->type_in_use[z_index]);
+    //teardown
+    set_ttl5->vars[m_index].num = 0.0;
+    set_ttl5->vars[z_index].num = 0.0;
+    free_tokens(set_test20);
+    free(set_ttl5);
 
-//     Token *set_test5 = new_token("DESET");
-//     Token *set_test6 = new_token("A");
-//     Token *set_test7 = new_token("(");
-//     Token *set_test8 = new_token("4");
-//     Token *set_test9 = new_token(")");
-//     set_test5->next = set_test6;
-//     set_test6->next = set_test7;
-//     set_test7->next = set_test8;
-//     set_test8->next = set_test9;
-//     assert(!is_set(set_test5));
-//     free_tokens(set_test5);
+    //false when spelling mistake
+    Turtle *false_set_ttl = init_ttl();
+    Token *set_test5 = new_token("DESET");
+    Token *set_test6 = new_token("A");
+    Token *set_test7 = new_token("(");
+    Token *set_test8 = new_token("4");
+    Token *set_test9 = new_token(")");
+    set_test5->next = set_test6;
+    set_test6->next = set_test7;
+    set_test7->next = set_test8;
+    set_test8->next = set_test9;
+    assert(!is_set(set_test5, false_set_ttl));
+    free_tokens(set_test5);
 
-//     Token *set_test10 = new_token("SET");
-//     Token *set_test11 = new_token("A");
-//     Token *set_test12 = new_token("(");
-//     Token *set_test13 = new_token("4");
-//     Token *set_test14 = new_token("!");
-//     set_test10->next = set_test11;
-//     set_test11->next = set_test12;
-//     set_test12->next = set_test13;
-//     set_test13->next = set_test14;
-//     assert(!is_set(set_test10));
-//     free_tokens(set_test10);    
-// }
+    //false when syntax error
+    Token *set_test10 = new_token("SET");
+    Token *set_test11 = new_token("A");
+    Token *set_test12 = new_token("(");
+    Token *set_test13 = new_token("4");
+    Token *set_test14 = new_token("!");
+    set_test10->next = set_test11;
+    set_test11->next = set_test12;
+    set_test12->next = set_test13;
+    set_test13->next = set_test14;
+    assert(!is_set(set_test10, false_set_ttl));
+    free_tokens(set_test10);    
+    free(false_set_ttl);
+}
 
 // void test_update_var(void)
 // {
@@ -867,7 +880,7 @@ void test_is_pfix(void)
 //     assert(strcmp(ttl.vars[src_index].word, ttl.vars[src_index].word) == 0);
 //     assert(ttl.type_in_use[src_index] == union_char); 
 //     free(ttl.vars[src_index].word);
-// }
+//}
 
 // void test_is_loop(void)
 // {

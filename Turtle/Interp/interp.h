@@ -97,7 +97,7 @@ bool is_item(char *c);
 bool is_items(Token *t);
 bool is_lst(Token *t);
 bool is_pfix(Token *t);
-bool is_set(Token *t);
+bool is_set(Token *t, Turtle *ttl);
 bool is_loop(Token *t, Turtle *ttl);
 bool is_ins(Token *t, Turtle *ttl);
 bool is_inslst(Token *t, Turtle *ttl);
@@ -110,7 +110,7 @@ bool is_empty(int top);
 bool is_full(int top);
 bool push(Stack *stack, double value);
 double pop(Stack *stack);
-double evaluate(char **exp, int len);
+double evaluate(char **exp, int len, Turtle *ttl);
 //Testing
 void test(void);
 void test_stack(void);

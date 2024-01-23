@@ -419,7 +419,7 @@ bool is_pfix(Token *t)
     return false;
 }
 
-bool is_set(Token *t)
+bool is_set(Token *t, Turtle *ttl)
 {
     if (!t->next)
     {
@@ -443,16 +443,16 @@ bool is_set(Token *t)
             Token *ps_head = t->next->next->next;
             int src_index = get_var_index(ps_head->str[1]);
             int dest_index = get_var_index(t->next->str[0]);
-            if (token_count == 1 && is_var(ps_head->str) && ttl.type_in_use[src_index] == union_char)
+            if (token_count == 1 && is_var(ps_head->str) && ttl->type_in_use[src_index] == union_char)
             {
-                int len = strlen(ttl.vars[src_index].word) + NULL_CHAR;
-                ttl.vars[dest_index].word = calloc(len, sizeof(char));
-                if (!ttl.vars[dest_index].word)
+                int len = strlen(ttl->vars[src_index].word) + NULL_CHAR;
+                ttl->vars[dest_index].word = calloc(len, sizeof(char));
+                if (!ttl->vars[dest_index].word)
                 {
                     panic_msg("allocating space for word");
                 }
-                strcpy(ttl.vars[dest_index].word, ttl.vars[src_index].word);
-                ttl.type_in_use[dest_index] = union_char;
+                strcpy(ttl->vars[dest_index].word, ttl->vars[src_index].word);
+                ttl->type_in_use[dest_index] = union_char;
                 return true;
             }
 
@@ -470,9 +470,9 @@ bool is_set(Token *t)
                 ps_head = ps_head->next;
                 i++;
             }
-            double answer = evaluate(postfix_expr, token_count);
-            ttl.vars[dest_index].num = answer;
-            ttl.type_in_use[dest_index] = union_double;
+            double answer = evaluate(postfix_expr, token_count, ttl);
+            ttl->vars[dest_index].num = answer;
+            ttl->type_in_use[dest_index] = union_double;
             for (int i = 0; i < token_count; i++)
             {
                 free(postfix_expr[i]);
@@ -552,7 +552,7 @@ bool is_ins(Token *t, Turtle *ttl)
         is_rgt(t, ttl) ||
         is_col(t, ttl) ||
         is_loop(t, ttl) ||
-        is_set(t)
+        is_set(t, ttl)
     )
     {
         return true;
@@ -594,7 +594,7 @@ bool is_inslst(Token *t, Turtle *ttl)
         next_ins = next_ins->next;
         return is_inslst(next_ins, ttl);
     }
-    else if (is_set(t))
+    else if (is_set(t, ttl))
     {
         do
         {
