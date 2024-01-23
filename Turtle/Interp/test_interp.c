@@ -14,17 +14,17 @@ void test(void)
     // test_next_col_index();
     test_is_fwd();
     test_is_rgt();
-    // test_get_var_index();
+    test_get_var_index();
     test_is_word();
     test_is_item();
     test_items();
-    // test_is_lst();
+    test_is_lst();
     test_is_col();
     test_is_pfix();
     // test_is_set();
     // test_update_var();
     // test_is_loop();
-    // test_loop_closed();
+    test_loop_closed();
     // test_is_inslst();
     // test_is_prog();
     test_tokenise();
@@ -420,18 +420,18 @@ void test_is_rgt(void)
     free_ttl(rgt0);
 }
 
-// void test_get_var_index(void)
-// {
-//     /*
-//     get index of a variable,e.g. index of $A
-//     */
-//     char *vars[] = {"$A", "$B", "$C", "$D", "$E", "$F", "$G", "$H", "$I", "$J", 
-//     "$K", "$L", "$M", "$N", "$O", "$P", "$Q", "$R", "$S", "$T", "$U", "$V", "$W", "$X", "$Y", "$Z"};
-//     for (int i = 0; i < 26; i++)
-//     {
-//         assert(get_var_index(vars[i][1]) == i);
-//     }    
-// }
+void test_get_var_index(void)
+{
+    /*
+    get index of a variable,e.g. index of $A
+    */
+    char *vars[] = {"$A", "$B", "$C", "$D", "$E", "$F", "$G", "$H", "$I", "$J", 
+    "$K", "$L", "$M", "$N", "$O", "$P", "$Q", "$R", "$S", "$T", "$U", "$V", "$W", "$X", "$Y", "$Z"};
+    for (int i = 0; i < 26; i++)
+    {
+        assert(get_var_index(vars[i][1]) == i);
+    }    
+}
 
 void test_is_word(void)
 {
@@ -503,57 +503,57 @@ void test_items(void)
     free_tokens(items_test6);    
 }
 
-// void test_is_lst(void)
-// {
-// /*
-//     is_lst() <LST> ::= "{" <ITEMS>
-//     */
-//     // false - token with no nodes proceeding
-//     Token *lst_test = new_token("{");
-//     assert(!is_lst(lst_test));
-//     free_tokens(lst_test);
+void test_is_lst(void)
+{
+/*
+    is_lst() <LST> ::= "{" <ITEMS>
+    */
+    // false - token with no nodes proceeding
+    Token *lst_test = new_token("{");
+    assert(!is_lst(lst_test));
+    free_tokens(lst_test);
 
-//     // false when no closing "}"
-//     Token *lst_test1 = new_token("{");
-//     Token *lst_test2 = new_token("$A");
-//     Token *lst_test3= new_token("\"WORD\"");
-//     Token *lst_test4 = new_token("$B");
-//     Token *lst_test5 = new_token("\"178\"");
-//     Token *lst_test6 = new_token("$C");
-//     Token *lst_test7 = new_token("\"ONE\"");
-//     lst_test1->next = lst_test2;
-//     lst_test2->next = lst_test3;
-//     lst_test3->next = lst_test4;
-//     lst_test4->next = lst_test5;
-//     lst_test5->next = lst_test6;
-//     lst_test6->next = lst_test7;
-//     assert(!is_lst(lst_test1));
-//     free_tokens(lst_test1);
+    // false when no closing "}"
+    Token *lst_test1 = new_token("{");
+    Token *lst_test2 = new_token("$A");
+    Token *lst_test3= new_token("\"WORD\"");
+    Token *lst_test4 = new_token("$B");
+    Token *lst_test5 = new_token("\"178\"");
+    Token *lst_test6 = new_token("$C");
+    Token *lst_test7 = new_token("\"ONE\"");
+    lst_test1->next = lst_test2;
+    lst_test2->next = lst_test3;
+    lst_test3->next = lst_test4;
+    lst_test4->next = lst_test5;
+    lst_test5->next = lst_test6;
+    lst_test6->next = lst_test7;
+    assert(!is_lst(lst_test1));
+    free_tokens(lst_test1);
 
-//     // "{" followed by "}" is allowed
-//     Token *lst_test8 = new_token("{");
-//     Token *lst_test9 = new_token("}");
-//     lst_test8->next = lst_test9;
-//     assert(is_lst(lst_test8));
-//     free_tokens(lst_test8);
+    // "{" followed by "}" is allowed
+    Token *lst_test8 = new_token("{");
+    Token *lst_test9 = new_token("}");
+    lst_test8->next = lst_test9;
+    assert(is_lst(lst_test8));
+    free_tokens(lst_test8);
 
-//     // large list, encapsulated with "{" and "}"
-//     Token *lst_test10 = new_token("{");
-//     Token *lst_test11 = new_token("$A");
-//     Token *lst_test12 = new_token("\"WORD\"");
-//     Token *lst_test13 = new_token("$B");
-//     Token *lst_test14 = new_token("\"178\"");
-//     Token *lst_test15 = new_token("$C");
-//     Token *lst_test16 = new_token("}");
-//     lst_test10->next = lst_test11;
-//     lst_test11->next = lst_test12;
-//     lst_test12->next = lst_test13;
-//     lst_test13->next = lst_test14;
-//     lst_test14->next = lst_test15;
-//     lst_test15->next = lst_test16;
-//     assert(is_lst(lst_test10));
-//     free_tokens(lst_test10);    
-// }
+    // large list, encapsulated with "{" and "}"
+    Token *lst_test10 = new_token("{");
+    Token *lst_test11 = new_token("$A");
+    Token *lst_test12 = new_token("\"WORD\"");
+    Token *lst_test13 = new_token("$B");
+    Token *lst_test14 = new_token("\"178\"");
+    Token *lst_test15 = new_token("$C");
+    Token *lst_test16 = new_token("}");
+    lst_test10->next = lst_test11;
+    lst_test11->next = lst_test12;
+    lst_test12->next = lst_test13;
+    lst_test13->next = lst_test14;
+    lst_test14->next = lst_test15;
+    lst_test15->next = lst_test16;
+    assert(is_lst(lst_test10));
+    free_tokens(lst_test10);    
+}
 
 void test_is_col(void)
 {
@@ -968,47 +968,47 @@ void test_is_pfix(void)
 //     free_tokens(loop_test22);
 // }
 
-// void test_loop_closed(void)
-// {
-//     /*
-//     loop_closed()
-//     */
-//     Token *closed_loop = new_token("LOOP");
-//     Token *closed_loop1 = new_token("END");
-//     closed_loop->next = closed_loop1;
-//     assert(loop_closed(closed_loop));
-//     free_tokens(closed_loop);
+void test_loop_closed(void)
+{
+    /*
+    loop_closed()
+    */
+    Token *closed_loop = new_token("LOOP");
+    Token *closed_loop1 = new_token("END");
+    closed_loop->next = closed_loop1;
+    assert(loop_closed(closed_loop));
+    free_tokens(closed_loop);
 
-//     Token *closed_loop2 = new_token("LOOP");
-//     Token *closed_loop3 = new_token("LOOP");
-//     Token *closed_loop4 = new_token("LOOP");
-//     Token *closed_loop5 = new_token("END");
-//     Token *closed_loop6 = new_token("END");
-//     Token *closed_loop7 = new_token("NOT_THE_END");
-//     closed_loop2->next = closed_loop3;
-//     closed_loop3->next = closed_loop4;
-//     closed_loop4->next = closed_loop5;
-//     closed_loop5->next = closed_loop6;
-//     closed_loop6->next = closed_loop7;
-//     assert(!loop_closed(closed_loop2));
-//     free_tokens(closed_loop2);
+    Token *closed_loop2 = new_token("LOOP");
+    Token *closed_loop3 = new_token("LOOP");
+    Token *closed_loop4 = new_token("LOOP");
+    Token *closed_loop5 = new_token("END");
+    Token *closed_loop6 = new_token("END");
+    Token *closed_loop7 = new_token("NOT_THE_END");
+    closed_loop2->next = closed_loop3;
+    closed_loop3->next = closed_loop4;
+    closed_loop4->next = closed_loop5;
+    closed_loop5->next = closed_loop6;
+    closed_loop6->next = closed_loop7;
+    assert(!loop_closed(closed_loop2));
+    free_tokens(closed_loop2);
 
-//     Token *closed_loop8 = new_token("LOOP");
-//     Token *closed_loop9 = new_token("LOOP");
-//     Token *closed_loop10 = new_token("LOOP");
-//     Token *closed_loop11 = new_token("END");
-//     Token *closed_loop12 = new_token("END");
-//     Token *closed_loop13 = new_token("END");
-//     closed_loop8->next = closed_loop9;
-//     closed_loop9->next = closed_loop10;
-//     closed_loop10->next = closed_loop11;
-//     closed_loop11->next = closed_loop12;
-//     closed_loop12->next = closed_loop13;
-//     assert(loop_closed(closed_loop8));
-//     assert(loop_closed(closed_loop9));
-//     assert(loop_closed(closed_loop10));
-//     free_tokens(closed_loop8);    
-// }
+    Token *closed_loop8 = new_token("LOOP");
+    Token *closed_loop9 = new_token("LOOP");
+    Token *closed_loop10 = new_token("LOOP");
+    Token *closed_loop11 = new_token("END");
+    Token *closed_loop12 = new_token("END");
+    Token *closed_loop13 = new_token("END");
+    closed_loop8->next = closed_loop9;
+    closed_loop9->next = closed_loop10;
+    closed_loop10->next = closed_loop11;
+    closed_loop11->next = closed_loop12;
+    closed_loop12->next = closed_loop13;
+    assert(loop_closed(closed_loop8));
+    assert(loop_closed(closed_loop9));
+    assert(loop_closed(closed_loop10));
+    free_tokens(closed_loop8);    
+}
 
 // void test_is_inslst(void)
 // {
