@@ -1015,13 +1015,14 @@ void test_is_inslst(void)
     Token *inslst_test = new_token("END");
     assert(is_inslst(inslst_test));
     free_tokens(inslst_test);
-    // true when given valid ins and for loop
-    // Token *inslst_test1 = new_token("FORWARD");
-    // Token *inslst_test2 = new_token("1");
-    // Token *inslst_test3 = new_token("END");
-    // // Token *inslst_test4 = new_token("61.0");
-    // // Token *inslst_test5 = new_token("COLOUR");
-    // // Token *inslst_test6 = new_token("\"RED\"");
+
+    // ins list contains ins followed by LOOP, requires 2 END statements
+    Token *inslst_test1 = new_token("FORWARD");
+    Token *inslst_test2 = new_token("1");
+    Token *inslst_test3 = new_token("RIGHT");
+    Token *inslst_test4 = new_token("61.0");
+    Token *inslst_test5 = new_token("COLOUR");
+    Token *inslst_test6 = new_token("\"RED\"");
     Token *inslst_test7 = new_token("LOOP");
     Token *inslst_test8 = new_token("C");
     Token *inslst_test9 = new_token("OVER");
@@ -1038,12 +1039,13 @@ void test_is_inslst(void)
     Token *inslst_test20 = new_token("+");
     Token *inslst_test21 = new_token(")");
     Token *inslst_test22 = new_token("END");
-    // inslst_test1->next=inslst_test2;
-    // inslst_test2->next=inslst_test3;
-    // inslst_test3->next=inslst_test4;
-    // inslst_test4->next=inslst_test5;
-    // inslst_test5->next=inslst_test6;
-    // inslst_test6->next=inslst_test7;
+    Token *inslst_test23 = new_token("END");
+    inslst_test1->next=inslst_test2;
+    inslst_test2->next=inslst_test3;
+    inslst_test3->next=inslst_test4;
+    inslst_test4->next=inslst_test5;
+    inslst_test5->next=inslst_test6;
+    inslst_test6->next=inslst_test7;
     inslst_test7->next=inslst_test8;
     inslst_test8->next=inslst_test9;
     inslst_test9->next=inslst_test10;
@@ -1059,8 +1061,9 @@ void test_is_inslst(void)
     inslst_test19->next=inslst_test20;
     inslst_test20->next=inslst_test21;
     inslst_test21->next=inslst_test22;
-    assert(is_inslst(inslst_test15));
-    free_tokens(inslst_test7);
+    inslst_test22->next=inslst_test23;
+    assert(is_inslst(inslst_test1));
+    free_tokens(inslst_test1);
     
     //nested for loop
     Token *nestd_loop = new_token("LOOP");
@@ -1407,8 +1410,13 @@ void test_printing(void)
     assert(access(f1, F_OK) != -1);
     remove(f1);
 
-    //printing to file
+    //can create 2D array
+    FILE *tunnel_file = fopen("../TTLs/tunnel.ttl", "r");
+    Token *tunnel = tokenise(tunnel_file);
     
+    assert(is_prog(tunnel));
+    free_tokens(tunnel);
+
 }
 
 

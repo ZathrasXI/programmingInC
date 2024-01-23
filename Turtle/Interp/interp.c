@@ -200,16 +200,9 @@ bool is_forward(Token *t)
                 ttl.path[ttl.len].colour = 'W';
                 ttl.len++;
             }
-            // int row_line_start = next_row(ttl.path[ttl.len-1].row, 1);
-            // int col_line_start = next_col(ttl.path[ttl.len-1].col, 1);
-            // for (int i = 0; i < steps; i++)
-            // {
-            //     ttl.path[ttl.len].row = next_row(row_line_start, i);
-            //     ttl.path[ttl.len].col = next_col(col_line_start, i);
-            //     ttl.len++;
-            // }
             int x1_y1[2];
             find_end_points(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, steps, x1_y1);
+            // ttl.path[ttl.len].is_fwd = true;??
             calculate_line_coords(ttl.path[ttl.len-1].col, ttl.path[ttl.len-1].row, x1_y1[0], x1_y1[1]);
 
         }
@@ -752,6 +745,7 @@ void calculate_line_coords(int x0, int y0, int x1, int y1)
     bool end_x = false;
     bool end_y = false;
     bool end_of_line = false;
+    //ttl.path[ttl.len].fwd_ins = true; maybe here? or better in is_fwd()?
     while(!end_of_line)
     { 
         e2 = err * 2;

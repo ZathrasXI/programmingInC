@@ -67,6 +67,7 @@ typedef struct token
     struct token *next;
 } Token;
 
+//TODO no global variables
 static Turtle ttl;
 
 //Parser & interpreter
