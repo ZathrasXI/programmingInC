@@ -26,9 +26,9 @@ void test(void)
     test_is_loop();
     test_loop_closed();
     test_is_inslst();
-    // test_is_prog();
+    test_is_prog();
     test_tokenise();
-    // test_integration();
+    test_integration();
     // test_printing();
 }
 
@@ -233,49 +233,49 @@ void test_deg_2_rad(void)
     assert(fabs(PI - degrees_to_radians(180)) < TOLERANCE);
 }
 
-void test_next_row_index(void)
-{
-    /*
-    get index for row
-    */
-    //1 step facing north
-    ttl.direction = 0;
-    assert(next_row(ROW_START, 1) == ROW_START - 1);
-    //1 step east
-    ttl.direction = degrees_to_radians(90);
-    assert(next_row(ROW_START, 1) == ROW_START);
-    //1 step south
-    ttl.direction = degrees_to_radians(180);
-    assert(next_row(ROW_START, 1) == ROW_START + 1);
-    //1 step west
-    ttl.direction = degrees_to_radians(270);
-    assert(next_row(ROW_START, 1) == ROW_START);
-    //1 step NE
-    ttl.direction = degrees_to_radians(45);
-    assert(next_row(ROW_START, 1) == ROW_START - 1);
-    //teardown
-    ttl.direction = 0;    
-}
+// void test_next_row_index(void)
+// {
+//     /*
+//     get index for row
+//     */
+//     //1 step facing north
+//     ttl.direction = 0;
+//     assert(next_row(ROW_START, 1) == ROW_START - 1);
+//     //1 step east
+//     ttl.direction = degrees_to_radians(90);
+//     assert(next_row(ROW_START, 1) == ROW_START);
+//     //1 step south
+//     ttl.direction = degrees_to_radians(180);
+//     assert(next_row(ROW_START, 1) == ROW_START + 1);
+//     //1 step west
+//     ttl.direction = degrees_to_radians(270);
+//     assert(next_row(ROW_START, 1) == ROW_START);
+//     //1 step NE
+//     ttl.direction = degrees_to_radians(45);
+//     assert(next_row(ROW_START, 1) == ROW_START - 1);
+//     //teardown
+//     ttl.direction = 0;    
+// }
 
-void test_next_col_index(void)
-{
-    /*
-    get index for column
-    */
-    // 1 step north
-    ttl.direction = 0;
-    assert(next_col(COL_START, 1) == COL_START);
-    // 1 step NE
-    ttl.direction = degrees_to_radians(45);
-    assert(next_col(COL_START, 1) == COL_START + 1);
-    //1 step south
-    ttl.direction = degrees_to_radians(180);
-    assert(next_col(COL_START, 1) == COL_START);
-    //1 step west
-    ttl.direction = degrees_to_radians(270);
-    assert(next_col(COL_START, 1) == COL_START -1 );
-    ttl.direction = 0;    
-}
+// void test_next_col_index(void)
+// {
+//     /*
+//     get index for column
+//     */
+//     // 1 step north
+//     ttl.direction = 0;
+//     assert(next_col(COL_START, 1) == COL_START);
+//     // 1 step NE
+//     ttl.direction = degrees_to_radians(45);
+//     assert(next_col(COL_START, 1) == COL_START + 1);
+//     //1 step south
+//     ttl.direction = degrees_to_radians(180);
+//     assert(next_col(COL_START, 1) == COL_START);
+//     //1 step west
+//     ttl.direction = degrees_to_radians(270);
+//     assert(next_col(COL_START, 1) == COL_START -1 );
+//     ttl.direction = 0;    
+// }
 
 void test_is_fwd(void)
 {
@@ -390,15 +390,17 @@ void test_is_rgt(void)
     free_tokens(rgt_test);
     
     // no rotation when variable == 0
+    Turtle *rgt1 = init_ttl();
     double zero_direction = 0.0;
     Token *rgt_test2 = new_token("RIGHT");
     Token *rgt_test3 = new_token("$A");
     rgt_test2->next=rgt_test3;
     assert(is_rgt(rgt_test2, rgt0));
-    assert(fabs(zero_direction - ttl.direction) < TOLERANCE);
+    assert(fabs(zero_direction - rgt1->direction) < TOLERANCE);
     //teardown
     rgt0->direction = 0;
     free_tokens(rgt_test2);
+    free_ttl(rgt1);
 
     //direction == $var converted to rads
     rgt0->vars[0].num = 359;
@@ -1151,254 +1153,260 @@ void test_is_inslst(void)
     free_ttl(ttl_inslst2);
 }
 
-// void test_is_prog(void)
-// {
-//     /*(is_prog) "START" <INSLST>
-//     */
+void test_is_prog(void)
+{
+    /*(is_prog) "START" <INSLST>
+    */
+    Turtle *ttl_prog = init_ttl();
+    Token *start = new_token("START");
+    assert(!is_prog(start, ttl_prog));
+    free_tokens(start);
+    free_ttl(ttl_prog);
 
-//     Token *start = new_token("START");
-//     assert(!is_prog(start));
-//     free_tokens(start);
-
-//    //nested for loop with start and end
-//     Token *prog = new_token("START"); 
-//     Token *prog1 = new_token("LOOP");
-//     Token *prog2 = new_token("C");
-//     Token *prog3 = new_token("OVER");
-//     Token *prog4 = new_token("{");
-//     Token *prog5 = new_token("\"BLUE\"");
-//     Token *prog6 = new_token("\"GREEN\"");
-//     Token *prog7 = new_token("}");
-//     Token *prog8 = new_token("COLOUR");
-//     Token *prog9 = new_token("$C");
-//     Token *prog10 = new_token("LOOP");
-//     Token *prog11 = new_token("Z");
-//     Token *prog12 = new_token("OVER");
-//     Token *prog13 = new_token("{");
-//     Token *prog14 = new_token("1");
-//     Token *prog15 = new_token("2");
-//     Token *prog16 = new_token("3");
-//     Token *prog17 = new_token("}");
-//     Token *prog18 = new_token("FORWARD");
-//     Token *prog19 = new_token("$Z");
-//     Token *prog20 = new_token("RIGHT");
-//     Token *prog21 = new_token("45");
-//     Token *prog22 = new_token("END");
-//     Token *prog23 = new_token("END");
-//     Token *prog24 = new_token("END");
-//     prog->next=prog1;
-//     prog1->next=prog2;
-//     prog2->next=prog3;
-//     prog3->next=prog4;
-//     prog4->next=prog5;
-//     prog5->next=prog6;
-//     prog6->next=prog7;
-//     prog7->next=prog8;
-//     prog8->next=prog9;
-//     prog9->next=prog10;
-//     prog10->next=prog11;
-//     prog11->next=prog12;
-//     prog12->next=prog13;
-//     prog13->next=prog14;
-//     prog14->next=prog15;
-//     prog15->next=prog16;
-//     prog16->next=prog17;
-//     prog17->next=prog18;
-//     prog18->next=prog19;
-//     prog19->next=prog20;
-//     prog20->next=prog21;
-//     prog21->next=prog22;
-//     prog22->next=prog23;
-//     prog23->next=prog24;
-//     assert(is_prog(prog));
-//     free_tokens(prog);
+   //nested for loop with start and end
+    Turtle *ttl_prog1 = init_ttl();
+    Token *prog = new_token("START"); 
+    Token *prog1 = new_token("LOOP");
+    Token *prog2 = new_token("C");
+    Token *prog3 = new_token("OVER");
+    Token *prog4 = new_token("{");
+    Token *prog5 = new_token("\"BLUE\"");
+    Token *prog6 = new_token("\"GREEN\"");
+    Token *prog7 = new_token("}");
+    Token *prog8 = new_token("COLOUR");
+    Token *prog9 = new_token("$C");
+    Token *prog10 = new_token("LOOP");
+    Token *prog11 = new_token("Z");
+    Token *prog12 = new_token("OVER");
+    Token *prog13 = new_token("{");
+    Token *prog14 = new_token("1");
+    Token *prog15 = new_token("2");
+    Token *prog16 = new_token("3");
+    Token *prog17 = new_token("}");
+    Token *prog18 = new_token("FORWARD");
+    Token *prog19 = new_token("$Z");
+    Token *prog20 = new_token("RIGHT");
+    Token *prog21 = new_token("45");
+    Token *prog22 = new_token("END");
+    Token *prog23 = new_token("END");
+    Token *prog24 = new_token("END");
+    prog->next=prog1;
+    prog1->next=prog2;
+    prog2->next=prog3;
+    prog3->next=prog4;
+    prog4->next=prog5;
+    prog5->next=prog6;
+    prog6->next=prog7;
+    prog7->next=prog8;
+    prog8->next=prog9;
+    prog9->next=prog10;
+    prog10->next=prog11;
+    prog11->next=prog12;
+    prog12->next=prog13;
+    prog13->next=prog14;
+    prog14->next=prog15;
+    prog15->next=prog16;
+    prog16->next=prog17;
+    prog17->next=prog18;
+    prog18->next=prog19;
+    prog19->next=prog20;
+    prog20->next=prog21;
+    prog21->next=prog22;
+    prog22->next=prog23;
+    prog23->next=prog24;
+    assert(is_prog(prog, ttl_prog1));
+    free_tokens(prog);
+    free_ttl(ttl_prog1);
 
 
-//    // instructions before nested for loop
-//     Token *full_prog1 = new_token("START");
-//     Token *full_prog2 = new_token("FORWARD");
-//     Token *full_prog3 = new_token("1");
-//     Token *full_prog4 = new_token("RIGHT");
-//     Token *full_prog5 = new_token("10");
-//     Token *full_prog6 = new_token("LOOP");
-//     Token *full_prog7 = new_token("C");
-//     Token *full_prog8 = new_token("OVER");
-//     Token *full_prog9 = new_token("{");
-//     Token *full_prog10 = new_token("\"BLUE\"");
-//     Token *full_prog11 = new_token("\"GREEN\"");
-//     Token *full_prog12 = new_token("}");
-//     Token *full_prog13 = new_token("COLOUR");
-//     Token *full_prog14 = new_token("$C");
-//     Token *full_prog15 = new_token("LOOP");
-//     Token *full_prog16 = new_token("Z");
-//     Token *full_prog17 = new_token("OVER");
-//     Token *full_prog18 = new_token("{");
-//     Token *full_prog19 = new_token("1");
-//     Token *full_prog20 = new_token("2");
-//     Token *full_prog21 = new_token("3");
-//     Token *full_prog22 = new_token("}");
-//     Token *full_prog23 = new_token("FORWARD");
-//     Token *full_prog24 = new_token("$Z");
-//     Token *full_prog25 = new_token("RIGHT");
-//     Token *full_prog26 = new_token("$A");
-//     Token *full_prog27 = new_token("END");
-//     Token *full_prog28 = new_token("END");
-//     Token *full_prog29 = new_token("END");
-//     full_prog1->next=full_prog2;
-//     full_prog2->next=full_prog3;
-//     full_prog3->next=full_prog4;
-//     full_prog4->next=full_prog5;
-//     full_prog5->next=full_prog6;
-//     full_prog6->next=full_prog7;
-//     full_prog7->next=full_prog8;
-//     full_prog8->next=full_prog9;
-//     full_prog9->next=full_prog10;
-//     full_prog10->next=full_prog11;
-//     full_prog11->next=full_prog12;
-//     full_prog12->next=full_prog13;
-//     full_prog13->next=full_prog14;
-//     full_prog14->next=full_prog15;
-//     full_prog15->next=full_prog16;
-//     full_prog16->next=full_prog17;
-//     full_prog17->next=full_prog18;
-//     full_prog18->next=full_prog19;
-//     full_prog19->next=full_prog20;
-//     full_prog20->next=full_prog21;
-//     full_prog21->next=full_prog22;
-//     full_prog22->next=full_prog23;
-//     full_prog23->next=full_prog24;
-//     full_prog24->next=full_prog25;
-//     full_prog25->next=full_prog26;
-//     full_prog26->next=full_prog27;
-//     full_prog27->next=full_prog28;
-//     full_prog28->next=full_prog29;
-//     assert(is_prog(full_prog1));
-//     free_tokens(full_prog1);    
-// }
+   // instructions before nested for loop
+    Turtle *ttl_prog2 = init_ttl();
+    Token *full_prog1 = new_token("START");
+    Token *full_prog2 = new_token("FORWARD");
+    Token *full_prog3 = new_token("1");
+    Token *full_prog4 = new_token("RIGHT");
+    Token *full_prog5 = new_token("10");
+    Token *full_prog6 = new_token("LOOP");
+    Token *full_prog7 = new_token("C");
+    Token *full_prog8 = new_token("OVER");
+    Token *full_prog9 = new_token("{");
+    Token *full_prog10 = new_token("\"BLUE\"");
+    Token *full_prog11 = new_token("\"GREEN\"");
+    Token *full_prog12 = new_token("}");
+    Token *full_prog13 = new_token("COLOUR");
+    Token *full_prog14 = new_token("$C");
+    Token *full_prog15 = new_token("LOOP");
+    Token *full_prog16 = new_token("Z");
+    Token *full_prog17 = new_token("OVER");
+    Token *full_prog18 = new_token("{");
+    Token *full_prog19 = new_token("1");
+    Token *full_prog20 = new_token("2");
+    Token *full_prog21 = new_token("3");
+    Token *full_prog22 = new_token("}");
+    Token *full_prog23 = new_token("FORWARD");
+    Token *full_prog24 = new_token("$Z");
+    Token *full_prog25 = new_token("RIGHT");
+    Token *full_prog26 = new_token("$A");
+    Token *full_prog27 = new_token("END");
+    Token *full_prog28 = new_token("END");
+    Token *full_prog29 = new_token("END");
+    full_prog1->next=full_prog2;
+    full_prog2->next=full_prog3;
+    full_prog3->next=full_prog4;
+    full_prog4->next=full_prog5;
+    full_prog5->next=full_prog6;
+    full_prog6->next=full_prog7;
+    full_prog7->next=full_prog8;
+    full_prog8->next=full_prog9;
+    full_prog9->next=full_prog10;
+    full_prog10->next=full_prog11;
+    full_prog11->next=full_prog12;
+    full_prog12->next=full_prog13;
+    full_prog13->next=full_prog14;
+    full_prog14->next=full_prog15;
+    full_prog15->next=full_prog16;
+    full_prog16->next=full_prog17;
+    full_prog17->next=full_prog18;
+    full_prog18->next=full_prog19;
+    full_prog19->next=full_prog20;
+    full_prog20->next=full_prog21;
+    full_prog21->next=full_prog22;
+    full_prog22->next=full_prog23;
+    full_prog23->next=full_prog24;
+    full_prog24->next=full_prog25;
+    full_prog25->next=full_prog26;
+    full_prog26->next=full_prog27;
+    full_prog27->next=full_prog28;
+    full_prog28->next=full_prog29;
+    assert(is_prog(full_prog1, ttl_prog2));
+    free_tokens(full_prog1);    
+    free_ttl(ttl_prog2);
+}
 
-// void test_integration(void)
-// {
-//     /*
-//     integration testing - testing tokenisation with interpreter and checking output
-//     */
-//     //forward.ttl
-//     ////free_ttl();
-//     init_ttl();
-//     FILE *fwd = fopen("../TTLs/forward.ttl", "r");
-//     Token *fwd_tokens = tokenise(fwd);
-//     fclose(fwd);
-//     assert(is_prog(fwd_tokens));
-//     int diff = 16;
-//     for (int i = ttl.len; i >= 0; i--)
-//     {
-//         assert(ttl.path[i].row == i - diff);
-//         diff-=2;
-//     }
-//     free_tokens(fwd_tokens);
+void test_integration(void)
+{
+    /*
+    integration testing - testing tokenisation with interpreter and checking output
+    */
+    //forward.ttl
+    Turtle *forward_ttl = init_ttl();
+    FILE *fwd = fopen("../TTLs/forward.ttl", "r");
+    Token *fwd_tokens = tokenise(fwd);
+    fclose(fwd);
+    assert(is_prog(fwd_tokens, forward_ttl));
+    assert(forward_ttl->len == 16);
+    int diff = 0;
+    for (int i = 0; i < forward_ttl->len; i++)
+    {
+        assert(forward_ttl->path[i].row == ROW_START - diff);
+        diff++;
+    }
+    free_tokens(fwd_tokens);
+    free_ttl(forward_ttl);
 
-//     //turn.ttl
-//     ////free_ttl();
-//     init_ttl();
-//     FILE *turn = fopen("../TTLs/turn.ttl", "r");
-//     Token *turn_tokens = tokenise(turn);
-//     fclose(turn);
-//     assert(is_prog(turn_tokens));
-//     int rows[] = {16,15,14,13,12,11,10,9,8,7,6,5,4,3,2};
-//     int cols[] = {25,25,25,25,25,25,25,25,25,26,27,28,29,30,31};
-//     for (int i = 0; i < ttl.len; i++)
-//     {
-//         assert(ttl.path[i].row == rows[i]);
-//         assert(ttl.path[i].col == cols[i]);
-//     }
-//     free_tokens(turn_tokens);
+    //turn.ttl
+    Turtle *turn_ttl = init_ttl();
+    FILE *turn = fopen("../TTLs/turn.ttl", "r");
+    Token *turn_tokens = tokenise(turn);
+    fclose(turn);
+    assert(is_prog(turn_tokens, turn_ttl));
+    int rows[] = {16,15,14,13,12,11,10,9,8,7,6,5,4,3,2};
+    int cols[] = {25,25,25,25,25,25,25,25,25,26,27,28,29,30,31};
+    for (int i = 0; i < turn_ttl->len; i++)
+    {
+        assert(turn_ttl->path[i].row == rows[i]);
+        assert(turn_ttl->path[i].col == cols[i]);
+    }
+    free_tokens(turn_tokens);
+    free_ttl(turn_ttl);
 
-//     // octagon2.ttl
-//     ////free_ttl();
-//     init_ttl();
-//     int oct_cols[] = {25,25,25,25,25,25,26,27,28,29,30,31,32,33,34,35,36,37,38,38,38,38,38,38,37,36,35,34,33,32,31,30,29,28,27,26,25};
-//     int oct_rows[] = {16,15,14,13,12,11,10,9,8,7,7,7,7,7,7,8,9,10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20,19,18,17,16};
-//     char oct_colours[] = {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
-//     FILE *oct2 = fopen("../TTLs/octagon2.ttl", "r");
-//     Token *oct2_tokens = tokenise(oct2);
-//     fclose(oct2);
-//     assert(is_prog(oct2_tokens));
-//     for (int i = 0; i < ttl.len; i++)
-//     {
-//         assert(ttl.path[i].col == oct_cols[i]);
-//         assert(ttl.path[i].row == oct_rows[i]);
-//         assert(ttl.path[i].colour == oct_colours[i]);
-//     }
-//     free_tokens(oct2_tokens);
+    // octagon2.ttl
+    Turtle *oct2_ttl = init_ttl();
+    int oct_cols[] = {25,25,25,25,25,25,26,27,28,29,30,31,32,33,34,35,36,37,38,38,38,38,38,38,37,36,35,34,33,32,31,30,29,28,27,26,25};
+    int oct_rows[] = {16,15,14,13,12,11,10,9,8,7,7,7,7,7,7,8,9,10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20,19,18,17,16};
+    char oct_colours[] = {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
+    FILE *oct2 = fopen("../TTLs/octagon2.ttl", "r");
+    Token *oct2_tokens = tokenise(oct2);
+    fclose(oct2);
+    assert(is_prog(oct2_tokens, oct2_ttl));
+    for (int i = 0; i < oct2_ttl->len; i++)
+    {
+        assert(oct2_ttl->path[i].col == oct_cols[i]);
+        assert(oct2_ttl->path[i].row == oct_rows[i]);
+        assert(oct2_ttl->path[i].colour == oct_colours[i]);
+    }
+    free_tokens(oct2_tokens);
+    free_ttl(oct2_ttl);
 
-//     // octagon1.ttl
-//     ////free_ttl();
-//     init_ttl();
-//     FILE *oct1 = fopen("../TTLs/octagon1.ttl", "r");
-//     Token *oct1_tokens = tokenise(oct1);
-//     fclose(oct1);
-//     assert(is_prog(oct1_tokens));
-//     for (int i = 0; i < ttl.len; i++)
-//     {
-//         assert(ttl.path[i].col == oct_cols[i]);
-//         assert(ttl.path[i].row == oct_rows[i]);
-//         assert(ttl.path[i].colour == oct_colours[i]);
-//     }
-//     free_tokens(oct1_tokens);
+    // octagon1.ttl
+    Turtle *oct1_ttl = init_ttl();
+    FILE *oct1 = fopen("../TTLs/octagon1.ttl", "r");
+    Token *oct1_tokens = tokenise(oct1);
+    fclose(oct1);
+    assert(is_prog(oct1_tokens, oct1_ttl));
+    for (int i = 0; i < oct1_ttl->len; i++)
+    {
+        assert(oct1_ttl->path[i].col == oct_cols[i]);
+        assert(oct1_ttl->path[i].row == oct_rows[i]);
+        assert(oct1_ttl->path[i].colour == oct_colours[i]);
+    }
+    free_tokens(oct1_tokens);
+    free_ttl(oct1_ttl);
 
-//     //downarrow
-//     ////free_ttl();
-//     init_ttl();
-//     FILE *down_arrow = fopen("../TTLs/downarrow.ttl", "r");
-//     Token *down_arrow_tokens = tokenise(down_arrow);
-//     fclose(down_arrow);
-//     int arrow_cols[] = {25,25,25,25,25,25,26,27,28,29,30,30,30,30,30,30,29,28,27,26,25,24,23,22,23,23,24,24,25,26,26,27,27,28,29,29,30,30,31,32,32,33,33,34,33,32,31,30,29,28,27,26,25,24,23};
-//     int arrow_rows[] = {16,15,14,13,12,11,11,11,11,11,11,12,13,14,15,16,16,16,16,16,16,16,16,16,17,18,19,20,21,22,23,24,25,26,25,24,23,22,21,20,19,18,17,16,16,16,16,16,16,16,16,16,16,16,16};
-//     char arrow_colours[] = {'W','R','R','R','R','G','G','G','G','G','Y','Y','Y','Y','Y','B','B','B','B','B','K','K','K','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
-//     assert(is_prog(down_arrow_tokens));
-//     for (int i = 0; i < ttl.len; i++)
-//     {
-//         assert(ttl.path[i].col == arrow_cols[i]);
-//         assert(ttl.path[i].row == arrow_rows[i]);
-//         assert(ttl.path[i].colour == arrow_colours[i]);
-//     }
-//     free_tokens(down_arrow_tokens);
+    //downarrow
+    Turtle *downarrow_ttl = init_ttl();
+    FILE *down_arrow = fopen("../TTLs/downarrow.ttl", "r");
+    Token *down_arrow_tokens = tokenise(down_arrow);
+    fclose(down_arrow);
+    int arrow_cols[] = {25,25,25,25,25,25,26,27,28,29,30,30,30,30,30,30,29,28,27,26,25,24,23,22,23,23,24,24,25,26,26,27,27,28,29,29,30,30,31,32,32,33,33,34,33,32,31,30,29,28,27,26,25,24,23};
+    int arrow_rows[] = {16,15,14,13,12,11,11,11,11,11,11,12,13,14,15,16,16,16,16,16,16,16,16,16,17,18,19,20,21,22,23,24,25,26,25,24,23,22,21,20,19,18,17,16,16,16,16,16,16,16,16,16,16,16,16};
+    char arrow_colours[] = {'W','R','R','R','R','G','G','G','G','G','Y','Y','Y','Y','Y','B','B','B','B','B','K','K','K','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
+    assert(is_prog(down_arrow_tokens, downarrow_ttl));
+    for (int i = 0; i < downarrow_ttl->len; i++)
+    {
+        assert(downarrow_ttl->path[i].col == arrow_cols[i]);
+        assert(downarrow_ttl->path[i].row == arrow_rows[i]);
+        assert(downarrow_ttl->path[i].colour == arrow_colours[i]);
+    }
+    free_tokens(down_arrow_tokens);
+    free_ttl(downarrow_ttl);
 
-//     //spiral
-//     ////free_ttl();
-//     init_ttl();
-//     FILE *spiral = fopen("../TTLs/spiral.ttl", "r");
-//     Token *spiral_tokens = tokenise(spiral);
-//     fclose(spiral);
-//     int spiral_cols[] = {25,25,26,27,28,29,29,29,28,28,28,27,26,25,24,23,22,21,20,19,18,17,17,18,18,18,18,19,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,37,36,36,36,35,35,34,34,34,33,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,18,17,16,15,15,14,13,12,12,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,36,37,38,38,39,40,40,41,42,42,43,44,44,45};
-//     int spiral_rows[] = {16,15,14,14,15,16,17,18,19,20,21,21,22,22,22,23,23,22,21,21,20,19,18,17,16,15,14,13,12,11,11,10,10,10,9,9,9,9,8,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,27,27,27,28,28,28,28,28,28,29,29,29,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-//     char spiral_colours[] = {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
-//     assert(is_prog(spiral_tokens));
-//     for (int i = 0; i < ttl.len; i++)
-//     {
-//         assert(ttl.path[i].col == spiral_cols[i]);
-//         assert(ttl.path[i].row == spiral_rows[i]);
-//         assert(ttl.path[i].colour == spiral_colours[i]);
-//     }
-//     free_tokens(spiral_tokens);
+    //spiral
+    Turtle *spiral_ttl = init_ttl();
+    FILE *spiral = fopen("../TTLs/spiral.ttl", "r");
+    Token *spiral_tokens = tokenise(spiral);
+    fclose(spiral);
+    int spiral_cols[] = {25,25,26,27,28,29,29,29,28,28,28,27,26,25,24,23,22,21,20,19,18,17,17,18,18,18,18,19,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,37,36,36,36,35,35,34,34,34,33,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,18,17,16,15,15,14,13,12,12,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,36,37,38,38,39,40,40,41,42,42,43,44,44,45};
+    int spiral_rows[] = {16,15,14,14,15,16,17,18,19,20,21,21,22,22,22,23,23,22,21,21,20,19,18,17,16,15,14,13,12,11,11,10,10,10,9,9,9,9,8,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,27,27,27,28,28,28,28,28,28,29,29,29,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    char spiral_colours[] = {'W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
+    assert(is_prog(spiral_tokens, spiral_ttl));
+    for (int i = 0; i < spiral_ttl->len; i++)
+    {
+        assert(spiral_ttl->path[i].col == spiral_cols[i]);
+        assert(spiral_ttl->path[i].row == spiral_rows[i]);
+        assert(spiral_ttl->path[i].colour == spiral_colours[i]);
+    }
+    free_tokens(spiral_tokens);
+    free_ttl(spiral_ttl);
 
-//     //tunnel
-//     ////free_ttl();
-//     init_ttl();
-//     FILE *tunnel = fopen("../TTLs/tunnel.ttl", "r");
-//     Token *tunnel_tokens = tokenise(tunnel);
-//     fclose(tunnel);
-//     int tunnel_cols[] = {25,25,26,26,25,25,25,26,27,27,27,26,25,25,25,25,26,27,28,28,28,28,27,26,25,25,25,25,25,26,27,28,29,29,29,29,29,28,27,26,25,25,25,25,25,25,26,27,28,29,30,30,30,30,30,30,29,28,27,26,25,25,25,25,25,25,25,26,27,28,29,30,31,31,31,31,31,31,31,30,29,28,27,26,25,25,25,25,25,25,25,25,26,27,28,29,30,31,32,32,32,32,32,32,32,32,31,30,29,28,27,26,25,25,25,25,25,25,25,25,25,26,27,28,29,30,31,32,33,33,33,33,33,33,33,33,33,32,31,30,29,28,27,26,25};
-//     int tunnel_rows[] = {16,15,15,16,16,15,14,14,14,15,16,16,16,15,14,13,13,13,13,14,15,16,16,16,16,15,14,13,12,12,12,12,12,13,14,15,16,16,16,16,16,15,14,13,12,11,11,11,11,11,11,12,13,14,15,16,16,16,16,16,16,15,14,13,12,11,10,10,10,10,10,10,10,11,12,13,14,15,16,16,16,16,16,16,16,15,14,13,12,11,10,9,9,9,9,9,9,9,9,10,11,12,13,14,15,16,16,16,16,16,16,16,16,15,14,13,12,11,10,9,8,8,8,8,8,8,8,8,8,9,10,11,12,13,14,15,16,16,16,16,16,16,16,16,16};
-//     char tunnel_colours[] = {'W','G','Y','B','R','R','G','G','Y','Y','B','B','R','R','R','G','G','G','Y','Y','Y','B','B','B','R','R','R','R','G','G','G','G','Y','Y','Y','Y','B','B','B','B','R','R','R','R','R','G','G','G','G','G','Y','Y','Y','Y','Y','B','B','B','B','B','R','R','R','R','R','R','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','R','R','R','R','R','R','R','G','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','B','R','R','R','R','R','R','R','R','G','G','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','B','B','B'};
-//     assert(is_prog(tunnel_tokens));
-//     for (int i = 0; i < ttl.len; i++)
-//     {
-//         assert(ttl.path[i].col == tunnel_cols[i]);
-//         assert(ttl.path[i].row == tunnel_rows[i]);
-//         assert(ttl.path[i].colour == tunnel_colours[i]);
-//     }
-//     free_tokens(tunnel_tokens);
-//  }
+    //tunnel
+    Turtle *tunnel_ttl = init_ttl();
+    FILE *tunnel = fopen("../TTLs/tunnel.ttl", "r");
+    Token *tunnel_tokens = tokenise(tunnel);
+    fclose(tunnel);
+    int tunnel_cols[] = {25,25,26,26,25,25,25,26,27,27,27,26,25,25,25,25,26,27,28,28,28,28,27,26,25,25,25,25,25,26,27,28,29,29,29,29,29,28,27,26,25,25,25,25,25,25,26,27,28,29,30,30,30,30,30,30,29,28,27,26,25,25,25,25,25,25,25,26,27,28,29,30,31,31,31,31,31,31,31,30,29,28,27,26,25,25,25,25,25,25,25,25,26,27,28,29,30,31,32,32,32,32,32,32,32,32,31,30,29,28,27,26,25,25,25,25,25,25,25,25,25,26,27,28,29,30,31,32,33,33,33,33,33,33,33,33,33,32,31,30,29,28,27,26,25};
+    int tunnel_rows[] = {16,15,15,16,16,15,14,14,14,15,16,16,16,15,14,13,13,13,13,14,15,16,16,16,16,15,14,13,12,12,12,12,12,13,14,15,16,16,16,16,16,15,14,13,12,11,11,11,11,11,11,12,13,14,15,16,16,16,16,16,16,15,14,13,12,11,10,10,10,10,10,10,10,11,12,13,14,15,16,16,16,16,16,16,16,15,14,13,12,11,10,9,9,9,9,9,9,9,9,10,11,12,13,14,15,16,16,16,16,16,16,16,16,15,14,13,12,11,10,9,8,8,8,8,8,8,8,8,8,9,10,11,12,13,14,15,16,16,16,16,16,16,16,16,16};
+    char tunnel_colours[] = {'W','G','Y','B','R','R','G','G','Y','Y','B','B','R','R','R','G','G','G','Y','Y','Y','B','B','B','R','R','R','R','G','G','G','G','Y','Y','Y','Y','B','B','B','B','R','R','R','R','R','G','G','G','G','G','Y','Y','Y','Y','Y','B','B','B','B','B','R','R','R','R','R','R','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','R','R','R','R','R','R','R','G','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','B','R','R','R','R','R','R','R','R','G','G','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','B','B','B'};
+    assert(is_prog(tunnel_tokens, tunnel_ttl));
+    for (int i = 0; i < tunnel_ttl->len; i++)
+    {
+        assert(tunnel_ttl->path[i].col == tunnel_cols[i]);
+        assert(tunnel_ttl->path[i].row == tunnel_rows[i]);
+        assert(tunnel_ttl->path[i].colour == tunnel_colours[i]);
+    }
+    free_tokens(tunnel_tokens);
+    free_ttl(tunnel_ttl);
+ }
 
 void test_tokenise(void)
 {   
