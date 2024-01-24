@@ -17,7 +17,6 @@
 #define SPACE_ASCII 32
 //TODO find less rigid alternative
 #define PATH 1000
-//2D array is 51 wide, 33 high
 #define WIDTH 51
 #define HEIGHT 33
 #define COL_START 25
@@ -48,6 +47,7 @@ typedef struct loc
     int row;
     int col;
     char colour;
+    bool fwd_ins;
 } Loc;
 
 typedef struct turtle 
@@ -69,7 +69,10 @@ typedef struct token
 
 
 //Parser & interpreter
-bool create_file(char *name);
+// void timed_printout(Turtle *ttl);
+void print_to_screen(char screen_array[HEIGHT][WIDTH]);
+void update_screen_array(char screen_array[HEIGHT][WIDTH], Turtle *ttl, int final_step);
+bool create_file(char *name, Turtle *ttl);
 void find_end_points(int x0, int y0, int len, int x1_y1[2], Turtle *ttl);
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void represent_coords(char **screen);

@@ -255,6 +255,8 @@ void test_is_fwd(void)
     assert(ttl_fwd->path[0].row == ROW_START);
     assert(ttl_fwd->path[0].colour == 'W');
     assert(ttl_fwd->path[1].colour == 'W');
+    assert(ttl_fwd->path[0].fwd_ins);
+    assert(!ttl_fwd->path[1].fwd_ins);
     //teardown
     free_ttl(ttl_fwd);
     free_tokens(fwd);
@@ -269,6 +271,14 @@ void test_is_fwd(void)
     assert(fwd_many_ttl->len == steps + 1);
     for (int i = 0; i < fwd_many_ttl->len; i++)
     {
+        if (i == 0)
+        {
+            assert(fwd_many_ttl->path[i].fwd_ins);
+        }
+        else
+        {
+            assert(!fwd_many_ttl->path[i].fwd_ins);
+        }
         assert(fwd_many_ttl->path[i].row == ROW_START - i);
         assert(fwd_many_ttl->path[i].col == COL_START);
     }
@@ -298,8 +308,14 @@ void test_is_fwd(void)
     assert(is_col(fwd_rgt_fwd2, ttl_fwd1));
     assert(is_forward(fwd_rgt_fwd6, ttl_fwd1));
     assert(ttl_fwd1->len == 15);
+    assert(ttl_fwd1->path[0].fwd_ins);
+    assert(ttl_fwd1->path[9].fwd_ins);
     for(int i = 0; i <= 8; i++)
-    {
+    {   
+        if (i > 0)
+        {
+            assert(!ttl_fwd1->path[i].fwd_ins);
+        }
         assert(ttl_fwd1->path[i].col == COL_START);
         assert(ttl_fwd1->path[i].row == ROW_START - i);
     }
@@ -307,6 +323,10 @@ void test_is_fwd(void)
     assert(ttl_fwd1->path[8].colour == 'R');
     for(int i = 1; i <= 6; i++)
     {
+        if (8+i != 9)
+        {
+            assert(!ttl_fwd1->path[i].fwd_ins);
+        }
         assert(ttl_fwd1->path[8+i].col == COL_START + i);
         assert(ttl_fwd1->path[8+i].row == 8 - i);
         assert(ttl_fwd1->path[8+i].colour == 'R');
@@ -1404,15 +1424,41 @@ void test_tokenise(void)
 //     remove(f1);
 
 //     //can create 2D array
-//     FILE *tunnel_file = fopen("../TTLs/tunnel.ttl", "r");
-//     Token *tunnel = tokenise(tunnel_file);
+//     Turtle *ttl = init_ttl();
+//     FILE *ttl_file = fopen("../TTLs/spiral.ttl", "r");
+//     Token *turn = tokenise(ttl_file);
+//     assert(is_prog(turn, ttl));
+//     char file_array[HEIGHT][WIDTH];
+//     for (int row = 0; row < HEIGHT; row++)
+//     {
+//         for (int col = 0; col < WIDTH; col++)
+//         {
+//             file_array[row][col] = ' ';
+//         }
+//     }
+//     for (int i = 0; i < ttl->len; i++)
+//     {
+//         if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
+//         ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
+//         file_array[ttl->path[i].row][ttl->path[i].col] = ttl->path[i].colour;
+//     }
+//     char *file = "turn.out";
+//     create_file(file);
+//     FILE *f = fopen(file, "w");
+//     for (int row = 0; row < HEIGHT; row++)
+//     {
+//         for (int col = 0; col < WIDTH; col++)
+//         {
+//             fprintf(f, "%c", file_array[row][col]);
+//         }
+//         fprintf(f, "\n");
+//     }
+//     fclose(f);
     
-//     assert(is_prog(tunnel));
-//     free_tokens(tunnel);
+//     free_tokens(turn);
+//     free_ttl(ttl);
 
 // }
-
-
 
 void free_ttl(Turtle *ttl)
 {

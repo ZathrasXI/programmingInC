@@ -13,13 +13,6 @@ int main(int argc, char **argv)
         printf("Usage: ./interpreter <turtle file>\n");
         exit(EXIT_FAILURE);
     }
-    else if (argc == OUTPUT_FILE)
-    {
-        if (!create_file(argv[2]))
-        {
-            panic_msg("error creating file");
-        }
-    }
     
     FILE *turtle_file = fopen(argv[1], "r");
     if (!turtle_file)
@@ -34,8 +27,19 @@ int main(int argc, char **argv)
         panic_msg("file not parsed");
     }
 
+    if (argc == OUTPUT_FILE)
+    {
+        if (!create_file(argv[2], ttl))
+        {
+            panic_msg("error creating output file");
+        }
+
+    }
+
+
+
     free_tokens(head);
-    // free_ttl();
+    free_ttl(ttl);
     return 0;
 }
 
@@ -192,6 +196,7 @@ bool is_forward(Token *t, Turtle *ttl)
         }
         if (steps > 0)
         {
+            ttl->path[ttl->len].fwd_ins = true;
             if (ttl->len == 0)
             {
                 ttl->path[ttl->len].col = COL_START;
@@ -201,7 +206,6 @@ bool is_forward(Token *t, Turtle *ttl)
             }
             int x1_y1[2];
             find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
-            // TODO: printing to screen - ttl->path[ttl->len].is_fwd = true;??
             calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, x1_y1[0], x1_y1[1], ttl);
 
         }
@@ -673,7 +677,7 @@ void update_var(char *token_str, int dest_index, Turtle *ttl)
 
 Turtle *init_ttl(void)
 {
-    Turtle *t = malloc(sizeof(Turtle));
+    Turtle *t = calloc(INIT_SIZE, sizeof(Turtle));
     if (!t)
     {
         panic_msg("allocating memory for Turtle");
@@ -764,12 +768,36 @@ void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
     }
 }
 
-bool create_file(char *name)
+bool create_file(char *name, Turtle *ttl)
 {
     FILE *f = fopen(name, "w");
     if (!f)
     {
         return false;
+    }
+    char arr[HEIGHT][WIDTH];
+    for (int row = 0; row < HEIGHT; row++)
+    {
+        for (int col = 0; col < WIDTH; col++)
+        {
+            arr[row][col] = ' ';
+        }
+    }
+    for (int i = 0; i < ttl->len; i++)
+    {
+        if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
+        ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
+        {
+            arr[ttl->path[i].row][ttl->path[i].col] = ttl->path[i].colour;
+        }
+    }
+    for (int row = 0; row < HEIGHT; row++)
+    {
+        for (int col = 0; col < WIDTH; col++)
+        {
+            fprintf(f, "%c", arr[row][col]);
+        }
+        fprintf(f, "\n");
     }
     fclose(f);
     return true;
