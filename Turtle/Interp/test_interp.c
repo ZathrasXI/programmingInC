@@ -27,7 +27,7 @@ void test(void)
     test_is_prog();
     test_tokenise();
     test_integration();
-    // test_printing();
+    test_printing_tools();
 }
 
 void test_stack(void)
@@ -1415,50 +1415,31 @@ void test_tokenise(void)
 }
 
 
-// void test_printing(void)
-// {
-//     //create a file with correct name
-//     char *f1 = "terrapin";
-//     assert(create_file(f1));
-//     assert(access(f1, F_OK) != -1);
-//     remove(f1);
+void test_printing_tools(void)
+{
+    //can print to output using ANSI
+    Turtle *ttl = init_ttl();
+    FILE *ttl_file = fopen("../TTLs/turn.ttl", "r");
+    Token *turn = tokenise(ttl_file);
+    assert(is_prog(turn, ttl));
+    //get next end index
+    assert(next_fwd_ins(ttl, 0) == 9);
+    assert(next_fwd_ins(ttl, 8) == 9);
+    assert(next_fwd_ins(ttl, 9) == NOT_FOUND);
+    //get ansi code for relevant colour
+    assert(get_ansi_colour('K') == 30);
+    assert(get_ansi_colour('R') == 31);
+    assert(get_ansi_colour('G') == 32);
+    assert(get_ansi_colour('Y') == 33);
+    assert(get_ansi_colour('B') == 34);
+    assert(get_ansi_colour('M') == 35);
+    assert(get_ansi_colour('C') == 36);
+    assert(get_ansi_colour('W') == 37);
+    assert(get_ansi_colour('Z') == 37);
 
-//     //can create 2D array
-//     Turtle *ttl = init_ttl();
-//     FILE *ttl_file = fopen("../TTLs/spiral.ttl", "r");
-//     Token *turn = tokenise(ttl_file);
-//     assert(is_prog(turn, ttl));
-//     char file_array[HEIGHT][WIDTH];
-//     for (int row = 0; row < HEIGHT; row++)
-//     {
-//         for (int col = 0; col < WIDTH; col++)
-//         {
-//             file_array[row][col] = ' ';
-//         }
-//     }
-//     for (int i = 0; i < ttl->len; i++)
-//     {
-//         if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
-//         ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
-//         file_array[ttl->path[i].row][ttl->path[i].col] = ttl->path[i].colour;
-//     }
-//     char *file = "turn.out";
-//     create_file(file);
-//     FILE *f = fopen(file, "w");
-//     for (int row = 0; row < HEIGHT; row++)
-//     {
-//         for (int col = 0; col < WIDTH; col++)
-//         {
-//             fprintf(f, "%c", file_array[row][col]);
-//         }
-//         fprintf(f, "\n");
-//     }
-//     fclose(f);
-    
-//     free_tokens(turn);
-//     free_ttl(ttl);
-
-// }
+    free_tokens(turn);
+    free_ttl(ttl);
+}
 
 void free_ttl(Turtle *ttl)
 {

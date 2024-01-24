@@ -33,10 +33,11 @@ int main(int argc, char **argv)
         {
             panic_msg("error creating output file");
         }
-
     }
-
-
+    else if (argc == PRINT_TERMINAL)
+    {
+        print_to_terminal(ttl);
+    }
 
     free_tokens(head);
     free_ttl(ttl);
@@ -801,4 +802,76 @@ bool create_file(char *name, Turtle *ttl)
     }
     fclose(f);
     return true;
+}
+
+int next_fwd_ins(Turtle *ttl, int start)
+{
+    int end = NOT_FOUND;
+    int i = start + NEXT_INDEX;
+    while (i < ttl->len)
+    {
+        if (ttl->path[i].fwd_ins)
+        {
+            end = i;
+            return end;
+        }
+        i++;
+    }
+    return end;
+}
+
+int get_ansi_colour(char c)
+{
+    switch (c)
+    {
+    case 'K':
+        return BLACK;
+    case 'R':
+        return RED;
+    case 'G':
+        return GREEN;
+    case 'Y':
+        return YELLOW;
+    case 'B':
+        return BLUE;
+    case 'M':
+        return MAGENTA;
+    case 'C':
+        return CYAN;
+    case 'W':
+        return WHITE;
+    default:
+        return WHITE;
+    }
+}
+
+void print_to_terminal(Turtle *ttl)
+{
+    printf("\033[2J");
+    int start = 0;
+    int end = 0;
+    while (end < ttl->len)
+    {   
+        end = next_fwd_ins(ttl, start);
+        if (end == NOT_FOUND)
+        {
+            end = ttl->len;
+        }
+        for (int i = start; i < end; i++)
+        {
+            if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
+            ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
+            {
+                printf("\033[%d;%dH", ttl->path[i].row + 1, ttl->path[i].col + 1);
+                // printf("\033[%dm", get_ansi_colour(ttl->path[i].colour));
+                // printf("%c", ttl->path[i].colour);
+                printf("\033[%dm%c\033[%dm", get_ansi_colour(ttl->path[i].colour), ttl->path[i].colour, RESET);
+            }
+        }
+        fflush(stdout);
+        sleep(1);
+        start = end;
+    }
+
+    printf("\033[%d;1H", HEIGHT + PADDING);
 }

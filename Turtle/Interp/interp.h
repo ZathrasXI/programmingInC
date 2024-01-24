@@ -10,6 +10,7 @@
 
 #define TOKEN_LEN 30
 #define ONE_ARG 1
+#define PRINT_TERMINAL 2
 #define OUTPUT_FILE 3
 #define FILE_NAME_LEN 200
 #define INIT_SIZE 1
@@ -28,6 +29,22 @@
 #define NULL_CHAR 1
 #define MAX_STACK_SIZE 100
 #define EMPTY -1
+#define PADDING 2
+#define NOT_FOUND -2
+#define NEXT_INDEX 1
+
+enum ansi_colours 
+{
+    BLACK = 30,
+    RED,
+    GREEN,
+    YELLOW,
+    BLUE,
+    MAGENTA,
+    CYAN,
+    WHITE,
+    RESET = 0
+};
 
 typedef struct {
     //TODO is this a good size?
@@ -70,8 +87,11 @@ typedef struct token
 
 //Parser & interpreter
 // void timed_printout(Turtle *ttl);
-void print_to_screen(char screen_array[HEIGHT][WIDTH]);
-void update_screen_array(char screen_array[HEIGHT][WIDTH], Turtle *ttl, int final_step);
+// void print_to_screen(char screen_array[HEIGHT][WIDTH]);
+// void update_screen_array(char screen_array[HEIGHT][WIDTH], Turtle *ttl, int final_step);
+void print_to_terminal(Turtle *ttl);
+int get_ansi_colour(char c);
+int next_fwd_ins(Turtle *ttl, int start);
 bool create_file(char *name, Turtle *ttl);
 void find_end_points(int x0, int y0, int len, int x1_y1[2], Turtle *ttl);
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
@@ -140,7 +160,7 @@ void test_is_inslst(void);
 void test_is_prog(void);
 void test_integration(void);
 void test_tokenise(void);
-void test_printing(void);
+void test_printing_tools(void);
 void free_ttl(Turtle *ttl);
 
 
