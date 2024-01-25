@@ -33,6 +33,24 @@ int main(int argc, char **argv)
         if (ttl->ps_mode)
         {
             create_ps_file(ttl->ps_start, argv[2]);
+            char *pdf = calloc(strlen(argv[2]) + strlen("f") + NULL_CHAR, sizeof(char));
+            if (!pdf)
+            {
+                panic_msg("allocating space for filename of PDF");
+            }
+            strcpy(pdf, argv[2]);
+            pdf[strlen(pdf)-1] = 'd';
+            pdf[strlen(pdf)] = 'f';
+            int len = strlen("ps2pdf ") + strlen(argv[2]) + strlen(" ") + (strlen(pdf)) + NULL_CHAR; 
+            char *cmd = calloc(len, sizeof(char));
+            if (!cmd)
+            {
+                panic_msg("allocating space for ps2pdf command");
+            }
+            sprintf(cmd, "ps2pdf %s %s", argv[2], pdf);
+            system(cmd);
+            free(cmd);
+            free(pdf);
         }
         else
         {
