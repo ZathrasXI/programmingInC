@@ -3,6 +3,12 @@
 #include "test_interp.c"
 
 //TODO output all files to a results directory
+//TODO analyse differences between Neill's x,y and my x,y in .ps files - it might show me why my paths aren't the same as his
+//TODO update test_argv2.sh so it tests .ps and .pdf
+//TODO no magic numbers
+//TODO update parse.c with any improvements made
+//TODO check test coverage
+//TODO run on lab machines
 
 int main(int argc, char **argv)
 {
@@ -33,6 +39,7 @@ int main(int argc, char **argv)
         if (ttl->ps_mode)
         {
             create_ps_file(ttl->ps_start, argv[2]);
+            // TODO make this a function
             char *pdf = calloc(strlen(argv[2]) + strlen("f") + NULL_CHAR, sizeof(char));
             if (!pdf)
             {
