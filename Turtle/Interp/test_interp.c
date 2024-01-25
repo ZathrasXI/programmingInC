@@ -1473,12 +1473,8 @@ void free_ttl(Turtle *ttl)
 void test_postscript(void)
 {
     // argv[2] ends in ".ps"
-    Turtle *t = init_ttl();
-    assert(ps_mode("depeche_mode.ps", t));
-    assert(t->ps_mode);
-    assert(!ps_mode(".ps.depechemodeps", t));
-    assert(!t->ps_mode);
-    free_ttl(t);
+    assert(ps_mode("depeche_mode.ps"));
+    assert(!ps_mode(".ps.depechemodeps"));
     
     //when ps_mode .ttl files are converted into instructions for lines in Postscript
     //I need: line start x,y; line end x,y; colour in RBG

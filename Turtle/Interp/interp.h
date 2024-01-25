@@ -105,16 +105,14 @@ typedef struct token
 
 
 //Parser & interpreter
-// void timed_printout(Turtle *ttl);
-// void print_to_screen(char screen_array[HEIGHT][WIDTH]);
-// void update_screen_array(char screen_array[HEIGHT][WIDTH], Turtle *ttl, int final_step);
+void create_ps_file(Line *l, char *filename);
 char *set_postscript_colour(char c);
 Line *new_line(float x0, float y0, float x1, float y1);
-bool ps_mode(char *filename, Turtle *ttl);
+bool ps_mode(char *filename);
 void print_to_terminal(Turtle *ttl);
 int get_ansi_colour(char c);
 int next_fwd_ins(Turtle *ttl, int start);
-bool create_file(char *name, Turtle *ttl);
+bool create_txt_file(char *name, Turtle *ttl);
 void find_end_points(float x0, float y0, int len, float x1_y1[2], Turtle *ttl);
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void represent_coords(char **screen);

@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     {
         panic_msg("opening file");
     }
-
+    ttl->ps_mode = ps_mode(argv[2]);
     Token *head = tokenise(turtle_file);
 
     if (!is_prog(head, ttl))
@@ -30,9 +30,16 @@ int main(int argc, char **argv)
 
     if (argc == OUTPUT_FILE)
     {
-        if (!create_file(argv[2], ttl))
+        if (ttl->ps_mode)
         {
-            panic_msg("error creating output file");
+            create_ps_file(ttl->ps_start, argv[2]);
+        }
+        else
+        {
+            if (!create_txt_file(argv[2], ttl))
+            {
+                panic_msg("error creating output file");
+            }
         }
     }
     else if (argc == PRINT_TERMINAL)
@@ -802,7 +809,7 @@ void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
     }
 }
 
-bool create_file(char *name, Turtle *ttl)
+bool create_txt_file(char *name, Turtle *ttl)
 {
     FILE *f = fopen(name, "w");
     if (!f)
@@ -907,7 +914,7 @@ void print_to_terminal(Turtle *ttl)
     printf("\033[%d;1H", HEIGHT + PADDING);
 }
 
-bool ps_mode(char *filename, Turtle *ttl)
+bool ps_mode(char *filename)
 {
     regex_t regex;
     char *pattern = "\\.ps$";
@@ -920,12 +927,12 @@ bool ps_mode(char *filename, Turtle *ttl)
     if (regexec(&regex, filename, 0, NULL, 0) == 0)
     {   
         regfree(&regex);
-        ttl->ps_mode = true;
+        // ttl->ps_mode = true;
         return true;
     }
     else
     {
-        ttl->ps_mode = false;
+        // ttl->ps_mode = false;
         regfree(&regex);
         return false;
     }
@@ -954,6 +961,7 @@ char *set_postscript_colour(char c)
     char *yellow = "1 1 0";
     char *magenta = "1 0 1";
     char *cyan = "0 1 1";
+    char *black = "0 0 0";
     char *white_grey = "0.8 0.8 0.8";
 
     char *colour;
@@ -983,10 +991,41 @@ char *set_postscript_colour(char c)
         colour = calloc(strlen(cyan) + NULL_CHAR, sizeof(char));
         strcpy(colour, cyan);
         break;
+    case 'K':
+        colour = calloc(strlen(black) + NULL_CHAR, sizeof(char));
+        strcpy(colour, black);
+        break;
     default:
         colour = calloc(strlen(white_grey) + NULL_CHAR, sizeof(char));
         strcpy(colour, white_grey);
         break;
     }
     return colour;
+}
+
+void create_ps_file(Line *l, char *filename)
+{
+    FILE *f = fopen(filename, "w");
+    if (!f)
+    {
+        panic_msg("creating .ps file");
+    }
+
+    fprintf(f, "0.2 setlinewidth\n10 10 scale\n");
+
+    if (l)
+    {
+        Line *current = l;
+        while (current)
+        {   
+            fprintf(f, "newpath\n");
+            fprintf(f,"%f %f moveto\n", current->x0,current->y0);
+            fprintf(f,"%f %f lineto\n", current->x1, current->y1);
+            fprintf(f, "%s setrgbcolor\n", current->colour);
+            fprintf(f,"stroke\n");
+            current = current->next;
+        }
+    }
+    fprintf(f, "showpage\n");
+    fclose(f);
 }
