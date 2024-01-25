@@ -141,6 +141,9 @@ void test_ttl(void)
     assert(t0->capacity == PATH);
     assert(t0->colour == 'W');
     assert(t0->type_in_use != NULL);
+    assert(!t0->ps_mode);
+    assert(t0->ps_start == NULL);
+    assert(t0->ps_last == NULL);
     free_ttl(t0);
 
 }
@@ -242,6 +245,7 @@ void test_deg_2_rad(void)
 
 void test_is_fwd(void)
 {
+    //TODO test FORWARD 0 - 0 steps
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
@@ -1442,6 +1446,7 @@ void test_printing_tools(void)
     free_ttl(ttl);
 }
 
+//TODO move this to interp.c
 void free_ttl(Turtle *ttl)
 {
     for (int i = 0; i < 26; i++)
@@ -1451,6 +1456,17 @@ void free_ttl(Turtle *ttl)
             free(ttl->vars[i].word);
         }
     }
+    if (ttl->ps_start)
+    {
+    Line *tmp;
+    while (ttl->ps_start != NULL)
+    {
+        tmp = ttl->ps_start;
+        ttl->ps_start = ttl->ps_start->next;
+        free(tmp->colour);
+        free(tmp);
+    }
+    }
     free(ttl);
 }
 
@@ -1459,11 +1475,94 @@ void test_postscript(void)
     // argv[2] ends in ".ps"
     Turtle *t = init_ttl();
     assert(ps_mode("depeche_mode.ps", t));
-    assert(t->ps);
+    assert(t->ps_mode);
     assert(!ps_mode(".ps.depechemodeps", t));
-    assert(!t->ps);
+    assert(!t->ps_mode);
     free_ttl(t);
+    
+    //when ps_mode .ttl files are converted into instructions for lines in Postscript
+    //I need: line start x,y; line end x,y; colour in RBG
+    //can use find_end_points() but need to adjust rounding
+    Turtle *t1 = init_ttl();
+    t1->ps_mode = true;
+    float x1_y1[2];
+    find_end_points(30,40,15,x1_y1,t1);
+    assert(fabs(x1_y1[0] - 30.0) < TOLERANCE);
+    assert(fabs(x1_y1[1] - 55.0) < TOLERANCE);
+    free(t1);
 
-    //start x,y = 30, 40
+    //store details of each line in a node within linked list
+    Line *l = new_line(30,40,30,55);
+    assert(l);
+    assert(!l->next);
+    assert(fabs(l->x0 - 30) < TOLERANCE);
+    assert(fabs(l->y0 - 40) < TOLERANCE);
+    assert(fabs(l->x1 - 30) < TOLERANCE);
+    assert(fabs(l->y1 - 55) < TOLERANCE);
+    free(l);
+
+    /*A single forward instruction is converted to ps and added to linked list*/
+    Turtle *ps_ttl = init_ttl();
+    ps_ttl->ps_mode = true;
+    FILE *f = fopen("../TTLs/forward.ttl", "r");
+    Token *ps_token = tokenise(f);
+    assert(is_prog(ps_token, ps_ttl));
+    assert(ps_ttl->ps_start->next == NULL);
+    assert(ps_ttl->ps_last == ps_ttl->ps_start);
+    assert(fabs(ps_ttl->ps_start->x0 - 30) < TOLERANCE);
+    assert(fabs(ps_ttl->ps_start->y0 - 40) < TOLERANCE);
+    assert(fabs(ps_ttl->ps_start->x1 - 30) < TOLERANCE);
+    assert(fabs(ps_ttl->ps_start->y1 - 55) < TOLERANCE);
+    fclose(f);
+    free_ttl(ps_ttl);
+    free_tokens(ps_token);
+
+    /*A couple of forward instructions*/
+    Turtle *turn_ttl = init_ttl();
+    turn_ttl->ps_mode = true;
+    FILE *f_turn = fopen("../TTLs/turn.ttl", "r");
+    Token *turn_token = tokenise(f_turn);
+    assert(is_prog(turn_token, turn_ttl));
+    //line 1
+    assert(fabs(turn_ttl->ps_start->x0 - 30) < TOLERANCE);
+    assert(fabs(turn_ttl->ps_start->y0 - 40) < TOLERANCE);
+    assert(fabs(turn_ttl->ps_start->x1 - 30) < TOLERANCE);
+    assert(fabs(turn_ttl->ps_start->y1 - 48) < TOLERANCE);
+    //line 2
+    assert(fabs(turn_ttl->ps_start->next->x0 - 30) < TOLERANCE);
+    assert(fabs(turn_ttl->ps_start->next->y0 - 48) < TOLERANCE);
+    assert(turn_ttl->ps_start->next->next == NULL);
+    assert(turn_ttl->ps_start->next == turn_ttl->ps_last);
+    fclose(f_turn);
+    free_ttl(turn_ttl);
+    free_tokens(turn_token);
+
+    /*can convert colour char to RGB and store it in line*/
+    //red
+    char *test_red = set_postscript_colour('R');
+    assert(strcmp(test_red, "1 0 0") == 0);
+    free(test_red);
+    //white
+    char *test_white = set_postscript_colour('W');
+    assert(strcmp(test_white, "0.8 0.8 0.8") == 0);
+    free(test_white);
+    //ttl file with colour changes
+    Turtle *colour_ttl = init_ttl();
+    colour_ttl->ps_mode = true;
+    FILE *f_downarrow = fopen("../TTLs/downarrow.ttl", "r");
+    Token *downarrow_tokens = tokenise(f_downarrow);
+    assert(is_prog(downarrow_tokens, colour_ttl));
+    assert(strcmp(colour_ttl->ps_start->colour, "1 0 0") == 0 );
+    assert(strcmp(colour_ttl->ps_start->next->colour, "0 1 0") == 0 );
+    assert(strcmp(colour_ttl->ps_start->next->next->colour, "1 1 0") == 0 );
+    assert(strcmp(colour_ttl->ps_start->next->next->next->colour, "0 0 1") == 0 );
+
+    free_ttl(colour_ttl);
+    free_tokens(downarrow_tokens);
+
+
+    //when ps_mode output file is .ps
+
     
 }
+

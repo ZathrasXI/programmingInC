@@ -198,17 +198,40 @@ bool is_forward(Token *t, Turtle *ttl)
         }
         if (steps > 0)
         {
-            ttl->path[ttl->len].fwd_ins = true;
-            if (ttl->len == 0)
-            {
-                ttl->path[ttl->len].col = COL_START;
-                ttl->path[ttl->len].row = ROW_START;
-                ttl->path[ttl->len].colour = 'W';
-                ttl->len++;
+            float x1_y1[X_Y];
+            if (ttl->ps_mode)
+            {  
+
+               if (!ttl->ps_start)
+               {
+                find_end_points(PS_START_X, PS_START_Y, steps, x1_y1, ttl);
+                ttl->ps_start = new_line(PS_START_X, PS_START_Y, x1_y1[0], x1_y1[1]);
+                ttl->ps_start->colour = set_postscript_colour(ttl->colour);
+                ttl->ps_last = ttl->ps_start;
+               }
+               else 
+               {
+                    find_end_points(ttl->ps_last->x1, ttl->ps_last->y1, steps, x1_y1, ttl);
+                    ttl->ps_last->next = new_line(ttl->ps_last->x1, ttl->ps_last->y1, x1_y1[0], x1_y1[1]);
+                    ttl->ps_last->next->colour = set_postscript_colour(ttl->colour);
+                    ttl->ps_last = ttl->ps_last->next;
+               }
             }
-            int x1_y1[2];
-            find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
-            calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, x1_y1[0], x1_y1[1], ttl);
+            else
+            {   
+                //TODO to improve accuracy - try storing all x,y values as floats. So each new co-ordinate is based off of the true value. 
+                // Then at printing stage, round, and cast float to int
+                ttl->path[ttl->len].fwd_ins = true;
+                if (ttl->len == 0)
+                {
+                    ttl->path[ttl->len].col = COL_START;
+                    ttl->path[ttl->len].row = ROW_START;
+                    ttl->path[ttl->len].colour = 'W';
+                    ttl->len++;
+                }
+                find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
+                calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, round(x1_y1[0]), round(x1_y1[1]), ttl);
+            }
 
         }
         return true;
@@ -688,6 +711,9 @@ Turtle *init_ttl(void)
     t->capacity = PATH;
     t->direction = 0;
     t->colour = 'W';
+    t->ps_start = NULL;
+    t->ps_last = NULL;
+    t->ps_mode = false;
     return t;
 }
 
@@ -697,12 +723,19 @@ void panic_msg(char *msg)
     exit(EXIT_FAILURE);
 }
 
-void find_end_points(int x0, int y0, int input_length, int x_y[2], Turtle *ttl)
+void find_end_points(float x0, float y0, int input_length, float x1_y1[2], Turtle *ttl)
 {
-    float x1 = round(x0 + (input_length * sin(ttl->direction)));
-    float y1 = round(y0 - (input_length * cos(ttl->direction)));
-    x_y[0] = (int) round(x1);
-    x_y[1] = (int) round(y1);
+    if (!ttl->ps_mode)
+    {
+        x1_y1[0] = x0 + (input_length * sin(ttl->direction));
+        x1_y1[1] = y0 - (input_length * cos(ttl->direction));
+
+    }
+    else
+    {
+        x1_y1[0] = x0 + (input_length * sin(ttl->direction));
+        x1_y1[1] = y0 + (input_length * cos(ttl->direction));
+    }
 }
 
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
@@ -730,7 +763,6 @@ void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
     bool end_x = false;
     bool end_y = false;
     bool end_of_line = false;
-    //ttl.path[ttl.len].fwd_ins = true; maybe here? or better in is_fwd()?
     while(!end_of_line)
     { 
         e2 = err * 2;
@@ -888,13 +920,73 @@ bool ps_mode(char *filename, Turtle *ttl)
     if (regexec(&regex, filename, 0, NULL, 0) == 0)
     {   
         regfree(&regex);
-        ttl->ps = true;
+        ttl->ps_mode = true;
         return true;
     }
     else
     {
-        ttl->ps = false;
+        ttl->ps_mode = false;
         regfree(&regex);
         return false;
     }
+}
+
+Line *new_line(float x0, float y0, float x1, float y1)
+{
+    Line *new = (Line *) calloc(INIT_SIZE, sizeof(Line));
+    if (!new)
+    {
+        panic_msg("allocating memory for Line");
+    }
+    new->next = NULL;
+    new->x0 = x0;
+    new->y0 = y0;
+    new->x1 = x1;
+    new->y1 = y1;
+    return new;
+}
+
+char *set_postscript_colour(char c)
+{
+    char *red = "1 0 0";
+    char *green = "0 1 0";
+    char *blue = "0 0 1";
+    char *yellow = "1 1 0";
+    char *magenta = "1 0 1";
+    char *cyan = "0 1 1";
+    char *white_grey = "0.8 0.8 0.8";
+
+    char *colour;
+    switch (c)
+    {
+    case 'R':
+        colour = calloc(strlen(red) + NULL_CHAR, sizeof(char));
+        strcpy(colour, red);
+        break;
+    case 'G':
+        colour = calloc(strlen(green) + NULL_CHAR, sizeof(char));
+        strcpy(colour, green);
+        break;
+    case 'B':
+        colour = calloc(strlen(blue) + NULL_CHAR, sizeof(char));
+        strcpy(colour, blue);
+        break;
+    case 'Y':
+        colour = calloc(strlen(yellow) + NULL_CHAR, sizeof(char));
+        strcpy(colour, yellow);
+        break;
+    case 'M':
+        colour = calloc(strlen(magenta) + NULL_CHAR, sizeof(char));
+        strcpy(colour, magenta);
+        break;
+    case 'C':
+        colour = calloc(strlen(cyan) + NULL_CHAR, sizeof(char));
+        strcpy(colour, cyan);
+        break;
+    default:
+        colour = calloc(strlen(white_grey) + NULL_CHAR, sizeof(char));
+        strcpy(colour, white_grey);
+        break;
+    }
+    return colour;
 }

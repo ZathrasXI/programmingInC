@@ -32,6 +32,21 @@
 #define PADDING 2
 #define NOT_FOUND -2
 #define NEXT_INDEX 1
+#define X_Y 2
+#define PS_START_X 30
+#define PS_START_Y 40
+
+
+typedef struct line
+{
+    float x0;
+    float y0;
+    float x1;
+    float y1;
+    char *colour;
+    struct line *next;
+
+} Line;
 
 enum ansi_colours 
 {
@@ -46,7 +61,8 @@ enum ansi_colours
     RESET = 0
 };
 
-typedef struct {
+typedef struct 
+{
     //TODO is this a good size?
     double data[MAX_STACK_SIZE];
     int top;
@@ -76,7 +92,9 @@ typedef struct turtle
     double direction;
     Var vars[MAX_VARS];
     type_used type_in_use[MAX_VARS];
-    bool ps;
+    bool ps_mode;
+    Line *ps_start;
+    Line *ps_last;
 } Turtle;
 
 typedef struct token
@@ -90,12 +108,14 @@ typedef struct token
 // void timed_printout(Turtle *ttl);
 // void print_to_screen(char screen_array[HEIGHT][WIDTH]);
 // void update_screen_array(char screen_array[HEIGHT][WIDTH], Turtle *ttl, int final_step);
+char *set_postscript_colour(char c);
+Line *new_line(float x0, float y0, float x1, float y1);
 bool ps_mode(char *filename, Turtle *ttl);
 void print_to_terminal(Turtle *ttl);
 int get_ansi_colour(char c);
 int next_fwd_ins(Turtle *ttl, int start);
 bool create_file(char *name, Turtle *ttl);
-void find_end_points(int x0, int y0, int len, int x1_y1[2], Turtle *ttl);
+void find_end_points(float x0, float y0, int len, float x1_y1[2], Turtle *ttl);
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index, Turtle *ttl);
