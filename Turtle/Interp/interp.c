@@ -2,6 +2,7 @@
 #include "stack.c"
 #include "test_interp.c"
 
+//TODO output all files to a results directory
 
 int main(int argc, char **argv)
 {
@@ -847,6 +848,7 @@ int get_ansi_colour(char c)
 
 void print_to_terminal(Turtle *ttl)
 {
+    //clear screen
     printf("\033[2J");
     int start = 0;
     int end = 0;
@@ -863,8 +865,6 @@ void print_to_terminal(Turtle *ttl)
             ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
             {
                 printf("\033[%d;%dH", ttl->path[i].row + 1, ttl->path[i].col + 1);
-                // printf("\033[%dm", get_ansi_colour(ttl->path[i].colour));
-                // printf("%c", ttl->path[i].colour);
                 printf("\033[%dm%c\033[%dm", get_ansi_colour(ttl->path[i].colour), ttl->path[i].colour, RESET);
             }
         }
@@ -872,6 +872,29 @@ void print_to_terminal(Turtle *ttl)
         sleep(1);
         start = end;
     }
-
     printf("\033[%d;1H", HEIGHT + PADDING);
+}
+
+bool ps_mode(char *filename, Turtle *ttl)
+{
+    regex_t regex;
+    char *pattern = "\\.ps$";
+
+    if (regcomp(&regex, pattern, REG_EXTENDED) != 0)
+    {
+        panic_msg("failed to compile regex pattern");
+    }
+
+    if (regexec(&regex, filename, 0, NULL, 0) == 0)
+    {   
+        regfree(&regex);
+        ttl->ps = true;
+        return true;
+    }
+    else
+    {
+        ttl->ps = false;
+        regfree(&regex);
+        return false;
+    }
 }

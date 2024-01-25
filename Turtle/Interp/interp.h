@@ -76,6 +76,7 @@ typedef struct turtle
     double direction;
     Var vars[MAX_VARS];
     type_used type_in_use[MAX_VARS];
+    bool ps;
 } Turtle;
 
 typedef struct token
@@ -89,6 +90,7 @@ typedef struct token
 // void timed_printout(Turtle *ttl);
 // void print_to_screen(char screen_array[HEIGHT][WIDTH]);
 // void update_screen_array(char screen_array[HEIGHT][WIDTH], Turtle *ttl, int final_step);
+bool ps_mode(char *filename, Turtle *ttl);
 void print_to_terminal(Turtle *ttl);
 int get_ansi_colour(char c);
 int next_fwd_ins(Turtle *ttl, int start);
@@ -161,6 +163,7 @@ void test_is_prog(void);
 void test_integration(void);
 void test_tokenise(void);
 void test_printing_tools(void);
+void test_postscript(void);
 void free_ttl(Turtle *ttl);
 
 

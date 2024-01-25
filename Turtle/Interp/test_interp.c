@@ -28,6 +28,7 @@ void test(void)
     test_tokenise();
     test_integration();
     test_printing_tools();
+    test_postscript();
 }
 
 void test_stack(void)
@@ -1453,3 +1454,16 @@ void free_ttl(Turtle *ttl)
     free(ttl);
 }
 
+void test_postscript(void)
+{
+    // argv[2] ends in ".ps"
+    Turtle *t = init_ttl();
+    assert(ps_mode("depeche_mode.ps", t));
+    assert(t->ps);
+    assert(!ps_mode(".ps.depechemodeps", t));
+    assert(!t->ps);
+    free_ttl(t);
+
+    //start x,y = 30, 40
+    
+}
