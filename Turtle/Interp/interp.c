@@ -26,7 +26,6 @@ int main(int argc, char **argv)
     {
         panic_msg("opening file");
     }
-    ttl->ps_mode = ps_mode(argv[2]);
     Token *head = tokenise(turtle_file);
 
     if (!is_prog(head, ttl))
@@ -36,6 +35,7 @@ int main(int argc, char **argv)
 
     if (argc == OUTPUT_FILE)
     {
+        ttl->ps_mode = ps_mode(argv[2]);
         if (ttl->ps_mode)
         {
             create_ps_file(ttl->ps_start, argv[2]);
