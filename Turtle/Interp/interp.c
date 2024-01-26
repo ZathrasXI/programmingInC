@@ -22,6 +22,10 @@ int main(int argc, char **argv)
         printf("Usage: ./interpreter <turtle file>\n");
         exit(EXIT_FAILURE);
     }
+    else if (argc == OUTPUT_FILE)
+    {
+        ttl->ps_mode = ps_mode(argv[2]);
+    }
     
     FILE *turtle_file = fopen(argv[1], "r");
     if (!turtle_file)
@@ -37,7 +41,6 @@ int main(int argc, char **argv)
 
     if (argc == OUTPUT_FILE)
     {
-        ttl->ps_mode = ps_mode(argv[2]);
         if (ttl->ps_mode)
         {
             create_ps_file(ttl->ps_start, argv[2]);
@@ -65,7 +68,7 @@ int main(int argc, char **argv)
         {
             if (!create_txt_file(argv[2], ttl))
             {
-                panic_msg("error creating output file");
+                panic_msg("creating output file");
             }
         }
     }
