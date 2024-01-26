@@ -107,6 +107,9 @@ typedef struct token
 
 
 //Parser & interpreter
+void update_colour(Turtle *ttl, char *colour);
+void evaluate_postfix_expression(Turtle *ttl, Token *head, int token_count, int dest_index);
+void copy_word_var_to_var(Turtle *ttl, int src_index, int dest_index);
 void update_txt_ins(Turtle *ttl, int steps);
 void update_postscript_ins(Turtle *ttl, int steps);
 bool ps2pdf_cmd(char *filepath);

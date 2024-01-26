@@ -319,7 +319,6 @@ bool is_col(Token *t, Turtle *ttl)
         )
     )
     {
-        //is valid colour?
         char *str;
         if (is_var(t->next->str))
         {
@@ -342,86 +341,7 @@ bool is_col(Token *t, Turtle *ttl)
             }
             strcpy(str, t->next->str);
         }
-        /*
-        % Valid colours include "BLACK", "RED", "GREEN", "BLUE",
-        % "YELLOW", "CYAN", "MAGENTA", "WHITE"
-        */
-       //TODO check that letters are correct
-       //TODO enumerate letters
-       bool path_exists = ttl->len > 0;
-        if (strcmp(str, "\"BLACK\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'K';
-            }
-            ttl->colour = 'K';
-        }
-        else if (strcmp(str, "\"RED\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'R';
-            }
-            ttl->colour = 'R';
-        }
-        else if (strcmp(str, "\"GREEN\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'G';
-            }
-            ttl->colour = 'G';
-        }
-        else if (strcmp(str, "\"BLUE\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'B';
-            }
-            ttl->colour = 'B';
-        }
-        else if (strcmp(str, "\"YELLOW\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'Y';
-            }
-            ttl->colour = 'Y';
-        }
-        else if (strcmp(str, "\"CYAN\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'C';
-            }
-            ttl->colour = 'C';
-        }
-        else if (strcmp(str, "\"MAGENTA\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'M';
-            }
-            ttl->colour = 'M';
-        }
-        else if (strcmp(str, "\"WHITE\"") == 0)
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'W';
-            }
-            ttl->colour = 'W';
-        }
-        else
-        {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'W';
-            }
-            ttl->colour = 'W';
-        }
-        free(str);
+        update_colour(ttl, str);
         return true;
     }
 
@@ -462,44 +382,16 @@ bool is_set(Token *t, Turtle *ttl)
                 start = start->next;
             }
 
-            Token *ps_head = t->next->next->next;
-            int src_index = get_var_index(ps_head->str[1]);
+            Token *pfix_head = t->next->next->next;
+            int src_index = get_var_index(pfix_head->str[1]);
             int dest_index = get_var_index(t->next->str[0]);
-            if (token_count == 1 && is_var(ps_head->str) && ttl->type_in_use[src_index] == union_char)
+            //TODO magic numbers
+            if (token_count == 1 && is_var(pfix_head->str) && ttl->type_in_use[src_index] == union_char)
             {
-                int len = strlen(ttl->vars[src_index].word) + NULL_CHAR;
-                ttl->vars[dest_index].word = calloc(len, sizeof(char));
-                if (!ttl->vars[dest_index].word)
-                {
-                    panic_msg("allocating space for word");
-                }
-                strcpy(ttl->vars[dest_index].word, ttl->vars[src_index].word);
-                ttl->type_in_use[dest_index] = union_char;
+                copy_word_var_to_var(ttl, src_index, dest_index);
                 return true;
             }
-
-            char **postfix_expr = calloc(token_count, sizeof(char*));
-            if (!postfix_expr)
-            {
-                panic_msg("allocating memory for postfix expression\n");
-            }
-            int i = 0;
-            while (strcmp(ps_head->str, ")") != 0)
-            {
-                int len = strlen(ps_head->str);
-                postfix_expr[i] = calloc(len + 1, sizeof(char));
-                strcat(postfix_expr[i], ps_head->str);
-                ps_head = ps_head->next;
-                i++;
-            }
-            double answer = evaluate(postfix_expr, token_count, ttl);
-            ttl->vars[dest_index].num = answer;
-            ttl->type_in_use[dest_index] = union_double;
-            for (int i = 0; i < token_count; i++)
-            {
-                free(postfix_expr[i]);
-            }
-            free(postfix_expr);
+            evaluate_postfix_expression(ttl, pfix_head, token_count, dest_index);
             return true;
         }
     return false;
@@ -523,22 +415,12 @@ bool is_loop(Token *t, Turtle *ttl)
                 list_len++;
             }
             Token *start_of_ins = start_of_lst->next;
-            // Token *current = start_of_ins;
             int var_index = get_var_index(t->next->str[0]);
             while (is_item(iter->str))
             {
                 update_var(iter->str, var_index, ttl);
                 is_inslst(start_of_ins, ttl);
                 iter = iter->next;
-                // while (current && is_ins(current))
-                // {
-                //     printf("%s\n", current->str);
-                //     current = current->next->next;
-                // }
-                // current = start_of_ins;
-                
-                //for each thing in list
-
             }
             return true;
         }
@@ -722,7 +604,6 @@ void find_end_points(float x0, float y0, int input_length, float x1_y1[2], Turtl
     {
         x1_y1[0] = x0 + (input_length * sin(ttl->direction));
         x1_y1[1] = y0 - (input_length * cos(ttl->direction));
-
     }
     else
     {
@@ -1094,4 +975,128 @@ void update_txt_ins(Turtle *ttl, int steps)
     }
     find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
     calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, round(x1_y1[0]), round(x1_y1[1]), ttl);
+}
+
+void copy_word_var_to_var(Turtle *ttl, int src_index, int dest_index)
+{
+    int len = strlen(ttl->vars[src_index].word) + NULL_CHAR;
+    ttl->vars[dest_index].word = calloc(len, sizeof(char));
+    if (!ttl->vars[dest_index].word)
+    {
+        panic_msg("allocating space for word");
+    }
+    strcpy(ttl->vars[dest_index].word, ttl->vars[src_index].word);
+    ttl->type_in_use[dest_index] = union_char;
+}
+
+void evaluate_postfix_expression(Turtle *ttl, Token *pfix_head, int token_count, int dest_index)
+{
+    char **postfix_expr = calloc(token_count, sizeof(char*));
+    if (!postfix_expr)
+    {
+        panic_msg("allocating memory for postfix expression\n");
+    }
+    int i = 0;
+    while (strcmp(pfix_head->str, ")") != 0)
+    {
+        int len = strlen(pfix_head->str);
+        postfix_expr[i] = calloc(len + NULL_CHAR, sizeof(char));
+        if (!postfix_expr[i])
+        {
+            panic_msg("allocating space for postfix expression");
+        }
+        strcat(postfix_expr[i], pfix_head->str);
+        pfix_head = pfix_head->next;
+        i++;
+    }
+    double answer = evaluate(postfix_expr, token_count, ttl);
+    ttl->vars[dest_index].num = answer;
+    ttl->type_in_use[dest_index] = union_double;
+    for (int i = 0; i < token_count; i++)
+    {
+        free(postfix_expr[i]);
+    }
+    free(postfix_expr);
+}
+
+void update_colour(Turtle *ttl, char *colour)
+{
+        /*
+        % Valid colours include "BLACK", "RED", "GREEN", "BLUE",
+        % "YELLOW", "CYAN", "MAGENTA", "WHITE"
+        */
+       bool path_exists = ttl->len > 0;
+        if (strcmp(colour, "\"BLACK\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'K';
+            }
+            ttl->colour = 'K';
+        }
+        else if (strcmp(colour, "\"RED\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'R';
+            }
+            ttl->colour = 'R';
+        }
+        else if (strcmp(colour, "\"GREEN\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'G';
+            }
+            ttl->colour = 'G';
+        }
+        else if (strcmp(colour, "\"BLUE\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'B';
+            }
+            ttl->colour = 'B';
+        }
+        else if (strcmp(colour, "\"YELLOW\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'Y';
+            }
+            ttl->colour = 'Y';
+        }
+        else if (strcmp(colour, "\"CYAN\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'C';
+            }
+            ttl->colour = 'C';
+        }
+        else if (strcmp(colour, "\"MAGENTA\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'M';
+            }
+            ttl->colour = 'M';
+        }
+        else if (strcmp(colour, "\"WHITE\"") == 0)
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'W';
+            }
+            ttl->colour = 'W';
+        }
+        else
+        {
+            if (path_exists)
+            {
+                ttl->path[ttl->len-1].colour = 'W';
+            }
+            ttl->colour = 'W';
+        }
+        free(colour);
 }
