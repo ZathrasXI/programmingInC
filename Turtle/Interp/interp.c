@@ -2,13 +2,13 @@
 #include "stack.c"
 #include "test_interp.c"
 
+//TODO turn path into linked list
 //TODO function "decomposition" - break any larger functions into smaller ones
 //TODO analyse differences between Neill's x,y and my x,y in .ps files - it might show me why my paths aren't the same as his
-//TODO no magic numbers
-//TODO update parse.c with any improvements made
-//TODO run on lab machines
-//TODO turn path into linked list
 //TODO research concurrency and max number of threads
+//TODO update parse.c with any improvements made
+//TODO no magic numbers
+//TODO run on lab machines
 
 int main(int argc, char **argv)
 {
@@ -218,41 +218,14 @@ bool is_forward(Token *t, Turtle *ttl)
         }
         if (steps > 0)
         {
-            float x1_y1[X_Y];
             if (ttl->ps_mode)
             {  
-
-               if (!ttl->ps_start)
-               {
-                find_end_points(PS_START_X, PS_START_Y, steps, x1_y1, ttl);
-                ttl->ps_start = new_line(PS_START_X, PS_START_Y, x1_y1[0], x1_y1[1]);
-                ttl->ps_start->colour = set_postscript_colour(ttl->colour);
-                ttl->ps_last = ttl->ps_start;
-               }
-               else 
-               {
-                    find_end_points(ttl->ps_last->x1, ttl->ps_last->y1, steps, x1_y1, ttl);
-                    ttl->ps_last->next = new_line(ttl->ps_last->x1, ttl->ps_last->y1, x1_y1[0], x1_y1[1]);
-                    ttl->ps_last->next->colour = set_postscript_colour(ttl->colour);
-                    ttl->ps_last = ttl->ps_last->next;
-               }
+                update_postscript_ins(ttl, steps);
             }
             else
             {   
-                //TODO to improve accuracy - try storing all x,y values as floats. So each new co-ordinate is based off of the true value. 
-                // Then at printing stage, round, and cast float to int
-                ttl->path[ttl->len].fwd_ins = true;
-                if (ttl->len == 0)
-                {
-                    ttl->path[ttl->len].col = COL_START;
-                    ttl->path[ttl->len].row = ROW_START;
-                    ttl->path[ttl->len].colour = 'W';
-                    ttl->len++;
-                }
-                find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
-                calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, round(x1_y1[0]), round(x1_y1[1]), ttl);
+                update_txt_ins(ttl,steps);
             }
-
         }
         return true;
     }
@@ -1085,4 +1058,40 @@ bool ps2pdf_cmd(char *filepath)
         return true;
     }
     return false;
+}
+
+void update_postscript_ins(Turtle *ttl, int steps)
+{
+    float x1_y1[X_Y];
+    if (!ttl->ps_start)
+    {
+    find_end_points(PS_START_X, PS_START_Y, steps, x1_y1, ttl);
+    ttl->ps_start = new_line(PS_START_X, PS_START_Y, x1_y1[0], x1_y1[1]);
+    ttl->ps_start->colour = set_postscript_colour(ttl->colour);
+    ttl->ps_last = ttl->ps_start;
+    }
+    else 
+    {
+        find_end_points(ttl->ps_last->x1, ttl->ps_last->y1, steps, x1_y1, ttl);
+        ttl->ps_last->next = new_line(ttl->ps_last->x1, ttl->ps_last->y1, x1_y1[0], x1_y1[1]);
+        ttl->ps_last->next->colour = set_postscript_colour(ttl->colour);
+        ttl->ps_last = ttl->ps_last->next;
+    }
+}
+
+void update_txt_ins(Turtle *ttl, int steps)
+{
+    //TODO to improve accuracy - try storing all x,y values as floats. So each new co-ordinate is based off of the true value. 
+    // Then at printing stage, round, and cast float to int
+    float x1_y1[X_Y];
+    ttl->path[ttl->len].fwd_ins = true;
+    if (ttl->len == 0)
+    {
+        ttl->path[ttl->len].col = COL_START;
+        ttl->path[ttl->len].row = ROW_START;
+        ttl->path[ttl->len].colour = 'W';
+        ttl->len++;
+    }
+    find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
+    calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, round(x1_y1[0]), round(x1_y1[1]), ttl);
 }

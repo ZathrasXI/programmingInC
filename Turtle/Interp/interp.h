@@ -86,8 +86,8 @@ typedef struct loc
 typedef struct turtle 
 {
     Loc path[PATH];
-    // Loc *path_start;
-    // Loc *path_end;
+    Loc *path_start;
+    Loc *path_end;
     int len;
     int capacity;
     char colour;
@@ -107,6 +107,8 @@ typedef struct token
 
 
 //Parser & interpreter
+void update_txt_ins(Turtle *ttl, int steps);
+void update_postscript_ins(Turtle *ttl, int steps);
 bool ps2pdf_cmd(char *filepath);
 char *create_file_path(char *filename);
 char *create_ps_file(Line *l, char *filename);
