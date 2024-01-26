@@ -7,7 +7,7 @@ make
 
 for file in "${files[@]}"; do
     ./interpreter "../TTLs/$file.ttl" "./testing/$file.out"
-    cmp "./test_files/$file.out" "./testing/$file.out"
+    cmp "./test_files/txt/$file.out" "./testing/$file.out"
     if [[ $? != 0 ]]; then 
         echo "FAIL: files are not identical - "../TTLs/$file.ttl" and "./testing/$file.out""
         rm -r testing/
