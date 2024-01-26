@@ -1393,6 +1393,15 @@ void test_integration(void)
     }
     free_tokens(tunnel_tokens);
     free_ttl(tunnel_ttl);
+
+
+    /*create file name with path*/
+    char *apple = create_file_path("apple.ttl");
+    assert(strcmp(apple, "./Results/apple.ttl") == 0);
+    free(apple);
+    char *pear = create_file_path("pear.ps");
+    assert(strcmp(pear, "./Results/pear.ps") == 0);
+    free(pear);
  }
 
 void test_tokenise(void)
@@ -1555,10 +1564,5 @@ void test_postscript(void)
 
     free_ttl(colour_ttl);
     free_tokens(downarrow_tokens);
-
-
-    //when ps_mode output file is .ps
-
-    
 }
 

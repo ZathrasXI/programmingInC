@@ -2,12 +2,10 @@
 #include "stack.c"
 #include "test_interp.c"
 
-//TODO output all files to a results directory
+//TODO function "decomposition" - break any larger functions into smaller ones
 //TODO analyse differences between Neill's x,y and my x,y in .ps files - it might show me why my paths aren't the same as his
-//TODO update test_argv2.sh so it tests .ps and .pdf
 //TODO no magic numbers
 //TODO update parse.c with any improvements made
-//TODO check test coverage
 //TODO run on lab machines
 //TODO turn path into linked list
 //TODO research concurrency and max number of threads
@@ -43,26 +41,11 @@ int main(int argc, char **argv)
     {
         if (ttl->ps_mode)
         {
-            create_ps_file(ttl->ps_start, argv[2]);
-            // TODO make this a function
-            char *pdf = calloc(strlen(argv[2]) + strlen("f") + NULL_CHAR, sizeof(char));
-            if (!pdf)
+            char *filepath = create_ps_file(ttl->ps_start, argv[2]);
+            if (!ps2pdf_cmd(filepath))
             {
-                panic_msg("allocating space for filename of PDF");
+                panic_msg("executing psd2pdf command");
             }
-            strcpy(pdf, argv[2]);
-            pdf[strlen(pdf)-1] = 'd';
-            pdf[strlen(pdf)] = 'f';
-            int len = strlen("ps2pdf ") + strlen(argv[2]) + strlen(" ") + (strlen(pdf)) + NULL_CHAR; 
-            char *cmd = calloc(len, sizeof(char));
-            if (!cmd)
-            {
-                panic_msg("allocating space for ps2pdf command");
-            }
-            sprintf(cmd, "ps2pdf %s %s", argv[2], pdf);
-            system(cmd);
-            free(cmd);
-            free(pdf);
         }
         else
         {
@@ -841,9 +824,11 @@ void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
 
 bool create_txt_file(char *name, Turtle *ttl)
 {
-    FILE *f = fopen(name, "w");
+    char *filepath = create_file_path(name);
+    FILE *f = fopen(filepath, "w");
     if (!f)
     {
+        free(filepath);
         return false;
     }
     char arr[HEIGHT][WIDTH];
@@ -871,6 +856,7 @@ bool create_txt_file(char *name, Turtle *ttl)
         fprintf(f, "\n");
     }
     fclose(f);
+    free(filepath);
     return true;
 }
 
@@ -957,12 +943,10 @@ bool ps_mode(char *filename)
     if (regexec(&regex, filename, 0, NULL, 0) == 0)
     {   
         regfree(&regex);
-        // ttl->ps_mode = true;
         return true;
     }
     else
     {
-        // ttl->ps_mode = false;
         regfree(&regex);
         return false;
     }
@@ -1033,9 +1017,10 @@ char *set_postscript_colour(char c)
     return colour;
 }
 
-void create_ps_file(Line *l, char *filename)
+char *create_ps_file(Line *l, char *filename)
 {
-    FILE *f = fopen(filename, "w");
+    char *file_path = create_file_path(filename);
+    FILE *f = fopen(file_path, "w");
     if (!f)
     {
         panic_msg("creating .ps file");
@@ -1058,4 +1043,46 @@ void create_ps_file(Line *l, char *filename)
     }
     fprintf(f, "showpage\n");
     fclose(f);
+    return file_path;
+}
+
+char *create_file_path(char *filename)
+{
+    int len = strlen("./Results/") + strlen(filename) + NULL_CHAR;
+    char *path = calloc(len, sizeof(char));
+    if (!path)
+    {
+        panic_msg("creating string for filename");
+    }
+    strcpy(path, "./Results/");
+    strcat(path, filename);
+    return path;
+}
+
+bool ps2pdf_cmd(char *filepath)
+{
+    char *pdf = calloc(strlen(filepath) + strlen("f") + NULL_CHAR, sizeof(char));
+    if (!pdf)
+    {
+        panic_msg("allocating space for filename of PDF");
+    }
+    strcpy(pdf, filepath);
+    pdf[strlen(pdf)-1] = 'd';
+    pdf[strlen(pdf)] = 'f';
+    int len = strlen("ps2pdf ") + strlen(filepath) + strlen(" ") + strlen(pdf) + NULL_CHAR; 
+    char *cmd = calloc(len, sizeof(char));
+    if (!cmd)
+    {
+        panic_msg("allocating space for ps2pdf command");
+    }
+    sprintf(cmd, "ps2pdf %s %s", filepath, pdf);
+    int return_code = system(cmd);
+    free(filepath);
+    free(cmd);
+    free(pdf);
+    if (return_code == 0)
+    {
+        return true;
+    }
+    return false;
 }

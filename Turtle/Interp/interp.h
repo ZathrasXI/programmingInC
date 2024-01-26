@@ -63,7 +63,6 @@ enum ansi_colours
 
 typedef struct 
 {
-    //TODO is this a good size?
     double data[MAX_STACK_SIZE];
     int top;
 } Stack;
@@ -81,11 +80,14 @@ typedef struct loc
     int col;
     char colour;
     bool fwd_ins;
+    struct loc *next;
 } Loc;
 
 typedef struct turtle 
 {
     Loc path[PATH];
+    // Loc *path_start;
+    // Loc *path_end;
     int len;
     int capacity;
     char colour;
@@ -105,7 +107,9 @@ typedef struct token
 
 
 //Parser & interpreter
-void create_ps_file(Line *l, char *filename);
+bool ps2pdf_cmd(char *filepath);
+char *create_file_path(char *filename);
+char *create_ps_file(Line *l, char *filename);
 char *set_postscript_colour(char c);
 Line *new_line(float x0, float y0, float x1, float y1);
 bool ps_mode(char *filename);
