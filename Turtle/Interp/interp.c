@@ -9,6 +9,8 @@
 //TODO update parse.c with any improvements made
 //TODO check test coverage
 //TODO run on lab machines
+//TODO turn path into linked list
+//TODO research concurrency and max number of threads
 
 int main(int argc, char **argv)
 {
