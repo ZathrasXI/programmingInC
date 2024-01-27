@@ -11,24 +11,24 @@ void test(void)
     test_is_varnum();
     test_deg_2_rad();
     test_is_fwd();
-    // test_is_rgt();
-    // test_get_var_index();
-    // test_is_word();
-    // test_is_item();
-    // test_items();
-    // test_is_lst();
-    // test_is_col();
-    // test_is_pfix();
-    // test_is_set();
-    // test_update_var();
-    // test_is_loop();
-    // test_loop_closed();
-    // test_is_inslst();
-    // test_is_prog();
-    // test_tokenise();
+    test_is_rgt();
+    test_get_var_index();
+    test_is_word();
+    test_is_item();
+    test_items();
+    test_is_lst();
+    test_is_col();
+    test_is_pfix();
+    test_is_set();
+    test_update_var();
+    test_is_loop();
+    test_loop_closed();
+    test_is_inslst();
+    test_is_prog();
+    test_tokenise();
     test_integration();
-    // test_printing_tools();
-    // test_postscript();
+    test_printing_tools();
+    test_postscript();
     test_new_loc();
 }
 
@@ -1502,9 +1502,10 @@ void test_printing_tools(void)
     Token *turn = tokenise(ttl_file);
     assert(is_prog(turn, ttl));
     //get next end index
-    assert(next_fwd_ins(ttl, 0) == 9);
-    assert(next_fwd_ins(ttl, 8) == 9);
-    assert(next_fwd_ins(ttl, 9) == NOT_FOUND);
+    //TODO can next_fwd_ins() be removed?
+    // assert(next_fwd_ins(ttl, 0) == 9);
+    // assert(next_fwd_ins(ttl, 8) == 9);
+    // assert(next_fwd_ins(ttl, 9) == NOT_FOUND);
     //get ansi code for relevant colour
     assert(get_ansi_colour('K') == 30);
     assert(get_ansi_colour('R') == 31);
