@@ -1227,7 +1227,8 @@ void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
             {
                 ttl->path_end->next = new_loc(x0,y0,ttl->colour, false);
                 ttl->path_end = ttl->path_end->next;
-                if (locs_added == 0)
+                //TODO magic numbers
+                if (locs_added == 0 && ttl->path_len > 1)
                 {
                     ttl->path_end->fwd_ins = true;
                 }

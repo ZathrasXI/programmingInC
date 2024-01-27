@@ -10,7 +10,7 @@ void test(void)
     test_is_var();
     test_is_varnum();
     test_deg_2_rad();
-    // test_is_fwd();
+    test_is_fwd();
     // test_is_rgt();
     // test_get_var_index();
     // test_is_word();
@@ -256,38 +256,36 @@ void test_is_fwd(void)
     Token *fwd1 = new_token("1");
     fwd->next=fwd1;
     assert(is_forward(fwd, ttl_fwd));
-    assert(ttl_fwd->len == 2);
-    assert(ttl_fwd->path[0].col == COL_START);
-    assert(ttl_fwd->path[0].row == ROW_START);
-    assert(ttl_fwd->path[0].colour == 'W');
-    assert(ttl_fwd->path[1].colour == 'W');
-    assert(ttl_fwd->path[0].fwd_ins);
-    assert(!ttl_fwd->path[1].fwd_ins);
+    assert(ttl_fwd->path_start->col == COL_START);
+    assert(ttl_fwd->path_start->row == ROW_START);
+    assert(ttl_fwd->path_start->colour == 'W');
+    assert(ttl_fwd->path_start->fwd_ins);
+    assert(ttl_fwd->path_end->col == COL_START);
+    assert(ttl_fwd->path_end->row == ROW_START -1);
+    assert(ttl_fwd->path_end->colour == 'W');
+    assert(!ttl_fwd->path_end->fwd_ins);
+    assert(ttl_fwd->path_len == 2);
     //teardown
     free_ttl(ttl_fwd);
     free_tokens(fwd);
     
-    // // 4 steps northward
+    // 4 steps northward
     Turtle *fwd_many_ttl = init_ttl();
-    int steps = 4;
+    // int steps = 4;
     Token *fwd_many = new_token("FORWARD");
     Token *fwd_many1 = new_token("4");
     fwd_many->next=fwd_many1;
     assert(is_forward(fwd_many, fwd_many_ttl));
-    assert(fwd_many_ttl->len == steps + 1);
-    for (int i = 0; i < fwd_many_ttl->len; i++)
+    Loc *head_4 = fwd_many_ttl->path_start;
+    int i =0;
+    while (head_4)
     {
-        if (i == 0)
-        {
-            assert(fwd_many_ttl->path[i].fwd_ins);
-        }
-        else
-        {
-            assert(!fwd_many_ttl->path[i].fwd_ins);
-        }
-        assert(fwd_many_ttl->path[i].row == ROW_START - i);
-        assert(fwd_many_ttl->path[i].col == COL_START);
+        assert(head_4->col == COL_START);
+        assert(head_4->row == ROW_START - i);
+        i++;
+        head_4 = head_4->next;
     }
+    assert(fwd_many_ttl->path_len == 5);
     //teardown
     free_ttl(fwd_many_ttl);
     free_tokens(fwd_many);
@@ -313,29 +311,29 @@ void test_is_fwd(void)
     assert(is_rgt(fwd_rgt_fwd4, ttl_fwd1));
     assert(is_col(fwd_rgt_fwd2, ttl_fwd1));
     assert(is_forward(fwd_rgt_fwd6, ttl_fwd1));
-    assert(ttl_fwd1->len == 15);
-    assert(ttl_fwd1->path[0].fwd_ins);
-    assert(ttl_fwd1->path[9].fwd_ins);
-    for(int i = 0; i <= 8; i++)
-    {   
-        if (i > 0)
-        {
-            assert(!ttl_fwd1->path[i].fwd_ins);
-        }
-        assert(ttl_fwd1->path[i].col == COL_START);
-        assert(ttl_fwd1->path[i].row == ROW_START - i);
-    }
-    //most recent step changes colour when colour is changed
-    assert(ttl_fwd1->path[8].colour == 'R');
-    for(int i = 1; i <= 6; i++)
+    assert(ttl_fwd1->path_len == 15);
+    Loc *fwd_head = ttl_fwd1->path_start;
+    i = 0;
+    int col_count = 1;
+    while (fwd_head)
     {
-        if (8+i != 9)
+        if (i <= 8)
         {
-            assert(!ttl_fwd1->path[i].fwd_ins);
+            assert(fwd_head->col == COL_START);
+            assert(fwd_head->row == ROW_START - i);
         }
-        assert(ttl_fwd1->path[8+i].col == COL_START + i);
-        assert(ttl_fwd1->path[8+i].row == 8 - i);
-        assert(ttl_fwd1->path[8+i].colour == 'R');
+        else
+        {
+            assert(fwd_head->row == ROW_START - i);
+            assert(fwd_head->col == COL_START +col_count);
+            col_count++;
+        }
+        if (i == 8)
+        {
+            assert(fwd_head->colour =='R');
+        }
+        i++;
+        fwd_head = fwd_head->next;
     }
     //teardown
     free_ttl(ttl_fwd1);
@@ -347,7 +345,8 @@ void test_is_fwd(void)
     Token *fwd3 = new_token("$A");
     fwd2->next = fwd3;
     assert(is_forward(fwd2, fwd2_ttl));
-    assert(fwd2_ttl->len == 0);
+    assert(fwd2_ttl->path_len == 0);
+    assert(!fwd2_ttl->path_start);
     //teardown
     free_ttl(fwd2_ttl);
     free_tokens(fwd2);
@@ -357,6 +356,7 @@ void test_is_fwd(void)
     Token *fwd5 = new_token("FOWARD");
     fwd4->next = fwd5;
     assert(!is_forward(fwd4, fwd3_ttl));
+    assert(fwd3_ttl->path_len == 0);
     //teardown
     free_ttl(fwd3_ttl);
     free_tokens(fwd4);    
