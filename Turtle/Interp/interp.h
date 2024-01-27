@@ -86,9 +86,10 @@ typedef struct loc
 typedef struct turtle 
 {
     Loc path[PATH];
+    int len;
     Loc *path_start;
     Loc *path_end;
-    int len;
+    int path_len;
     int capacity;
     char colour;
     double direction;
@@ -107,6 +108,7 @@ typedef struct token
 
 
 //Parser & interpreter
+bool path_to_txt_file(char *name, Turtle *ttl);
 void update_colour(Turtle *ttl, char *colour);
 void evaluate_postfix_expression(Turtle *ttl, Token *head, int token_count, int dest_index);
 void copy_word_var_to_var(Turtle *ttl, int src_index, int dest_index);
@@ -117,6 +119,7 @@ char *create_file_path(char *filename);
 char *create_ps_file(Line *l, char *filename);
 char *set_postscript_colour(char c);
 Line *new_line(float x0, float y0, float x1, float y1);
+Loc *new_loc(int col, int row, char c, bool fwd_ins);
 bool ps_mode(char *filename);
 void print_to_terminal(Turtle *ttl);
 int get_ansi_colour(char c);
@@ -124,6 +127,7 @@ int next_fwd_ins(Turtle *ttl, int start);
 bool create_txt_file(char *name, Turtle *ttl);
 void find_end_points(float x0, float y0, int len, float x1_y1[2], Turtle *ttl);
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
+void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index, Turtle *ttl);
 Turtle *init_ttl();
@@ -192,6 +196,7 @@ void test_tokenise(void);
 void test_printing_tools(void);
 void test_postscript(void);
 void free_ttl(Turtle *ttl);
+void test_new_loc();
 
 
 

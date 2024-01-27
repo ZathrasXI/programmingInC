@@ -3,7 +3,7 @@
 #include "test_interp.c"
 
 //TODO turn path into linked list
-//TODO function "decomposition" - break any larger functions into smaller ones
+//TODO function "decomposition" - update_var()
 //TODO analyse differences between Neill's x,y and my x,y in .ps files - it might show me why my paths aren't the same as his
 //TODO research concurrency and max number of threads
 //TODO update parse.c with any improvements made
@@ -49,9 +49,13 @@ int main(int argc, char **argv)
         }
         else
         {
-            if (!create_txt_file(argv[2], ttl))
+            // if (!create_txt_file(argv[2], ttl))
+            // {
+            //     panic_msg("creating output file");
+            // }
+            if (!path_to_txt_file(argv[2], ttl))
             {
-                panic_msg("creating output file");
+                panic_msg("creating txt file");
             }
         }
     }
@@ -598,7 +602,7 @@ void panic_msg(char *msg)
     exit(EXIT_FAILURE);
 }
 
-void find_end_points(float x0, float y0, int input_length, float x1_y1[2], Turtle *ttl)
+void find_end_points(float x0, float y0, int input_length, float x1_y1[X_Y], Turtle *ttl)
 {
     if (!ttl->ps_mode)
     {
@@ -946,10 +950,10 @@ void update_postscript_ins(Turtle *ttl, int steps)
     float x1_y1[X_Y];
     if (!ttl->ps_start)
     {
-    find_end_points(PS_START_X, PS_START_Y, steps, x1_y1, ttl);
-    ttl->ps_start = new_line(PS_START_X, PS_START_Y, x1_y1[0], x1_y1[1]);
-    ttl->ps_start->colour = set_postscript_colour(ttl->colour);
-    ttl->ps_last = ttl->ps_start;
+        find_end_points(PS_START_X, PS_START_Y, steps, x1_y1, ttl);
+        ttl->ps_start = new_line(PS_START_X, PS_START_Y, x1_y1[0], x1_y1[1]);
+        ttl->ps_start->colour = set_postscript_colour(ttl->colour);
+        ttl->ps_last = ttl->ps_start;
     }
     else 
     {
@@ -964,17 +968,28 @@ void update_txt_ins(Turtle *ttl, int steps)
 {
     //TODO to improve accuracy - try storing all x,y values as floats. So each new co-ordinate is based off of the true value. 
     // Then at printing stage, round, and cast float to int
-    float x1_y1[X_Y];
-    ttl->path[ttl->len].fwd_ins = true;
-    if (ttl->len == 0)
+    // float x1_y1[X_Y];
+    // ttl->path[ttl->len].fwd_ins = true;
+    // if (ttl->len == 0)
+    // {
+    //     ttl->path[ttl->len].col = COL_START;
+    //     ttl->path[ttl->len].row = ROW_START;
+    //     ttl->path[ttl->len].colour = 'W';
+    //     ttl->len++;
+    // }
+    // find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
+    // calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, round(x1_y1[0]), round(x1_y1[1]), ttl);
+
+    //linked list version
+    if (!ttl->path_start)
     {
-        ttl->path[ttl->len].col = COL_START;
-        ttl->path[ttl->len].row = ROW_START;
-        ttl->path[ttl->len].colour = 'W';
-        ttl->len++;
+        ttl->path_start = new_loc(COL_START, ROW_START, ttl->colour, true);
+        ttl->path_end = ttl->path_start;
+        ttl->path_len++;
     }
-    find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
-    calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, round(x1_y1[0]), round(x1_y1[1]), ttl);
+    float px1_py1[X_Y];
+    find_end_points(ttl->path_end->col, ttl->path_end->row, steps, px1_py1, ttl);
+    calculate_loc_coords(ttl->path_end->col, ttl->path_end->row, round(px1_py1[0]), round(px1_py1[1]), ttl);
 }
 
 void copy_word_var_to_var(Turtle *ttl, int src_index, int dest_index)
@@ -1032,6 +1047,10 @@ void update_colour(Turtle *ttl, char *colour)
             {
                 ttl->path[ttl->len-1].colour = 'K';
             }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'K';
+            }
             ttl->colour = 'K';
         }
         else if (strcmp(colour, "\"RED\"") == 0)
@@ -1039,6 +1058,10 @@ void update_colour(Turtle *ttl, char *colour)
             if (path_exists)
             {
                 ttl->path[ttl->len-1].colour = 'R';
+            }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'R';
             }
             ttl->colour = 'R';
         }
@@ -1048,6 +1071,10 @@ void update_colour(Turtle *ttl, char *colour)
             {
                 ttl->path[ttl->len-1].colour = 'G';
             }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'G';
+            }
             ttl->colour = 'G';
         }
         else if (strcmp(colour, "\"BLUE\"") == 0)
@@ -1055,6 +1082,10 @@ void update_colour(Turtle *ttl, char *colour)
             if (path_exists)
             {
                 ttl->path[ttl->len-1].colour = 'B';
+            }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'B';
             }
             ttl->colour = 'B';
         }
@@ -1064,6 +1095,10 @@ void update_colour(Turtle *ttl, char *colour)
             {
                 ttl->path[ttl->len-1].colour = 'Y';
             }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'Y';
+            }
             ttl->colour = 'Y';
         }
         else if (strcmp(colour, "\"CYAN\"") == 0)
@@ -1071,6 +1106,10 @@ void update_colour(Turtle *ttl, char *colour)
             if (path_exists)
             {
                 ttl->path[ttl->len-1].colour = 'C';
+            }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'C';
             }
             ttl->colour = 'C';
         }
@@ -1080,6 +1119,10 @@ void update_colour(Turtle *ttl, char *colour)
             {
                 ttl->path[ttl->len-1].colour = 'M';
             }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'M';
+            }
             ttl->colour = 'M';
         }
         else if (strcmp(colour, "\"WHITE\"") == 0)
@@ -1087,6 +1130,10 @@ void update_colour(Turtle *ttl, char *colour)
             if (path_exists)
             {
                 ttl->path[ttl->len-1].colour = 'W';
+            }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'W';
             }
             ttl->colour = 'W';
         }
@@ -1096,7 +1143,148 @@ void update_colour(Turtle *ttl, char *colour)
             {
                 ttl->path[ttl->len-1].colour = 'W';
             }
+            if (ttl->path_start)
+            {
+                ttl->path_end->colour = 'W';
+            }
             ttl->colour = 'W';
         }
         free(colour);
+}
+
+Loc *new_loc(int col, int row, char c, bool fwd_ins)
+{
+    Loc *new = calloc(INIT_SIZE, sizeof(Loc));
+    if (!new)
+    {
+        panic_msg("allocating space for new Loc type");
+    }
+
+    new->row = row;
+    new->col = col;
+    new->colour = c;
+    new->fwd_ins = fwd_ins;
+    new->next = NULL;
+
+    return new;
+}
+
+void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
+{
+    int dx = abs(x1-x0); 
+    int dy = -abs(y1-y0); 
+    int err = dx+dy, e2; 
+    int sx, sy;
+    if (x0 < x1)
+    {
+        sx = 1;
+    }
+    else
+    {
+        sx = -1;
+    }
+    if (y0 < y1)
+    {
+        sy = 1;
+    }
+    else
+    {
+        sy = -1;
+    }
+    bool end_x = false;
+    bool end_y = false;
+    bool end_of_line = false;
+    int locs_added = 0;
+    while(!end_of_line)
+    { 
+        e2 = err * 2;
+        if (e2 >= dy) 
+        { 
+            if (!end_y && x0 == x1)
+            {
+                end_x = true;
+            }
+            else
+            {
+                err += dy; x0 += sx;
+            }
+        }
+        if (!end_x && e2 <= dx) 
+        { 
+            if (y0 == y1)
+            {
+                end_y = true;
+            }
+            else
+            {
+                err += dx; y0 += sy;
+            }
+        }
+        end_of_line = end_x || end_y;
+        if (!end_of_line)
+        {
+            if (x0 < WIDTH && y0 < HEIGHT)
+            {
+                ttl->path_end->next = new_loc(x0,y0,ttl->colour, false);
+                ttl->path_end = ttl->path_end->next;
+                if (locs_added == 0)
+                {
+                    ttl->path_end->fwd_ins = true;
+                }
+                ttl->path_len++;
+                locs_added++;
+            }
+        }
+    } 
+}
+
+bool path_to_txt_file(char *name, Turtle *ttl)
+{
+    char *filepath = create_file_path(name);
+    FILE *f = fopen(filepath, "w");
+    if (!f)
+    {
+        free(filepath);
+        return false;
+    }
+    char arr[HEIGHT][WIDTH];
+    for (int row = 0; row < HEIGHT; row++)
+    {
+        for (int col = 0; col < WIDTH; col++)
+        {
+            arr[row][col] = ' ';
+        }
+    }
+    // for (int i = 0; i < ttl->len; i++)
+    // {
+    //     if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
+    //     ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
+    //     {
+    //         arr[ttl->path[i].row][ttl->path[i].col] = ttl->path[i].colour;
+    //     }
+    // }
+    Loc *head = ttl->path_start;
+    while (head)
+    {
+        if (head->row >= 0 &&
+            head->row < HEIGHT &&
+            head->col >= 0 &&
+            head->col < WIDTH)
+            {
+                arr[head->row][head->col] = head->colour;
+            }
+        head = head->next;
+    }
+
+    for (int row = 0; row < HEIGHT; row++)
+    {
+        for (int col = 0; col < WIDTH; col++)
+        {
+            fprintf(f, "%c", arr[row][col]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
+    free(filepath);
+    return true;
 }
