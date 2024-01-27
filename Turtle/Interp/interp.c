@@ -761,29 +761,34 @@ int get_ansi_colour(char c)
 
 void print_to_terminal(Turtle *ttl)
 {
-    //clear screen
     printf("\033[2J");
-    int start = 0;
-    int end = 0;
-    while (end < ttl->len)
-    {   
-        end = next_fwd_ins(ttl, start);
-        if (end == NOT_FOUND)
+    Loc *head = ttl->path_start;
+    while (head)
+    {
+        if (coords_within_ansi_boundaries(head))
         {
-            end = ttl->len;
-        }
-        for (int i = start; i < end; i++)
-        {
-            if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
-            ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
+            if (head->fwd_ins)
             {
-                printf("\033[%d;%dH", ttl->path[i].row + 1, ttl->path[i].col + 1);
-                printf("\033[%dm%c\033[%dm", get_ansi_colour(ttl->path[i].colour), ttl->path[i].colour, RESET);
+                printf("\033[%d;%dH", head->row + ANSI_ROW_START, head->col + ANSI_COL_START);
+                printf("\033[%dm%c\033[%dm", get_ansi_colour(head->colour), head->colour, RESET); 
+                head = head->next;
             }
+            while (head && !head->fwd_ins)
+            {
+                if (coords_within_ansi_boundaries(head))
+                {
+                    printf("\033[%d;%dH", head->row + ANSI_ROW_START, head->col + ANSI_COL_START);
+                    printf("\033[%dm%c\033[%dm", get_ansi_colour(head->colour), head->colour, RESET); 
+                }
+                head = head->next;
+            }
+            fflush(stdout);
+            sleep(1);
         }
-        fflush(stdout);
-        sleep(1);
-        start = end;
+        else
+        {
+            head = head->next;
+        }
     }
     printf("\033[%d;1H", HEIGHT + PADDING);
 }
@@ -968,19 +973,6 @@ void update_txt_ins(Turtle *ttl, int steps)
 {
     //TODO to improve accuracy - try storing all x,y values as floats. So each new co-ordinate is based off of the true value. 
     // Then at printing stage, round, and cast float to int
-    // float x1_y1[X_Y];
-    // ttl->path[ttl->len].fwd_ins = true;
-    // if (ttl->len == 0)
-    // {
-    //     ttl->path[ttl->len].col = COL_START;
-    //     ttl->path[ttl->len].row = ROW_START;
-    //     ttl->path[ttl->len].colour = 'W';
-    //     ttl->len++;
-    // }
-    // find_end_points(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, steps, x1_y1, ttl);
-    // calculate_line_coords(ttl->path[ttl->len-1].col, ttl->path[ttl->len-1].row, round(x1_y1[0]), round(x1_y1[1]), ttl);
-
-    //linked list version
     if (!ttl->path_start)
     {
         ttl->path_start = new_loc(COL_START, ROW_START, ttl->colour, true);
@@ -1171,6 +1163,7 @@ Loc *new_loc(int col, int row, char c, bool fwd_ins)
 
 void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
 {
+    //TODO magic numbers
     int dx = abs(x1-x0); 
     int dy = -abs(y1-y0); 
     int err = dx+dy, e2; 
@@ -1238,6 +1231,13 @@ void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
         }
     } 
 }
+
+bool coords_within_ansi_boundaries(Loc *head)
+{
+    return head->row >= 0 && head->row < HEIGHT && head->col >= 0 && head->col < WIDTH;
+}
+
+
 
 bool path_to_txt_file(char *name, Turtle *ttl)
 {

@@ -22,6 +22,8 @@
 #define HEIGHT 33
 #define COL_START 25
 #define ROW_START 16
+#define ANSI_COL_START 1
+#define ANSI_ROW_START 1
 #define MAX_VARS 26
 #define ASCII_TO_NUM 65
 #define PI 3.14159265358979323846
@@ -108,6 +110,7 @@ typedef struct token
 
 
 //Parser & interpreter
+bool coords_within_ansi_boundaries(Loc *head);
 bool path_to_txt_file(char *name, Turtle *ttl);
 void update_colour(Turtle *ttl, char *colour);
 void evaluate_postfix_expression(Turtle *ttl, Token *head, int token_count, int dest_index);
