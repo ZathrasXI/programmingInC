@@ -419,13 +419,16 @@ bool is_loop(Token *t, Turtle *ttl)
             }
             Token *start_of_ins = start_of_lst->next;
             int var_index = get_var_index(t->next->str[0]);
-            while (is_item(iter->str))
+            if (is_item(iter->str))
             {
-                update_var(iter->str, var_index, ttl);
-                is_inslst(start_of_ins, ttl);
-                iter = iter->next;
+                while (is_item(iter->str))
+                {
+                    update_var(iter->str, var_index, ttl);
+                    is_inslst(start_of_ins, ttl);
+                    iter = iter->next;
+                }
+                return true;
             }
-            return true;
         }
     return false;
 }

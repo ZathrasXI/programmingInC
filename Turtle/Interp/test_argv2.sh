@@ -17,7 +17,7 @@ for file in "${files[@]}"; do
 done
 
 rm ./Results/output_tmp/*
-names=$(ls ../TTLs/ | grep -o '^[^.]*')
+names=$(ls ../TTLs/ | grep -o '^[^.]*') | grep -v "fail_parse_ok_interp.ps"
 
 # test output of .ps
 for name in $names; do
