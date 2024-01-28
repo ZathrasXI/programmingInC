@@ -113,6 +113,8 @@ typedef struct token
 //Extension
 bool is_ttl_file(char *f);
 void *init_cc_ttl();
+void *read_file_cc(void *filename);
+void *tokenise_cc(void *file);
 
 //Parser & interpreter
 bool coords_within_ansi_boundaries(Loc *head);
