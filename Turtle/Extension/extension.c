@@ -14,30 +14,10 @@ int main(int argc, char **argv)
     // test();
     // test_extract_name();
     //handle flags
-    char *txt_flag = "-txt";
     bool txt_create = false;
-    char *ps_flag = "-ps";
     bool ps_create = false;
     int ttl_file_count = 0;
-    for (int i = 0; i < argc; i++)
-    {
-        if (strcmp(argv[i], txt_flag) == 0)
-        {
-            txt_create = true;
-        }
-        if (strcmp(argv[i], ps_flag) == 0)
-        {
-            ps_create = true;
-        }
-        if (is_ttl_file(argv[i]))
-        {
-            ttl_file_count++;
-        }
-    }
-    if ((!ps_create && !txt_create) && ttl_file_count > 1)
-    {
-        panic_msg("must use `-txt` and/or `-ps` when giving more than 1 .ttl file");
-    }
+    set_flags(&txt_create, &ps_create, &ttl_file_count, argc, argv);
     /*
     initialising turtles
     */
@@ -1597,3 +1577,30 @@ char *extract_name(char *c)
     strncpy(name, c + s_len, len-1);
     return name;
 }
+
+void set_flags(bool *txt, bool *ps, int *file_count, int argc, char **argv)
+{
+    char *txt_flag = "-txt";
+    char *ps_flag = "-ps";
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], txt_flag) == 0)
+        {
+            *txt = true;
+        }
+        if (strcmp(argv[i], ps_flag) == 0)
+        {
+            *ps = true;
+        }
+        if (is_ttl_file(argv[i]))
+        {
+            *file_count += 1;
+        }
+    }
+    if ((!*txt && !*ps) && *file_count > 1)
+    {
+        panic_msg("must use `-txt` and/or `-ps` when giving more than 1 .ttl file");
+    }
+}
+
+
