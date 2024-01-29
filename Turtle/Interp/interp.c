@@ -2,10 +2,6 @@
 #include "stack.c"
 #include "test_interp.c"
 
-//TODO update parse.c with any improvements made
-//TODO no magic numbers
-
-
 int main(int argc, char **argv)
 {
     test();
@@ -381,8 +377,7 @@ bool is_set(Token *t, Turtle *ttl)
             Token *pfix_head = t->next->next->next;
             int src_index = get_var_index(pfix_head->str[1]);
             int dest_index = get_var_index(t->next->str[0]);
-            //TODO magic numbers
-            if (token_count == 1 && is_var(pfix_head->str) && ttl->type_in_use[src_index] == union_char)
+            if (token_count == INIT_SIZE && is_var(pfix_head->str) && ttl->type_in_use[src_index] == union_char)
             {
                 copy_word_var_to_var(ttl, src_index, dest_index);
                 return true;
@@ -576,8 +571,6 @@ Turtle *init_ttl(void)
     {
         panic_msg("allocating memory for Turtle");
     }
-    t->len = 0;
-    t->capacity = PATH;
     t->direction = 0;
     t->colour = 'W';
     t->ps_start = NULL;
@@ -604,124 +597,6 @@ void find_end_points(float x0, float y0, int input_length, float x1_y1[X_Y], Tur
         x1_y1[0] = x0 + (input_length * sin(ttl->direction));
         x1_y1[1] = y0 + (input_length * cos(ttl->direction));
     }
-}
-
-void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
-{
-    int dx = abs(x1-x0); 
-    int dy = -abs(y1-y0); 
-    int err = dx+dy, e2; 
-    int sx, sy;
-    if (x0 < x1)
-    {
-        sx = 1;
-    }
-    else
-    {
-        sx = -1;
-    }
-    if (y0 < y1)
-    {
-        sy = 1;
-    }
-    else
-    {
-        sy = -1;
-    }
-    bool end_x = false;
-    bool end_y = false;
-    bool end_of_line = false;
-    while(!end_of_line)
-    { 
-        e2 = err * 2;
-        if (e2 >= dy) 
-        { 
-            if (!end_y && x0 == x1)
-            {
-                end_x = true;
-            }
-            else
-            {
-                err += dy; x0 += sx;
-            }
-        }
-        if (!end_x && e2 <= dx) 
-        { 
-            if (y0 == y1)
-            {
-                end_y = true;
-            }
-            else
-            {
-                err += dx; y0 += sy;
-            }
-        }
-        end_of_line = end_x || end_y;
-        if (!end_of_line)
-        {
-            if (x0 < WIDTH && y0 < HEIGHT)
-            {
-                ttl->path[ttl->len].col = x0;
-                ttl->path[ttl->len].row = y0;
-                ttl->path[ttl->len].colour = ttl->colour;
-                ttl->len++;
-            }
-        }
-    }
-}
-
-bool create_txt_file(char *name, Turtle *ttl)
-{
-    char *filepath = create_file_path(name);
-    FILE *f = fopen(filepath, "w");
-    if (!f)
-    {
-        free(filepath);
-        return false;
-    }
-    char arr[HEIGHT][WIDTH];
-    for (int row = 0; row < HEIGHT; row++)
-    {
-        for (int col = 0; col < WIDTH; col++)
-        {
-            arr[row][col] = ' ';
-        }
-    }
-    for (int i = 0; i < ttl->len; i++)
-    {
-        if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
-        ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
-        {
-            arr[ttl->path[i].row][ttl->path[i].col] = ttl->path[i].colour;
-        }
-    }
-    for (int row = 0; row < HEIGHT; row++)
-    {
-        for (int col = 0; col < WIDTH; col++)
-        {
-            fprintf(f, "%c", arr[row][col]);
-        }
-        fprintf(f, "\n");
-    }
-    fclose(f);
-    free(filepath);
-    return true;
-}
-
-int next_fwd_ins(Turtle *ttl, int start)
-{
-    int end = NOT_FOUND;
-    int i = start + NEXT_INDEX;
-    while (i < ttl->len)
-    {
-        if (ttl->path[i].fwd_ins)
-        {
-            end = i;
-            return end;
-        }
-        i++;
-    }
-    return end;
 }
 
 int get_ansi_colour(char c)
@@ -972,8 +847,6 @@ void update_postscript_ins(Turtle *ttl, int steps)
 
 void update_txt_ins(Turtle *ttl, int steps)
 {
-    //TODO to improve accuracy - try storing all x,y values as floats. So each new co-ordinate is based off of the true value. 
-    // Then at printing stage, round, and cast float to int
     if (!ttl->path_start)
     {
         ttl->path_start = new_loc(COL_START, ROW_START, ttl->colour, true);
@@ -1033,13 +906,8 @@ void update_colour(Turtle *ttl, char *colour)
         % Valid colours include "BLACK", "RED", "GREEN", "BLUE",
         % "YELLOW", "CYAN", "MAGENTA", "WHITE"
         */
-       bool path_exists = ttl->len > 0;
         if (strcmp(colour, "\"BLACK\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'K';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'K';
@@ -1048,10 +916,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else if (strcmp(colour, "\"RED\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'R';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'R';
@@ -1060,10 +924,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else if (strcmp(colour, "\"GREEN\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'G';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'G';
@@ -1072,10 +932,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else if (strcmp(colour, "\"BLUE\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'B';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'B';
@@ -1084,10 +940,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else if (strcmp(colour, "\"YELLOW\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'Y';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'Y';
@@ -1096,10 +948,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else if (strcmp(colour, "\"CYAN\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'C';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'C';
@@ -1108,10 +956,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else if (strcmp(colour, "\"MAGENTA\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'M';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'M';
@@ -1120,10 +964,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else if (strcmp(colour, "\"WHITE\"") == 0)
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'W';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'W';
@@ -1132,10 +972,6 @@ void update_colour(Turtle *ttl, char *colour)
         }
         else
         {
-            if (path_exists)
-            {
-                ttl->path[ttl->len-1].colour = 'W';
-            }
             if (ttl->path_start)
             {
                 ttl->path_end->colour = 'W';
@@ -1164,7 +1000,6 @@ Loc *new_loc(int col, int row, char c, bool fwd_ins)
 
 void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
 {
-    //TODO magic numbers
     int dx = abs(x1-x0); 
     int dy = -abs(y1-y0); 
     int err = dx+dy, e2; 
@@ -1221,7 +1056,6 @@ void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
             {
                 ttl->path_end->next = new_loc(x0,y0,ttl->colour, false);
                 ttl->path_end = ttl->path_end->next;
-                //TODO magic numbers
                 if (locs_added == 0 && ttl->path_len > 1)
                 {
                     ttl->path_end->fwd_ins = true;
@@ -1257,14 +1091,6 @@ bool path_to_txt_file(char *name, Turtle *ttl)
             arr[row][col] = ' ';
         }
     }
-    // for (int i = 0; i < ttl->len; i++)
-    // {
-    //     if ((ttl->path[i].row >= 0 && ttl->path[i].row < HEIGHT) &&
-    //     ttl->path[i].col >= 0 && ttl->path[i].col < WIDTH)
-    //     {
-    //         arr[ttl->path[i].row][ttl->path[i].col] = ttl->path[i].colour;
-    //     }
-    // }
     Loc *head = ttl->path_start;
     while (head)
     {

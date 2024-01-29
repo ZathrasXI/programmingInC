@@ -137,9 +137,7 @@ void test_ttl(void)
     // init returns a pointer
     Turtle *t0 = init_ttl();
     assert(t0 != NULL);
-    assert(t0->len == 0);
     assert((int) t0->direction == 0);
-    assert(t0->capacity == PATH);
     assert(t0->colour == 'W');
     assert(t0->type_in_use != NULL);
     assert(!t0->ps_mode);
@@ -246,7 +244,6 @@ void test_deg_2_rad(void)
 
 void test_is_fwd(void)
 {
-    //TODO test FORWARD 0 - 0 steps
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
@@ -1469,7 +1466,6 @@ void test_printing_tools(void)
     free_ttl(ttl);
 }
 
-//TODO move this to interp.c
 void free_ttl(Turtle *ttl)
 {
     for (int i = 0; i < 26; i++)

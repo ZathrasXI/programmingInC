@@ -138,9 +138,7 @@ void test_ttl(void)
     // init returns a pointer
     Turtle *t0 = init_ttl();
     assert(t0 != NULL);
-    assert(t0->len == 0);
     assert((int) t0->direction == 0);
-    assert(t0->capacity == PATH);
     assert(t0->colour == 'W');
     assert(t0->type_in_use != NULL);
     assert(!t0->ps_mode);
@@ -247,7 +245,6 @@ void test_deg_2_rad(void)
 
 void test_is_fwd(void)
 {
-    //TODO test FORWARD 0 - 0 steps
     /*
     is_forward() <FWD> ::= "FORWARD" <VARNUM>
     */
@@ -1502,11 +1499,6 @@ void test_printing_tools(void)
     FILE *ttl_file = fopen("../TTLs/turn.ttl", "r");
     Token *turn = tokenise(ttl_file);
     assert(is_prog(turn, ttl));
-    //get next end index
-    //TODO can next_fwd_ins() be removed?
-    // assert(next_fwd_ins(ttl, 0) == 9);
-    // assert(next_fwd_ins(ttl, 8) == 9);
-    // assert(next_fwd_ins(ttl, 9) == NOT_FOUND);
     //get ansi code for relevant colour
     assert(get_ansi_colour('K') == 30);
     assert(get_ansi_colour('R') == 31);

@@ -17,8 +17,6 @@
 #define INIT_SIZE 1
 #define STR_ONLY_QUOTES 2
 #define SPACE_ASCII 32
-//TODO find less rigid alternative
-#define PATH 1000
 #define WIDTH 51
 #define HEIGHT 33
 #define COL_START 25
@@ -38,6 +36,7 @@
 #define X_Y 2
 #define PS_START_X 30
 #define PS_START_Y 40
+#define NONE 0
 
 typedef struct f 
 {
@@ -93,12 +92,9 @@ typedef struct loc
 
 typedef struct turtle 
 {
-    Loc path[PATH];
-    int len;
     Loc *path_start;
     Loc *path_end;
     int path_len;
-    int capacity;
     char colour;
     double direction;
     Var vars[MAX_VARS];

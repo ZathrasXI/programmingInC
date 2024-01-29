@@ -15,7 +15,6 @@ int main(int argc, char **argv)
         fprintf(stderr, "error opening file\n");
         exit(EXIT_FAILURE);
     }
-    //TODO test this
     Token *head = tokenise(turtle_file);
 
     if (!is_prog(head))
