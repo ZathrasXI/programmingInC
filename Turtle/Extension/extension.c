@@ -47,6 +47,11 @@ int main(int argc, char **argv)
             valid_files++;
         }
     }
+    if (argc == PRINT_TERMINAL &&
+        ttl_token[0].ttl->valid)
+    {
+        print_to_terminal(ttl_token[0].ttl);
+    }
     if (txt_create)
     {
         pthread_t *txt_threads = calloc(valid_files, sizeof(pthread_t));
