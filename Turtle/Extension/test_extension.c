@@ -1518,6 +1518,7 @@ void test_printing_tools(void)
     assert(get_ansi_colour('W') == 37);
     assert(get_ansi_colour('Z') == 37);
 
+    fclose(ttl_file);
     free_tokens(turn);
     free_ttl(ttl);
 }
@@ -1605,6 +1606,7 @@ void test_postscript(void)
     assert(strcmp(colour_ttl->ps_start->next->next->colour, "1 1 0") == 0 );
     assert(strcmp(colour_ttl->ps_start->next->next->next->colour, "0 0 1") == 0 );
 
+    fclose(f_downarrow);
     free_ttl(colour_ttl);
     free_tokens(downarrow_tokens);
 }
