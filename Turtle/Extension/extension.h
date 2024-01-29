@@ -123,6 +123,7 @@ typedef struct prog_args
 } Prog_args;
 
 //Extension
+void init_turtles_cc(Prog_args *ttl_token, pthread_t *ttl_threads, int files);
 void set_flags(bool *txt, bool *ps, int *file_count, int argc, char **argv);
 char *extract_name(char *c);
 void *cc_txt_file(void *ttl_tok);

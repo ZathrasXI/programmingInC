@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 {
     // test();
     // test_extract_name();
-    //handle flags
     bool txt_create = false;
     bool ps_create = false;
     int ttl_file_count = 0;
@@ -23,23 +22,7 @@ int main(int argc, char **argv)
     */
     Prog_args *ttl_token = calloc(ttl_file_count, sizeof(Prog_args));
     pthread_t *ttl_threads = calloc(ttl_file_count, sizeof(pthread_t));
-    // Turtle **turtles = calloc(ttl_file_count, sizeof(Turtle));
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (pthread_create(ttl_threads + i, NULL, &init_cc_ttl, NULL) != 0)
-        {
-            panic_msg("creating ttl_threads");
-        }
-    }
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        // if (pthread_join(ttl_threads[i], (void **) &turtles[i]) != 0)
-        if (pthread_join(ttl_threads[i], (void **) &ttl_token[i].ttl) != 0)
-        {
-            panic_msg("joining threads");
-        }
-    }
-    free(ttl_threads);
+    init_turtles_cc(ttl_token, ttl_threads, ttl_file_count);
     /*
     creating pointers to each file
     */
@@ -1603,4 +1586,22 @@ void set_flags(bool *txt, bool *ps, int *file_count, int argc, char **argv)
     }
 }
 
-
+void init_turtles_cc(Prog_args *ttl_token, pthread_t *ttl_threads, int files)
+{
+    for (int i = 0; i < files; i++)
+    {
+        if (pthread_create(ttl_threads + i, NULL, &init_cc_ttl, NULL) != 0)
+        {
+            panic_msg("creating ttl_threads");
+        }
+    }
+    for (int i = 0; i < files; i++)
+    {
+        // if (pthread_join(ttl_threads[i], (void **) &turtles[i]) != 0)
+        if (pthread_join(ttl_threads[i], (void **) &ttl_token[i].ttl) != 0)
+        {
+            panic_msg("joining threads");
+        }
+    }
+    free(ttl_threads);
+}
