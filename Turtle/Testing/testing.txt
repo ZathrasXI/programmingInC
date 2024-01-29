@@ -1,31 +1,41 @@
-using `gcov` to assess test coverage
+﻿--Overall approach--
+My approach to testing was influenced by two concepts from the Software Testing domain: 
+- the Testing Pyramid – where the majority of the testing is covered by unit tests, then testing of multiple units integrated, and a few end-to-end tests.
+- the Arrange, Act, Assert (AAA) approach – structuring the tests so that they conform to having a setup stage, and action stage, followed by asserting that the actions created specific results. I found this helped me to have clearly defined test cases.
 
-```
---How i have tested 100% of source code--
 
-gcc -fprofile-arcs -ftest-coverage -o parse parse.c
-./parse
-gcov parse.c (TODO use gcov against interpreter)
-```
-The output shows % of lines executed, which we can equate to coverage by the unit
-tests because when we executed the compiled file we didn't give it any files,
-so the only function that ran was `test()`. To confirm this, if we comment
-out `test()` in `main()`, then run all of the gcov commands again, we notice
-a significant drop in the % of lines executed. The code is being executed by
-`test()`.
+--Test coverage--
+I used `gcov`, built in to gcc, to measure the code covered by the unit tests.
+gcov reports that coverage of:
+- the parser is 95%
+- the interp is %
+- the extension is %
 
-Each directory has as a `gcov.sh` script which will run the above commands against
-the file in that directory.
-
-These tests tests are commented out:
-- pop_test1 within test_stack()
+It isn’t possible to achieve 100% coverage from assert testing alone, because some paths through the code are impossible to test within the program. For example, there are many scenarios that cause the program to exit, which would cease all testing. There are also scenarios that are hard to replicated, such as causing memory allocation to fail. To try and cover the remaining tests cases I used bash scripts and manually “uncommenting” assert tests that force the program to exit.
+These tests within the interpreter are commented out, and I run them manually:
+- pop_test1 within  test_stack()
 - stack_word within test_stack()
 - type_not_in_use within test_stack()
 
-this is because they cause the program to exit.
-To test these bits of functionality, I uncomment a test, run the test, check that the
-error message is correct and that the exit code is non-zero using `echo $?` in the 
-terminal
+Example usage for `gcov`:
+```
+gcc -fprofile-arcs -ftest-coverage -o parse parse.c
+./parse
+gcov parse.c 
+```
+I have written a test_gcov.sh bash script that executes these commands against the parser and interpeter.
 
-TODO:
-- Explain how I followed testing pyramind, and AAA
+
+--Implementation of integration and end-to-end testing--
+Testing the combination of many function calls, and the output of the entire program provided me with insight into state of the software as a whole. Examples of tests at this scope are:
+- the `is_prog()`, `is_loop()`, or `is_inslst()` tests in the parser
+- the collection of tests within `test_ingtegration()`, test_interp.c
+- `Extension/test_multiple_files.sh` 
+
+The downside of this scope is that these tests didn’t always highlight where inside the “black box”, something is broken, but this is where the above mentioned unit tests are valuable. 
+
+
+
+
+
+
