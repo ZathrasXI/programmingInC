@@ -17,66 +17,20 @@ int main(int argc, char **argv)
     bool ps_create = false;
     int ttl_file_count = 0;
     set_flags(&txt_create, &ps_create, &ttl_file_count, argc, argv);
-    /*
-    initialising turtles
-    */
+    // initialising turtles
     Prog_args *ttl_token = calloc(ttl_file_count, sizeof(Prog_args));
     pthread_t *ttl_threads = calloc(ttl_file_count, sizeof(pthread_t));
     init_turtles_cc(ttl_token, ttl_threads, ttl_file_count);
-    /*
-    creating pointers to each file
-    */
+    // creating pointers to each file
     pthread_t *file_threads = calloc(ttl_file_count, sizeof(pthread_t));
     File_type **files = calloc(ttl_file_count, sizeof(File_type*));
     file_pointers_cc(files, file_threads, argc, argv, ttl_file_count);
-    /*
-    Tokenise each file
-    */
+    // Tokenise each file
     pthread_t *threads_tokens = calloc(ttl_file_count, sizeof(pthread_t));
-    // Token **token_heads = calloc(ttl_file_count, sizeof(Token*));
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (pthread_create(threads_tokens + i, NULL, &tokenise_cc, files[i]) != 0)
-        {
-            panic_msg("tokenising file in thread");
-        }
-    }
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (pthread_join(threads_tokens[i], (void **) &ttl_token[i].head) != 0)
-        {
-            panic_msg("joining threads during Tokenising stage");
-        }
-    }
-    //free file structs
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (files[i])
-        {
-            free(files[i]->fname);
-            free(files[i]);
-        }
-    }
-    free(threads_tokens);
-    /*
-    parse & interpret each file
-    */
+    tokenise_files_cc(files, threads_tokens, ttl_token,ttl_file_count);
+    // parse & interpret each file
     pthread_t *threads_interp = calloc(ttl_file_count, sizeof(pthread_t));
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (pthread_create(threads_interp + i, NULL, &is_prog_cc, &ttl_token[i]) != 0)
-        {
-            panic_msg("creating thread to interpret tokens");
-        }
-    }
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (pthread_join(threads_interp[i], NULL))
-        {
-            panic_msg("joining threads are interpretation");
-        }
-    }
-    free(threads_interp);
+    interp_cc(ttl_token, threads_interp, ttl_file_count);
     /*
     create files
     */
@@ -1607,4 +1561,50 @@ void file_pointers_cc(File_type **files, pthread_t *f_th, int argc, char **argv,
         }
     }
     free(f_th);    
+}
+
+void tokenise_files_cc(File_type **files, pthread_t * tok_threads,Prog_args *ttl_tok, int fcount)
+{
+    for (int i = 0; i < fcount; i++)
+    {
+        if (pthread_create(tok_threads + i, NULL, &tokenise_cc, files[i]) != 0)
+        {
+            panic_msg("tokenising file in thread");
+        }
+    }
+    for (int i = 0; i < fcount; i++)
+    {
+        if (pthread_join(tok_threads[i], (void **) &ttl_tok[i].head) != 0)
+        {
+            panic_msg("joining threads during Tokenising stage");
+        }
+    }
+    for (int i = 0; i < fcount; i++)
+    {
+        if (files[i])
+        {
+            free(files[i]->fname);
+            free(files[i]);
+        }
+    }
+    free(tok_threads);
+}
+
+void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount)
+{
+    for (int i = 0; i < fcount; i++)
+    {
+        if (pthread_create(th_interp + i, NULL, &is_prog_cc, &ttl_token[i]) != 0)
+        {
+            panic_msg("creating thread to interpret tokens");
+        }
+    }
+    for (int i = 0; i < fcount; i++)
+    {
+        if (pthread_join(th_interp[i], NULL))
+        {
+            panic_msg("joining threads are interpretation");
+        }
+    }
+    free(th_interp);
 }

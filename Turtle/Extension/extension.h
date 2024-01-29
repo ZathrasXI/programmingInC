@@ -123,6 +123,8 @@ typedef struct prog_args
 } Prog_args;
 
 //Extension
+void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount);
+void tokenise_files_cc(File_type **files, pthread_t *tok_threads, Prog_args *ttl_tok,int fcount);
 void file_pointers_cc(File_type **files, pthread_t *f_th, int argc, char **argv, int fcount);
 void init_turtles_cc(Prog_args *ttl_token, pthread_t *ttl_threads, int files);
 void set_flags(bool *txt, bool *ps, int *file_count, int argc, char **argv);
