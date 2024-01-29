@@ -4,7 +4,6 @@
 
 //TODO function "decomposition" - update_var()
 //TODO analyse differences between Neill's x,y and my x,y in .ps files - it might show me why my paths aren't the same as his
-//TODO research concurrency and max number of threads
 //TODO update parse.c with any improvements made
 //TODO no magic numbers
 //TODO run on lab machines

@@ -1,0 +1,21 @@
+﻿Introduction
+For the extension I used threading so that the interpreter can process multiples files simultaneously. 
+Usage:
+`./extension [1 or more .ttl files] [-ps] [-txt]`
+
+The flags are optiional when only 1 file is given, if you don't specify a flag then it will print to the terminal. When more than 1 filename given, you must specify the output format by using one or both of:
+`-ps`, for .ps and .pdf output
+`-txt`, for .txt output
+All files are created in `./Results/`, and the names of the output files are based on the names of the input files. E.g. hypno.ttl becomes, hypno.ps, hypno.pdf, and hypno.ttl.
+
+Implementation details
+I used the POSIX Threads library to achieve concurrency, one thread is dynamically allocated to each file. I didn’t need to make significant changes to the functionality of the existing functions from interp.c, the majority of the work for this was related to:
+- restructuring `main()`
+- creating dynamic arrays, with length of n .ttl files
+- changing the return values of the top-level, existing functions to `void *`
+- changing the parameters for some functions so they only accept a single `void *arg`
+- wrapping groups of parameters into a single struct so that it could be passed in to a functions
+- understanding when to free the dynamically allocated memory
+
+
+
