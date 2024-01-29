@@ -1282,13 +1282,6 @@ void test_integration(void)
     Token *fwd_tokens = tokenise(fwd);
     fclose(fwd);
     assert(is_prog(fwd_tokens, forward_ttl));
-    // assert(forward_ttl->len == 16);
-    // int diff = 0;
-    // for (int i = 0; i < forward_ttl->len; i++)
-    // {
-    //     assert(forward_ttl->path[i].row == ROW_START - diff);
-    //     diff++;
-    // }
     free_tokens(fwd_tokens);
     free_ttl(forward_ttl);
 
@@ -1300,12 +1293,6 @@ void test_integration(void)
     assert(is_prog(turn_tokens, turn_ttl));
     int rows[] = {16,15,14,13,12,11,10,9,8,7,6,5,4,3,2};
     int cols[] = {25,25,25,25,25,25,25,25,25,26,27,28,29,30,31};
-    // for (int i = 0; i < turn_ttl->len; i++)
-    // {
-    //     assert(turn_ttl->path[i].row == rows[i]);
-    //     assert(turn_ttl->path[i].col == cols[i]);
-    // }
-    //linked list
     Loc *turn_head = turn_ttl->path_start;
     int i = 0;
     while (turn_head)
@@ -1327,12 +1314,6 @@ void test_integration(void)
     Token *oct2_tokens = tokenise(oct2);
     fclose(oct2);
     assert(is_prog(oct2_tokens, oct2_ttl));
-    // for (int i = 0; i < oct2_ttl->len; i++)
-    // {
-    //     assert(oct2_ttl->path[i].col == oct_cols[i]);
-    //     assert(oct2_ttl->path[i].row == oct_rows[i]);
-    //     assert(oct2_ttl->path[i].colour == 'W');
-    // }
     Loc *oct2_head = oct2_ttl->path_start;
     i = 0;
     while (oct2_head)
@@ -1353,13 +1334,6 @@ void test_integration(void)
     Token *oct1_tokens = tokenise(oct1);
     fclose(oct1);
     assert(is_prog(oct1_tokens, oct1_ttl));
-    // for (int i = 0; i < oct1_ttl->len; i++)
-    // {
-    //     assert(oct1_ttl->path[i].col == oct_cols[i]);
-    //     assert(oct1_ttl->path[i].row == oct_rows[i]);
-    //     assert(oct1_ttl->path[i].colour == 'W');
-    // }
-    //linked list
     Loc *oct1_head = oct1_ttl->path_start;
     i = 0;
     while (oct1_head)
@@ -1382,13 +1356,6 @@ void test_integration(void)
     int arrow_rows[] = {16,15,14,13,12,11,11,11,11,11,11,12,13,14,15,16,16,16,16,16,16,16,16,16,17,18,19,20,21,22,23,24,25,26,25,24,23,22,21,20,19,18,17,16,16,16,16,16,16,16,16,16,16,16,16};
     char arrow_colours[] = {'R','R','R','R','R','G','G','G','G','G','Y','Y','Y','Y','Y','B','B','B','B','B','K','K','K','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W','W'};
     assert(is_prog(down_arrow_tokens, downarrow_ttl));
-    // for (int i = 0; i < downarrow_ttl->len; i++)
-    // {
-    //     assert(downarrow_ttl->path[i].col == arrow_cols[i]);
-    //     assert(downarrow_ttl->path[i].row == arrow_rows[i]);
-    //     // assert(downarrow_ttl->path[i].colour == arrow_colours[i]);
-    // }
-    //linked list
     Loc *downarrow_head = downarrow_ttl->path_start;
     i = 0;
     while (downarrow_head)
@@ -1410,13 +1377,6 @@ void test_integration(void)
     int spiral_cols[] = {25,25,26,27,28,29,29,29,28,28,28,27,26,25,24,23,22,21,20,19,18,17,17,18,18,18,18,19,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,37,36,36,36,35,35,34,34,34,33,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,18,17,16,15,15,14,13,12,12,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,36,37,38,38,39,40,40,41,42,42,43,44,44,45};
     int spiral_rows[] = {16,15,14,14,15,16,17,18,19,20,21,21,22,22,22,23,23,22,21,21,20,19,18,17,16,15,14,13,12,11,11,10,10,10,9,9,9,9,8,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,27,27,27,28,28,28,28,28,28,29,29,29,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
     assert(is_prog(spiral_tokens, spiral_ttl));
-    // for (int i = 0; i < spiral_ttl->len; i++)
-    // {
-    //     assert(spiral_ttl->path[i].col == spiral_cols[i]);
-    //     assert(spiral_ttl->path[i].row == spiral_rows[i]);
-    //     assert(spiral_ttl->path[i].colour == 'W');
-    // }
-    //linked list
     Loc *spiral_head = spiral_ttl->path_start;
     i = 0;
     while (spiral_head)
@@ -1439,13 +1399,6 @@ void test_integration(void)
     int tunnel_rows[] = {16,15,15,16,16,15,14,14,14,15,16,16,16,15,14,13,13,13,13,14,15,16,16,16,16,15,14,13,12,12,12,12,12,13,14,15,16,16,16,16,16,15,14,13,12,11,11,11,11,11,11,12,13,14,15,16,16,16,16,16,16,15,14,13,12,11,10,10,10,10,10,10,10,11,12,13,14,15,16,16,16,16,16,16,16,15,14,13,12,11,10,9,9,9,9,9,9,9,9,10,11,12,13,14,15,16,16,16,16,16,16,16,16,15,14,13,12,11,10,9,8,8,8,8,8,8,8,8,8,9,10,11,12,13,14,15,16,16,16,16,16,16,16,16,16};
     char tunnel_colours[] = {'R','G','Y','B','R','R','G','G','Y','Y','B','B','R','R','R','G','G','G','Y','Y','Y','B','B','B','R','R','R','R','G','G','G','G','Y','Y','Y','Y','B','B','B','B','R','R','R','R','R','G','G','G','G','G','Y','Y','Y','Y','Y','B','B','B','B','B','R','R','R','R','R','R','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','R','R','R','R','R','R','R','G','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','B','R','R','R','R','R','R','R','R','G','G','G','G','G','G','G','G','Y','Y','Y','Y','Y','Y','Y','Y','B','B','B','B','B','B','B','B','B'};
     assert(is_prog(tunnel_tokens, tunnel_ttl));
-    // for (int i = 0; i < tunnel_ttl->len; i++)
-    // {
-    //     assert(tunnel_ttl->path[i].col == tunnel_cols[i]);
-    //     assert(tunnel_ttl->path[i].row == tunnel_rows[i]);
-    //     // assert(tunnel_ttl->path[i].colour == tunnel_colours[i]);
-    // }
-    //linked list
     Loc *tunnel_head = tunnel_ttl->path_start;
     i = 0;
     while (tunnel_head)
@@ -1643,7 +1596,7 @@ void test_postscript(void)
     free_tokens(downarrow_tokens);
 }
 
-void test_new_loc()
+void test_new_loc(void)
 {
     Loc *new = new_loc(6, 5, 'R', true);
     assert(new);
