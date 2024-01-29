@@ -1,7 +1,0 @@
-// finish Parse/test.sh
-//use valgrind to assess test coverage
-
-
-//for the Q&A
-//are we allowed to change the Makefiles?
-//are we allowed to install and use extra packages for valgrind? e.g. kcachegrind
