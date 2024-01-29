@@ -12,6 +12,7 @@
 int main(int argc, char **argv)
 {
     // test();
+    // test_extract_name();
     //handle flags
     char *txt_flag = "-txt";
     bool txt_create = false;
@@ -139,38 +140,38 @@ int main(int argc, char **argv)
             panic_msg("joining threads are interpretation");
         }
     }
+    free(threads_interp);
+    /*
+    create files
+    */
+    int valid_files = 0;
     for (int i = 0; i < ttl_file_count; i++)
     {
-        printf("%s %d\n", ttl_token[i].head->filename, ttl_token[i].ttl->valid);
+        if (ttl_token[i].ttl->valid)
+        {   
+            valid_files++;
+        }
     }
-    exit(EXIT_FAILURE);
-    // int failure_count = 0;
-    // for (int i = 0; i < ttl_file_count; i++)
-    // {
-    //     if (!results[i])
-    //     {
-    //         failure_count++;
-    //         printf("a file couldn't be parsed\n");
-    //     }
-    // }
-    // int valid_files = ttl_file_count - failure_count;
-    // if (valid_files == 0)
-    // {
-    //     panic_msg("none of the files were parsed successfully\n");
-    // }
-    /*
-    if -txt flag, create .txt files
-    */
-    // if (txt_create)
-    // {
-    //     pthread_t *txt_threads = calloc(ttl_file_count, sizeof(pthread_t));
-    //     for (int i = 0; i < ttl_file_count; i++)
-    //     {
-    //         if (pthread_create(txt_threads + i, NULL, &cc_txt_file, ))
-    //     }
-    // }
+    pthread_t *txt_threads = calloc(valid_files, sizeof(pthread_t));
+    for (int i = 0; i< ttl_file_count; i++)
+    {
+        if (ttl_token[i].ttl->valid)
+        {
+            if (pthread_create(txt_threads + i, NULL, &cc_txt_file, &ttl_token[i]) != 0)
+            {
+                panic_msg("creating .txt file in a thread");
+            }
+        }
+    }
+    for (int i = 0; i < valid_files; i++)
+    {
+        if (pthread_join(txt_threads[i], NULL) != 0)
+        {
+            panic_msg("waiting for thread to complete after creating .txt file");
+        }
+    }
 
-
+    free(txt_threads);
 
     exit(EXIT_FAILURE);
     Turtle *ttl = init_ttl();
@@ -1535,7 +1536,12 @@ void *cc_txt_file(void *ttl_tok)
 {
     Prog_args *turtle_token = ttl_tok;
     Turtle *ttl = turtle_token->ttl;
-    char *filepath = create_file_path(turtle_token->head->filename);
+    char *name = extract_name(turtle_token->head->filename);
+    char *full_name = calloc(strlen(name) + strlen(".txt") + NULL_CHAR, sizeof(char));
+    strcpy(full_name, name);
+    strcat(full_name, ".txt");
+
+    char *filepath = create_file_path(full_name);
     bool creation_successful = false;
     FILE *f = fopen(filepath, "w");
     if (!f)
@@ -1574,6 +1580,20 @@ void *cc_txt_file(void *ttl_tok)
     }
     fclose(f);
     free(filepath);
+    free(name);
+    free(full_name);
     creation_successful = true;
     return (void *) creation_successful;
+}
+
+char *extract_name(char *c)
+{
+    char *start = "../TTLs/";
+    int s_len = strlen(start);
+    char *end = ".ttl";
+    int e_len = strlen(end);
+    int len = strlen(c) - (s_len + e_len) + NULL_CHAR;
+    char *name = calloc(len, sizeof(char));
+    strncpy(name, c + s_len, len-1);
+    return name;
 }

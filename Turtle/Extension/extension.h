@@ -123,12 +123,15 @@ typedef struct prog_args
 } Prog_args;
 
 //Extension
+char *extract_name(char *c);
 void *cc_txt_file(void *ttl_tok);
 bool is_ttl_file(char *f);
 void *init_cc_ttl();
 void *read_file_cc(void *filename);
 void *tokenise_cc(void *file);
 void *is_prog_cc(void *token_turtle);
+
+void test_extract_name(void);
 
 //Parser & interpreter
 bool coords_within_ansi_boundaries(Loc *head);

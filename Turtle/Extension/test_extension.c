@@ -30,6 +30,7 @@ void test(void)
     test_printing_tools();
     test_postscript();
     test_new_loc();
+    test_extract_name();
 }
 
 void test_stack(void)
@@ -1652,4 +1653,15 @@ void test_new_loc()
     assert(new->colour == 'R');
     assert(new->fwd_ins);
     free(new);
+}
+
+void test_extract_name()
+{
+    char *str = "../TTLs/downarrow.ttl";
+    char *name = extract_name(str);
+    assert(strcmp(name, "downarrow") == 0);
+    free(name);
+    char *str1 = "../TTLs/fail_parse_ok_interp.ttl";
+    char *name1 = extract_name(str1);
+    assert(strcmp(name1, "fail_parse_ok_interp") == 0);
 }
