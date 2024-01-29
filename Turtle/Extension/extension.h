@@ -39,6 +39,11 @@
 #define PS_START_X 30
 #define PS_START_Y 40
 
+typedef struct f 
+{
+    FILE *file;
+    char *fname;
+} File_type;
 
 typedef struct line
 {
@@ -101,20 +106,29 @@ typedef struct turtle
     bool ps_mode;
     Line *ps_start;
     Line *ps_last;
+    bool valid;
 } Turtle;
 
 typedef struct token
 {
     char *str;
     struct token *next;
+    char *filename;
 } Token;
 
+typedef struct prog_args
+{
+    Token *head;
+    Turtle *ttl;
+} Prog_args;
 
 //Extension
+void *cc_txt_file(void *ttl_tok);
 bool is_ttl_file(char *f);
 void *init_cc_ttl();
 void *read_file_cc(void *filename);
 void *tokenise_cc(void *file);
+void *is_prog_cc(void *token_turtle);
 
 //Parser & interpreter
 bool coords_within_ansi_boundaries(Loc *head);

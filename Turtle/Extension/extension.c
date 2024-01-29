@@ -40,8 +40,9 @@ int main(int argc, char **argv)
     /*
     initialising turtles
     */
+    Prog_args *ttl_token = calloc(ttl_file_count, sizeof(Prog_args));
     pthread_t *ttl_threads = calloc(ttl_file_count, sizeof(pthread_t));
-    Turtle **turtles = calloc(ttl_file_count, sizeof(Turtle));
+    // Turtle **turtles = calloc(ttl_file_count, sizeof(Turtle));
     for (int i = 0; i < ttl_file_count; i++)
     {
         if (pthread_create(ttl_threads + i, NULL, &init_cc_ttl, NULL) != 0)
@@ -51,7 +52,8 @@ int main(int argc, char **argv)
     }
     for (int i = 0; i < ttl_file_count; i++)
     {
-        if (pthread_join(ttl_threads[i], (void **) &turtles[i]) != 0)
+        // if (pthread_join(ttl_threads[i], (void **) &turtles[i]) != 0)
+        if (pthread_join(ttl_threads[i], (void **) &ttl_token[i].ttl) != 0)
         {
             panic_msg("joining threads");
         }
@@ -61,21 +63,23 @@ int main(int argc, char **argv)
     creating pointers to each file
     */
     pthread_t *file_threads = calloc(ttl_file_count, sizeof(pthread_t));
-    FILE **files = calloc(ttl_file_count, sizeof(FILE));
-    char **filenames = calloc(ttl_file_count, sizeof(char *));
+    File_type **files = calloc(ttl_file_count, sizeof(File_type*));
+    // FILE **files = calloc(ttl_file_count, sizeof(FILE));
+    // char **filenames = calloc(ttl_file_count, sizeof(char *));
     int file_number = 0;
     for (int i = 0; i < argc;i++)
     {
         if (is_ttl_file(argv[i]))
         {
-            filenames[file_number] = calloc(strlen(argv[i]) + NULL_CHAR, sizeof(char));
-            strcpy(filenames[file_number], argv[i]);
+            files[file_number] = calloc(INIT_SIZE, sizeof(File_type));
+            files[file_number]->fname = calloc(strlen(argv[i]) + NULL_CHAR, sizeof(char));
+            strcpy(files[file_number]->fname, argv[i]);
             file_number++;
         }
     }
     for (int i = 0; i < ttl_file_count; i++)
     {
-        if (pthread_create(file_threads + i, NULL, &read_file_cc, filenames[i]) != 0)
+        if (pthread_create(file_threads + i, NULL, &read_file_cc, files[i]) != 0)
         {
             panic_msg("reading files concurrently");
         }
@@ -92,7 +96,7 @@ int main(int argc, char **argv)
     Tokenise each file
     */
     pthread_t *threads_tokens = calloc(ttl_file_count, sizeof(pthread_t));
-    Token **token_heads = calloc(ttl_file_count, sizeof(Token*));
+    // Token **token_heads = calloc(ttl_file_count, sizeof(Token*));
     for (int i = 0; i < ttl_file_count; i++)
     {
         if (pthread_create(threads_tokens + i, NULL, &tokenise_cc, files[i]) != 0)
@@ -102,18 +106,73 @@ int main(int argc, char **argv)
     }
     for (int i = 0; i < ttl_file_count; i++)
     {
-        if (pthread_join(threads_tokens[i], (void **) &token_heads[i]) != 0)
+        if (pthread_join(threads_tokens[i], (void **) &ttl_token[i].head) != 0)
         {
             panic_msg("joining threads during Tokenising stage");
         }
     }
+    //free file structs
+    for (int i = 0; i < ttl_file_count; i++)
+    {
+        if (files[i])
+        {
+            free(files[i]->fname);
+            free(files[i]);
+        }
+    }
+    free(threads_tokens);
     /*
     parse & interpret each file
     */
+    pthread_t *threads_interp = calloc(ttl_file_count, sizeof(pthread_t));
+    for (int i = 0; i < ttl_file_count; i++)
+    {
+        if (pthread_create(threads_interp + i, NULL, &is_prog_cc, &ttl_token[i]) != 0)
+        {
+            panic_msg("creating thread to interpret tokens");
+        }
+    }
+    for (int i = 0; i < ttl_file_count; i++)
+    {
+        if (pthread_join(threads_interp[i], NULL))
+        {
+            panic_msg("joining threads are interpretation");
+        }
+    }
+    for (int i = 0; i < ttl_file_count; i++)
+    {
+        printf("%s %d\n", ttl_token[i].head->filename, ttl_token[i].ttl->valid);
+    }
+    exit(EXIT_FAILURE);
+    // int failure_count = 0;
+    // for (int i = 0; i < ttl_file_count; i++)
+    // {
+    //     if (!results[i])
+    //     {
+    //         failure_count++;
+    //         printf("a file couldn't be parsed\n");
+    //     }
+    // }
+    // int valid_files = ttl_file_count - failure_count;
+    // if (valid_files == 0)
+    // {
+    //     panic_msg("none of the files were parsed successfully\n");
+    // }
+    /*
+    if -txt flag, create .txt files
+    */
+    // if (txt_create)
+    // {
+    //     pthread_t *txt_threads = calloc(ttl_file_count, sizeof(pthread_t));
+    //     for (int i = 0; i < ttl_file_count; i++)
+    //     {
+    //         if (pthread_create(txt_threads + i, NULL, &cc_txt_file, ))
+    //     }
+    // }
+
+
 
     exit(EXIT_FAILURE);
-
-
     Turtle *ttl = init_ttl();
 
     if (argc == ONE_ARG)
@@ -517,13 +576,16 @@ bool is_loop(Token *t, Turtle *ttl)
             }
             Token *start_of_ins = start_of_lst->next;
             int var_index = get_var_index(t->next->str[0]);
-            while (is_item(iter->str))
+            if (is_item(iter->str))
             {
-                update_var(iter->str, var_index, ttl);
-                is_inslst(start_of_ins, ttl);
-                iter = iter->next;
+                while (is_item(iter->str))
+                {
+                    update_var(iter->str, var_index, ttl);
+                    is_inslst(start_of_ins, ttl);
+                    iter = iter->next;
+                }
+                return true;
             }
-            return true;
         }
     return false;
 }
@@ -1418,9 +1480,9 @@ void *init_cc_ttl()
 
 void *read_file_cc(void *filename)
 {
-    char *ttl_file = (char *) filename;
-    FILE *f = fopen(ttl_file, "r");
-    if (!f)
+    File_type *f = filename;
+    f->file = fopen(f->fname, "r");
+    if (!f->file)
     {
         panic_msg("opening file in thread");
     }
@@ -1429,16 +1491,18 @@ void *read_file_cc(void *filename)
 
 void *tokenise_cc(void *file)
 {
-    FILE *ttl_file = (FILE *) file;
+    File_type *f = file;
     char buffer[TOKEN_LEN];
     Token *current = NULL;
     Token *head = NULL;
-    while (fscanf(ttl_file, "%s", buffer) == 1)
+    while (fscanf(f->file, "%s", buffer) == 1)
     {
         if (!head)
         {
             head = new_token(buffer);
             current = head;
+            current->filename = calloc(strlen(f->fname) + NULL_CHAR, sizeof(char));
+            strcpy(current->filename, f->fname);
         }
         else
         {
@@ -1447,4 +1511,69 @@ void *tokenise_cc(void *file)
         }
     }
     return (void *) head;
+}
+
+void *is_prog_cc(void *token_turtle)
+{
+    Prog_args *args = token_turtle;
+    Token *t = args->head;
+    Turtle *ttl = args->ttl;
+    if (strcmp(t->str, "START") == 0 && 
+    t->next &&
+    is_inslst(t->next, ttl))
+    {
+        ttl->valid = true;
+    }
+    else
+    {
+        ttl->valid = false;
+    }
+    return (void *) ttl;
+}
+
+void *cc_txt_file(void *ttl_tok)
+{
+    Prog_args *turtle_token = ttl_tok;
+    Turtle *ttl = turtle_token->ttl;
+    char *filepath = create_file_path(turtle_token->head->filename);
+    bool creation_successful = false;
+    FILE *f = fopen(filepath, "w");
+    if (!f)
+    {
+        free(filepath);
+        return (void *) creation_successful;
+    }
+    char arr[HEIGHT][WIDTH];
+    for (int row = 0; row < HEIGHT; row++)
+    {
+        for (int col = 0; col < WIDTH; col++)
+        {
+            arr[row][col] = ' ';
+        }
+    }
+    Loc *head = ttl->path_start;
+    while (head)
+    {
+        if (head->row >= 0 &&
+            head->row < HEIGHT &&
+            head->col >= 0 &&
+            head->col < WIDTH)
+            {
+                arr[head->row][head->col] = head->colour;
+            }
+        head = head->next;
+    }
+
+    for (int row = 0; row < HEIGHT; row++)
+    {
+        for (int col = 0; col < WIDTH; col++)
+        {
+            fprintf(f, "%c", arr[row][col]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
+    free(filepath);
+    creation_successful = true;
+    return (void *) creation_successful;
 }
