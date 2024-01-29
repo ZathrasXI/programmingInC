@@ -56,24 +56,8 @@ int main(int argc, char **argv)
     {
         pthread_t *ps_threads = calloc(valid_files, sizeof(pthread_t));
         thread_setup_ps_file(ttl_token, ps_threads, ttl_file_count, valid_files);
-        // for (int i = 0; i < ttl_file_count; i++)
-        // {
-        //     if (ttl_token[i].ttl->valid)
-        //     {
-        //         if (pthread_create(ps_threads + i, NULL, &create_ps_file_cc, &ttl_token[i]) != 0)
-        //         {
-        //             panic_msg("creating threads for .ps files");
-        //         }
-        //     }
-        // }
-        // for (int i = 0; i < valid_files; i++)
-        // {
-        //     if (pthread_join(ps_threads[i], NULL) != 0)
-        //     {
-        //         panic_msg("creating .ps files");
-        //     }
-        // }
-        // free(ps_threads);
+        pthread_t *pdf_threads = calloc(valid_files, sizeof(pthread_t));
+        thrd_setup_pdf(ttl_token,pdf_threads, ttl_file_count, valid_files);
     }
     exit(EXIT_FAILURE);
     Turtle *ttl = init_ttl();
@@ -663,16 +647,14 @@ void panic_msg(char *msg)
 
 void find_end_points(float x0, float y0, int input_length, float x1_y1[X_Y], Turtle *ttl)
 {
-    if (!ttl->ps_mode)
-    {
-        x1_y1[0] = x0 + (input_length * sin(ttl->direction));
-        x1_y1[1] = y0 - (input_length * cos(ttl->direction));
-    }
-    else
-    {
-        x1_y1[0] = x0 + (input_length * sin(ttl->direction));
-        x1_y1[1] = y0 + (input_length * cos(ttl->direction));
-    }
+    x1_y1[0] = x0 + (input_length * sin(ttl->direction));
+    x1_y1[1] = y0 - (input_length * cos(ttl->direction));
+}
+
+void ps_end_points(float x0, float y0, int input_length, float x1_y1[X_Y], Turtle *ttl)
+{
+    x1_y1[0] = x0 + (input_length * sin(ttl->direction));
+    x1_y1[1] = y0 + (input_length * cos(ttl->direction));
 }
 
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl)
@@ -1014,14 +996,14 @@ void update_postscript_ins(Turtle *ttl, int steps)
     float x1_y1[X_Y];
     if (!ttl->ps_start)
     {
-        find_end_points(PS_START_X, PS_START_Y, steps, x1_y1, ttl);
+        ps_end_points(PS_START_X, PS_START_Y, steps, x1_y1, ttl);
         ttl->ps_start = new_line(PS_START_X, PS_START_Y, x1_y1[0], x1_y1[1]);
         ttl->ps_start->colour = set_postscript_colour(ttl->colour);
         ttl->ps_last = ttl->ps_start;
     }
     else 
     {
-        find_end_points(ttl->ps_last->x1, ttl->ps_last->y1, steps, x1_y1, ttl);
+        ps_end_points(ttl->ps_last->x1, ttl->ps_last->y1, steps, x1_y1, ttl);
         ttl->ps_last->next = new_line(ttl->ps_last->x1, ttl->ps_last->y1, x1_y1[0], x1_y1[1]);
         ttl->ps_last->next->colour = set_postscript_colour(ttl->colour);
         ttl->ps_last = ttl->ps_last->next;
@@ -1701,4 +1683,54 @@ void thread_setup_ps_file(Prog_args *ttl_tok, pthread_t *th_ps, int fcount, int 
             }
         }
         free(th_ps);
+}
+
+void *cc_ps_2_pdf(void *ttl_tok)
+{
+    Prog_args *t = ttl_tok;
+    char *pdf = calloc(strlen(t->ttl->ps_filepath) + strlen("f") + NULL_CHAR, sizeof(char));
+    if (!pdf)
+    {
+        panic_msg("allocating space for filename of PDF");
+    }
+    strcpy(pdf, t->ttl->ps_filepath);
+    pdf[strlen(pdf)-1] = 'd';
+    pdf[strlen(pdf)] = 'f';
+    int len = strlen("ps2pdf ") + strlen(t->ttl->ps_filepath) + strlen(" ") + strlen(pdf) + NULL_CHAR; 
+    char *cmd = calloc(len, sizeof(char));
+    if (!cmd)
+    {
+        panic_msg("allocating space for ps2pdf command");
+    }
+    sprintf(cmd, "ps2pdf %s %s", t->ttl->ps_filepath, pdf);
+    int return_code = system(cmd);
+    free(t->ttl->ps_filepath);
+    free(cmd);
+    free(pdf);
+    if (return_code == 0)
+    {
+        return (void*) true;
+    }
+    return (void*) false;
+}
+
+void thrd_setup_pdf(Prog_args *t, pthread_t *pdf_th, int fcount, int valids)
+{
+    for (int i = 0; i < fcount; i++)
+        {
+            if (t[i].ttl->valid)
+            {
+                if (pthread_create(pdf_th + i, NULL, &cc_ps_2_pdf, &t[i]) != 0)
+                {
+                    panic_msg("creating threads for .pdf files");
+                }
+            }
+        }
+        for (int i = 0; i < valids; i++)
+        {
+            if (pthread_join(pdf_th[i], NULL) != 0)
+            {
+                panic_msg("creating .pdf files");
+            }
+        }
 }

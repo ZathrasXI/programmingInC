@@ -124,6 +124,8 @@ typedef struct prog_args
 } Prog_args;
 
 //Extension
+void thrd_setup_pdf(Prog_args *t, pthread_t *pdf_th, int fcount, int valids);
+void *cc_ps_2_pdf(void *ttl_tok);
 void thread_setup_ps_file(Prog_args *ttl_tok, pthread_t *th_ps, int fcount, int valids);
 void *create_ps_file_cc(void *ttl_tok);
 void thrd_setup_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids);
@@ -161,6 +163,7 @@ int get_ansi_colour(char c);
 int next_fwd_ins(Turtle *ttl, int start);
 bool create_txt_file(char *name, Turtle *ttl);
 void find_end_points(float x0, float y0, int len, float x1_y1[2], Turtle *ttl);
+void ps_end_points(float x0, float y0, int input_length, float x1_y1[X_Y], Turtle *ttl);
 void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void represent_coords(char **screen);
