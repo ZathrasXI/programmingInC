@@ -6,13 +6,13 @@ VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 
 extension: extension.h extension.c stack.c test_extension.c
-	$(CC) extension.c $(COMMON) -o extension -lm -pthreads
+	$(CC) extension.c $(COMMON) -o extension -lm -pthread
 
 val: extension.c extension.h
-	$(CC) extension.c $(VALGRIND) -o val_extension -lm -pthreads
+	$(CC) extension.c $(VALGRIND) -o val_extension -lm -pthread
 
 cov: extension.c 
-	gcc -fprofile-arcs -ftest-coverage -o extension extension.c -pthreads
+	gcc -fprofile-arcs -ftest-coverage -o extension extension.c -pthread -lm
 	
 clean_cov:
 	rm *.gc* extension

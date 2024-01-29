@@ -7,6 +7,8 @@
 #include <regex.h>
 #include <math.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define TOKEN_LEN 30
 #define ONE_ARG 1

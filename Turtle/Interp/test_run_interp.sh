@@ -6,7 +6,7 @@ if [ $? -ne 1 ]; then
 fi
 
 ./interpreter "../TTLs/fail_parse_ok_interp.ttl" 2> /dev/null
-if [ $? -ne 1 ]; then
-    echo "fail: `./interpreter ../TTLs/fail_parse_ok_interp.ttl` should exit 1"
+if [ $? -ne 0 ]; then
+    echo "fail: `./interpreter ../TTLs/fail_parse_ok_interp.ttl` should exit 0"
 fi
 make clean > /dev/null

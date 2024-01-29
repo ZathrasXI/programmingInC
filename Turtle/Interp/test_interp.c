@@ -1454,11 +1454,6 @@ void test_printing_tools(void)
     FILE *ttl_file = fopen("../TTLs/turn.ttl", "r");
     Token *turn = tokenise(ttl_file);
     assert(is_prog(turn, ttl));
-    //get next end index
-    //TODO can next_fwd_ins() be removed?
-    // assert(next_fwd_ins(ttl, 0) == 9);
-    // assert(next_fwd_ins(ttl, 8) == 9);
-    // assert(next_fwd_ins(ttl, 9) == NOT_FOUND);
     //get ansi code for relevant colour
     assert(get_ansi_colour('K') == 30);
     assert(get_ansi_colour('R') == 31);

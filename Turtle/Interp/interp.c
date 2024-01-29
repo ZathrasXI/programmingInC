@@ -2,12 +2,9 @@
 #include "stack.c"
 #include "test_interp.c"
 
-//TODO function "decomposition" - update_var()
-//TODO analyse differences between Neill's x,y and my x,y in .ps files - it might show me why my paths aren't the same as his
-//TODO research concurrency and max number of threads
 //TODO update parse.c with any improvements made
 //TODO no magic numbers
-//TODO run on lab machines
+
 
 int main(int argc, char **argv)
 {
@@ -48,10 +45,6 @@ int main(int argc, char **argv)
         }
         else
         {
-            // if (!create_txt_file(argv[2], ttl))
-            // {
-            //     panic_msg("creating output file");
-            // }
             if (!path_to_txt_file(argv[2], ttl))
             {
                 panic_msg("creating txt file");
@@ -417,16 +410,13 @@ bool is_loop(Token *t, Turtle *ttl)
             }
             Token *start_of_ins = start_of_lst->next;
             int var_index = get_var_index(t->next->str[0]);
-            if (is_item(iter->str))
+            while (is_item(iter->str))
             {
-                while (is_item(iter->str))
-                {
-                    update_var(iter->str, var_index, ttl);
-                    is_inslst(start_of_ins, ttl);
-                    iter = iter->next;
-                }
-                return true;
+                update_var(iter->str, var_index, ttl);
+                is_inslst(start_of_ins, ttl);
+                iter = iter->next;
             }
+            return true;
         }
     return false;
 }
@@ -911,14 +901,25 @@ char *create_ps_file(Line *l, char *filename)
 
 char *create_file_path(char *filename)
 {
-    int len = strlen("./Results/") + strlen(filename) + NULL_CHAR;
+    const char *dir = "./Results/";
+    int len = strlen(dir) + strlen(filename) + NULL_CHAR;
     char *path = calloc(len, sizeof(char));
     if (!path)
     {
         panic_msg("creating string for filename");
     }
-    strcpy(path, "./Results/");
+    // Does dir exist?
+    if (access(dir, F_OK) == -1) 
+    {
+        //If not, create it with appropriate permissions
+        if (mkdir(dir, 0777) != 0) 
+        {
+            panic_msg("folder not created");
+        } 
+    } 
+    strcpy(path, dir);
     strcat(path, filename);
+
     return path;
 }
 
