@@ -411,11 +411,9 @@ bool is_loop(Token *t, Turtle *ttl)
         {
             Token *start_of_lst = t->next->next->next->next;
             Token *iter = start_of_lst;
-            int list_len = 0;
             while (strcmp(start_of_lst->str, "}") != 0)
             {
                 start_of_lst = start_of_lst->next;
-                list_len++;
             }
             Token *start_of_ins = start_of_lst->next;
             int var_index = get_var_index(t->next->str[0]);
