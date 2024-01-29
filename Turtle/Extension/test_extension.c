@@ -1534,7 +1534,7 @@ void test_postscript(void)
     Turtle *t1 = init_ttl();
     t1->ps_mode = true;
     float x1_y1[2];
-    find_end_points(30,40,15,x1_y1,t1);
+    ps_end_points(30,40,15,x1_y1,t1);
     assert(fabs(x1_y1[0] - 30.0) < TOLERANCE);
     assert(fabs(x1_y1[1] - 55.0) < TOLERANCE);
     free(t1);
@@ -1629,4 +1629,5 @@ void test_extract_name()
     char *str1 = "../TTLs/fail_parse_ok_interp.ttl";
     char *name1 = extract_name(str1);
     assert(strcmp(name1, "fail_parse_ok_interp") == 0);
+    free(name1);
 }

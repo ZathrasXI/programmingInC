@@ -10,7 +10,7 @@
 
 int main(int argc, char **argv)
 {
-    // test_extract_name();
+    test();
     bool txt_create = false;
     bool ps_create = false;
     int ttl_file_count = 0;
