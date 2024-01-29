@@ -2,6 +2,10 @@
 
 # test output of .txt
 files=("octagon1" "octagon2" "spiral" "tunnel" "turn" "donothing" "downarrow" "empty" "labyrinth")
+dir="./Results"
+if [ ! -d "$dir" ]; then
+    mkdir "$dir"
+fi
 mkdir ./Results/output_tmp
 make > /dev/null
 

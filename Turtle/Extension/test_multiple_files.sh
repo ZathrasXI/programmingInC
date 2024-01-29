@@ -1,5 +1,9 @@
 #!/bin/bash
 
+dir="./Results"
+if [ ! -d "$dir" ]; then
+    mkdir "$dir"
+fi
 
 make > /dev/null
 
