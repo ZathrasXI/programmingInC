@@ -1304,7 +1304,7 @@ bool is_ttl_file(char *f)
     }
 }
 
-void *init_cc_ttl()
+void *init_cc_ttl(void* v)
 {
     Turtle *t = calloc(INIT_SIZE, sizeof(Turtle));
     if (!t)
@@ -1315,7 +1315,7 @@ void *init_cc_ttl()
     t->capacity = PATH;
     t->direction = 0;
     t->colour = 'W';
-    t->ps_start = NULL;
+    t->ps_start = v;
     t->ps_last = NULL;
     t->ps_mode = false;
     return (void *) t; 

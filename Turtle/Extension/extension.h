@@ -137,7 +137,7 @@ void init_turtles_cc(Prog_args *ttl_token, pthread_t *ttl_threads, int files);
 void set_flags(bool *txt, bool *ps, int *file_count, int argc, char **argv);
 char *extract_name(char *c);
 bool is_ttl_file(char *f);
-void *init_cc_ttl();
+void *init_cc_ttl(void *v);
 void *read_file_cc(void *filename);
 void *tokenise_cc(void *file);
 void *is_prog_cc(void *token_turtle);
@@ -168,7 +168,7 @@ void calculate_line_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void calculate_loc_coords(int x0, int y0, int x1, int y1, Turtle *ttl);
 void represent_coords(char **screen);
 void update_var(char *token_str, int dest_index, Turtle *ttl);
-Turtle *init_ttl();
+Turtle *init_ttl(void);
 int get_var_index(char var_name);
 double degrees_to_radians(double degrees);
 Token *new_token(char *c);
@@ -234,7 +234,7 @@ void test_tokenise(void);
 void test_printing_tools(void);
 void test_postscript(void);
 void free_ttl(Turtle *ttl);
-void test_new_loc();
+void test_new_loc(void);
 
 
 

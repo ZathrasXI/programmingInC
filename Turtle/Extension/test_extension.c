@@ -1609,7 +1609,7 @@ void test_postscript(void)
     free_tokens(downarrow_tokens);
 }
 
-void test_new_loc()
+void test_new_loc(void)
 {
     Loc *new = new_loc(6, 5, 'R', true);
     assert(new);
@@ -1620,7 +1620,7 @@ void test_new_loc()
     free(new);
 }
 
-void test_extract_name()
+void test_extract_name(void)
 {
     char *str = "../TTLs/downarrow.ttl";
     char *name = extract_name(str);
