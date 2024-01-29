@@ -28,34 +28,7 @@ int main(int argc, char **argv)
     */
     pthread_t *file_threads = calloc(ttl_file_count, sizeof(pthread_t));
     File_type **files = calloc(ttl_file_count, sizeof(File_type*));
-    // FILE **files = calloc(ttl_file_count, sizeof(FILE));
-    // char **filenames = calloc(ttl_file_count, sizeof(char *));
-    int file_number = 0;
-    for (int i = 0; i < argc;i++)
-    {
-        if (is_ttl_file(argv[i]))
-        {
-            files[file_number] = calloc(INIT_SIZE, sizeof(File_type));
-            files[file_number]->fname = calloc(strlen(argv[i]) + NULL_CHAR, sizeof(char));
-            strcpy(files[file_number]->fname, argv[i]);
-            file_number++;
-        }
-    }
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (pthread_create(file_threads + i, NULL, &read_file_cc, files[i]) != 0)
-        {
-            panic_msg("reading files concurrently");
-        }
-    }
-    for (int i = 0; i < ttl_file_count; i++)
-    {
-        if (pthread_join(file_threads[i], (void **) &files[i]) != 0)
-        {
-            panic_msg("joining threads after files opened");
-        }
-    }
-    free(file_threads);
+    file_pointers_cc(files, file_threads, argc, argv, ttl_file_count);
     /*
     Tokenise each file
     */
@@ -1604,4 +1577,34 @@ void init_turtles_cc(Prog_args *ttl_token, pthread_t *ttl_threads, int files)
         }
     }
     free(ttl_threads);
+}
+
+void file_pointers_cc(File_type **files, pthread_t *f_th, int argc, char **argv, int fcount)
+{
+    int file_number = 0;
+    for (int i = 0; i < argc;i++)
+    {
+        if (is_ttl_file(argv[i]))
+        {
+            files[file_number] = calloc(INIT_SIZE, sizeof(File_type));
+            files[file_number]->fname = calloc(strlen(argv[i]) + NULL_CHAR, sizeof(char));
+            strcpy(files[file_number]->fname, argv[i]);
+            file_number++;
+        }
+    }
+    for (int i = 0; i < fcount; i++)
+    {
+        if (pthread_create(f_th + i, NULL, &read_file_cc, files[i]) != 0)
+        {
+            panic_msg("reading files concurrently");
+        }
+    }
+    for (int i = 0; i < fcount; i++)
+    {
+        if (pthread_join(f_th[i], (void **) &files[i]) != 0)
+        {
+            panic_msg("joining threads after files opened");
+        }
+    }
+    free(f_th);    
 }
