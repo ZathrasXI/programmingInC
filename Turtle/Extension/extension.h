@@ -126,7 +126,7 @@ typedef struct prog_args
 //Extension
 void thread_setup_ps_file(Prog_args *ttl_tok, pthread_t *th_ps, int fcount, int valids);
 void *create_ps_file_cc(void *ttl_tok);
-void main_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids);
+void thrd_setup_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids);
 void *cc_txt_file(void *ttl_tok);
 void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount);
 void tokenise_files_cc(File_type **files, pthread_t *tok_threads, Prog_args *ttl_tok,int fcount);

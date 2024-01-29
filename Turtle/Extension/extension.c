@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     if (txt_create)
     {
         pthread_t *txt_threads = calloc(valid_files, sizeof(pthread_t));
-        main_cc_txt_file(ttl_token, txt_threads, ttl_file_count, valid_files);
+        thrd_setup_cc_txt_file(ttl_token, txt_threads, ttl_file_count, valid_files);
     }
     if (ps_create)
     {
@@ -1618,7 +1618,7 @@ void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount)
     free(th_interp);
 }
 
-void main_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids)
+void thrd_setup_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids)
 {
     for (int i = 0; i < fcount; i++)
     {
