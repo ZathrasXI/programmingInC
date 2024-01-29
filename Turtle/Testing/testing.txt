@@ -6,10 +6,7 @@ My approach to testing was influenced by two concepts from the Software Testing 
 
 --Test coverage--
 I used `gcov`, built in to gcc, to measure the code covered by the unit tests.
-gcov reports that coverage of:
-- the parser is 95%
-- the interp is %
-- the extension is %
+gcov reports that coverage of the parser is 95%, and ~80% for the interpreter.
 
 It isn’t possible to achieve 100% coverage from assert testing alone, because some paths through the code are impossible to test within the program. For example, there are many scenarios that cause the program to exit, which would cease all testing. There are also scenarios that are hard to replicated, such as causing memory allocation to fail. To try and cover the remaining tests cases I used bash scripts and manually “uncommenting” assert tests that force the program to exit.
 These tests within the interpreter are commented out, and I run them manually:
@@ -28,11 +25,17 @@ I have written a test_gcov.sh bash script that executes these commands against t
 
 --Implementation of integration and end-to-end testing--
 Testing the combination of many function calls, and the output of the entire program provided me with insight into state of the software as a whole. Examples of tests at this scope are:
-- the `is_prog()`, `is_loop()`, or `is_inslst()` tests in the parser
-- the collection of tests within `test_ingtegration()`, test_interp.c
+- the `is_prog()`, `is_loop()`, or `is_inslst()` tests in ./Parser/
+- the collection of tests within `test_ingtegration()`, ./Interp/test_interp.c
 - `Extension/test_multiple_files.sh` 
+- Parse/test_ttls.sh
+- Parse/gcov.sh
+- Interp/test_argv2.sh
+- Interp/test_run_interp.sh
+- Parse/gcov.sh
 
-The downside of this scope is that these tests didn’t always highlight where inside the “black box”, something is broken, but this is where the above mentioned unit tests are valuable. 
+
+The downside of this scope is that these tests didn’t always highlight exactly where inside the “black box”, something is broken, but this is where the above mentioned unit tests are valuable. 
 
 
 

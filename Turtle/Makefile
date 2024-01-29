@@ -5,66 +5,66 @@ SANITIZE= $(COMMON) -fsanitize=undefined -fsanitize=address $(DEBUG)
 VALGRIND= $(COMMON) $(DEBUG)
 PRODUCTION= $(COMMON) -O3
 
-all: parse_s interp_s extension_s
+all: parse interp extension
 
-parse_s: Parse/parse.h Parse/parse.c
-	$(CC) Parse/parse.c -o parse_s $(SANITIZE) -lm
+parse: Parse/parse.h Parse/parse.c
+	$(CC) Parse/parse.c -o parse $(SANITIZE) -lm
 
-interp_s: Interp/interp.h Interp/interp.c Interp/stack.c Interp/test_interp.c
-	$(CC) Interp/interp.c -o interp_s $(SANITIZE) -lm
+interp: Interp/interp.h Interp/interp.c Interp/stack.c Interp/test_interp.c
+	$(CC) Interp/interp.c -o interp $(SANITIZE) -lm
 
-extension_s: Extension/extension.h Extension/extension.c Extension/stack.c Extension/test_extension.c
-	$(CC) Extension/extension.c -o extension_s $(SANITIZE) -lm -pthread
+extension: Extension/extension.h Extension/extension.c Extension/stack.c Extension/test_extension.c
+	$(CC) Extension/extension.c -o extension $(SANITIZE) -lm -pthread
 
 run: all
-	./parse_s TTLs/empty.ttl
-	./parse_s TTLs/forward.ttl
-	./parse_s TTLs/ok_parse_fail_interp.ttl
-	./parse_s TTLs/set1.ttl
-	./parse_s TTLs/donothing.ttl
-	./parse_s TTLs/set2.ttl
-	./parse_s TTLs/turn.ttl
-	./parse_s TTLs/spiral.ttl
-	./parse_s TTLs/octagon1.ttl
-	./parse_s TTLs/octagon2.ttl
-	./parse_s TTLs/tunnel.ttl
-	./parse_s TTLs/labyrinth.ttl
-	./parse_s TTLs/hypno.ttl
-	./parse_s TTLs/5x5.ttl
-	./parse_s TTLs/downarrow.ttl
+	./parse TTLs/empty.ttl
+	./parse TTLs/forward.ttl
+	./parse TTLs/ok_parse_fail_interp.ttl
+	./parse TTLs/set1.ttl
+	./parse TTLs/donothing.ttl
+	./parse TTLs/set2.ttl
+	./parse TTLs/turn.ttl
+	./parse TTLs/spiral.ttl
+	./parse TTLs/octagon1.ttl
+	./parse TTLs/octagon2.ttl
+	./parse TTLs/tunnel.ttl
+	./parse TTLs/labyrinth.ttl
+	./parse TTLs/hypno.ttl
+	./parse TTLs/5x5.ttl
+	./parse TTLs/downarrow.ttl
 	# Attention Niell
 	# I have commented this out because running the interpreter from the root directory causes a few of the 
 	# integration tests to fail because they rely on relative path.
-	# ./interp_s TTLs/empty.ttl out_empty.txt
-	# ./interp_s TTLs/forward.ttl out_forward.txt
-	# ./interp_s TTLs/set1.ttl out_set1.txt
-	# ./interp_s TTLs/donothing.ttl out_donothing.txt
-	# ./interp_s TTLs/fail_parse_ok_interp.ttl out_fail_parse_ok_interp.txt
-	# ./interp_s TTLs/set2.ttl out_set2.txt
-	# ./interp_s TTLs/turn.ttl out_turn.txt
-	# ./interp_s TTLs/spiral.ttl out_spiral.txt
-	# ./interp_s TTLs/octagon1.ttl out_octagon1.txt
-	# ./interp_s TTLs/octagon2.ttl out_octagon2.txt
-	# ./interp_s TTLs/tunnel.ttl out_tunnel.txt
-	# ./interp_s TTLs/labyrinth.ttl out_labyrinth.txt
-	# ./interp_s TTLs/hypno.ttl out_hypno.txt
-	# ./interp_s TTLs/5x5.ttl out_5x5.txt
-	# ./interp_s TTLs/downarrow.ttl out_downarrow.txt
-	# ./interp_s TTLs/empty.ttl out_empty.ps
-	# ./interp_s TTLs/forward.ttl out_forward.ps
-	# ./interp_s TTLs/set1.ttl out_set1.ps
-	# ./interp_s TTLs/donothing.ttl out_donothing.ps
-	# ./interp_s TTLs/fail_parse_ok_interp.ttl out_fail_parse_ok_interp.ps
-	# ./interp_s TTLs/set2.ttl out_set2.ps
-	# ./interp_s TTLs/turn.ttl out_turn.ps
-	# ./interp_s TTLs/spiral.ttl out_spiral.ps
-	# ./interp_s TTLs/octagon1.ttl out_octagon1.ps
-	# ./interp_s TTLs/octagon2.ttl out_octagon2.ps
-	# ./interp_s TTLs/tunnel.ttl out_tunnel.ps
-	# ./interp_s TTLs/labyrinth.ttl out_labyrinth.ps
-	# ./interp_s TTLs/hypno.ttl out_hypno.ps
-	# ./interp_s TTLs/5x5.ttl out_5x5.ps
-	# ./interp_s TTLs/downarrow.ttl out_downarrow.ps
+	# ./interp TTLs/empty.ttl out_empty.txt
+	# ./interp TTLs/forward.ttl out_forward.txt
+	# ./interp TTLs/set1.ttl out_set1.txt
+	# ./interp TTLs/donothing.ttl out_donothing.txt
+	# ./interp TTLs/fail_parse_ok_interp.ttl out_fail_parse_ok_interp.txt
+	# ./interp TTLs/set2.ttl out_set2.txt
+	# ./interp TTLs/turn.ttl out_turn.txt
+	# ./interp TTLs/spiral.ttl out_spiral.txt
+	# ./interp TTLs/octagon1.ttl out_octagon1.txt
+	# ./interp TTLs/octagon2.ttl out_octagon2.txt
+	# ./interp TTLs/tunnel.ttl out_tunnel.txt
+	# ./interp TTLs/labyrinth.ttl out_labyrinth.txt
+	# ./interp TTLs/hypno.ttl out_hypno.txt
+	# ./interp TTLs/5x5.ttl out_5x5.txt
+	# ./interp TTLs/downarrow.ttl out_downarrow.txt
+	# ./interp TTLs/empty.ttl out_empty.ps
+	# ./interp TTLs/forward.ttl out_forward.ps
+	# ./interp TTLs/set1.ttl out_set1.ps
+	# ./interp TTLs/donothing.ttl out_donothing.ps
+	# ./interp TTLs/fail_parse_ok_interp.ttl out_fail_parse_ok_interp.ps
+	# ./interp TTLs/set2.ttl out_set2.ps
+	# ./interp TTLs/turn.ttl out_turn.ps
+	# ./interp TTLs/spiral.ttl out_spiral.ps
+	# ./interp TTLs/octagon1.ttl out_octagon1.ps
+	# ./interp TTLs/octagon2.ttl out_octagon2.ps
+	# ./interp TTLs/tunnel.ttl out_tunnel.ps
+	# ./interp TTLs/labyrinth.ttl out_labyrinth.ps
+	# ./interp TTLs/hypno.ttl out_hypno.ps
+	# ./interp TTLs/5x5.ttl out_5x5.ps
+	# ./interp TTLs/downarrow.ttl out_downarrow.ps
 
 clean:
-	rm -f extension_s parse_s interp_s out_*.txt out_*.ps out_*.pdf
+	rm -f extension parse interp out_*.txt out_*.ps out_*.pdf
