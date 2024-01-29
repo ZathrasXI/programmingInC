@@ -123,6 +123,7 @@ typedef struct prog_args
 } Prog_args;
 
 //Extension
+void main_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids);
 void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount);
 void tokenise_files_cc(File_type **files, pthread_t *tok_threads, Prog_args *ttl_tok,int fcount);
 void file_pointers_cc(File_type **files, pthread_t *f_th, int argc, char **argv, int fcount);

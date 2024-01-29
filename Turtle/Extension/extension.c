@@ -31,9 +31,7 @@ int main(int argc, char **argv)
     // parse & interpret each file
     pthread_t *threads_interp = calloc(ttl_file_count, sizeof(pthread_t));
     interp_cc(ttl_token, threads_interp, ttl_file_count);
-    /*
-    create files
-    */
+    //create files
     int valid_files = 0;
     for (int i = 0; i < ttl_file_count; i++)
     {
@@ -42,26 +40,12 @@ int main(int argc, char **argv)
             valid_files++;
         }
     }
-    pthread_t *txt_threads = calloc(valid_files, sizeof(pthread_t));
-    for (int i = 0; i< ttl_file_count; i++)
+    if (txt_create)
     {
-        if (ttl_token[i].ttl->valid)
-        {
-            if (pthread_create(txt_threads + i, NULL, &cc_txt_file, &ttl_token[i]) != 0)
-            {
-                panic_msg("creating .txt file in a thread");
-            }
-        }
+        pthread_t *txt_threads = calloc(valid_files, sizeof(pthread_t));
+        main_cc_txt_file(ttl_token, txt_threads, ttl_file_count, valid_files);
     }
-    for (int i = 0; i < valid_files; i++)
-    {
-        if (pthread_join(txt_threads[i], NULL) != 0)
-        {
-            panic_msg("waiting for thread to complete after creating .txt file");
-        }
-    }
-
-    free(txt_threads);
+    
 
     exit(EXIT_FAILURE);
     Turtle *ttl = init_ttl();
@@ -1607,4 +1591,27 @@ void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount)
         }
     }
     free(th_interp);
+}
+
+void main_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids)
+{
+    for (int i = 0; i< fcount; i++)
+    {
+        if (ttl_token[i].ttl->valid)
+        {
+            if (pthread_create(th_txt + i, NULL, &cc_txt_file, &ttl_token[i]) != 0)
+            {
+                panic_msg("creating .txt file in a thread");
+            }
+        }
+    }
+    for (int i = 0; i < valids; i++)
+    {
+        if (pthread_join(th_txt[i], NULL) != 0)
+        {
+            panic_msg("waiting for thread to complete after creating .txt file");
+        }
+    }
+
+    free(th_txt);
 }
