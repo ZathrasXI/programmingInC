@@ -11,7 +11,6 @@
 
 int main(int argc, char **argv)
 {
-    // test();
     // test_extract_name();
     bool txt_create = false;
     bool ps_create = false;
@@ -64,57 +63,16 @@ int main(int argc, char **argv)
         pthread_t *pdf_threads = calloc(valid_files, sizeof(pthread_t));
         thrd_setup_pdf(ttl_token,pdf_threads, ttl_file_count, valid_files);
     }
-    exit(EXIT_FAILURE);
-    Turtle *ttl = init_ttl();
-
-    if (argc == ONE_ARG)
+    for (int i = 0; i < ttl_file_count; i++)
     {
-        printf("Usage: ./interpreter <turtle file>\n");
-        exit(EXIT_FAILURE);
+        free_tokens((ttl_token + i)->head);
+        free_ttl((ttl_token+i)->ttl);
+        free(files[i]->fname);
+        free(files[i]);
     }
-    else if (argc == OUTPUT_FILE)
-    {
-        ttl->ps_mode = ps_mode(argv[2]);
-    }
-    
-    FILE *turtle_file = fopen(argv[1], "r");
-    if (!turtle_file)
-    {
-        panic_msg("opening file");
-    }
-    Token *head = tokenise(turtle_file);
-
-    if (!is_prog(head, ttl))
-    {
-        panic_msg("file not parsed");
-    }
-
-    if (argc == OUTPUT_FILE)
-    {
-        if (ttl->ps_mode)
-        {
-            char *filepath = create_ps_file(ttl->ps_start, argv[2]);
-            if (!ps2pdf_cmd(filepath))
-            {
-                panic_msg("executing psd2pdf command");
-            }
-        }
-        else
-        {
-            if (!path_to_txt_file(argv[2], ttl))
-            {
-                panic_msg("creating txt file");
-            }
-        }
-    }
-    else if (argc == PRINT_TERMINAL)
-    {
-        print_to_terminal(ttl);
-    }
-
-    free_tokens(head);
-    free_ttl(ttl);
-    return 0;
+    free(files);
+    free(ttl_token);
+    return EXIT_SUCCESS;
 }
 
 Token *new_token(char *c)
@@ -163,6 +121,7 @@ void free_tokens(Token* head)
     {
         tmp = head;
         head = head->next;
+        free(tmp->filename);
         free(tmp->str);
         free(tmp);
     }
@@ -1520,7 +1479,6 @@ void init_turtles_cc(Prog_args *ttl_token, pthread_t *ttl_threads, int files)
     }
     for (int i = 0; i < files; i++)
     {
-        // if (pthread_join(ttl_threads[i], (void **) &turtles[i]) != 0)
         if (pthread_join(ttl_threads[i], (void **) &ttl_token[i].ttl) != 0)
         {
             panic_msg("joining threads");
@@ -1574,15 +1532,9 @@ void tokenise_files_cc(File_type **files, pthread_t * tok_threads,Prog_args *ttl
         {
             panic_msg("joining threads during Tokenising stage");
         }
+        fclose(files[i]->file);
     }
-    for (int i = 0; i < fcount; i++)
-    {
-        if (files[i])
-        {
-            free(files[i]->fname);
-            free(files[i]);
-        }
-    }
+
     free(tok_threads);
 }
 
@@ -1709,7 +1661,6 @@ void *cc_ps_2_pdf(void *ttl_tok)
     }
     sprintf(cmd, "ps2pdf %s %s", t->ttl->ps_filepath, pdf);
     int return_code = system(cmd);
-    free(t->ttl->ps_filepath);
     free(cmd);
     free(pdf);
     if (return_code == 0)
@@ -1738,4 +1689,40 @@ void thrd_setup_pdf(Prog_args *t, pthread_t *pdf_th, int fcount, int valids)
                 panic_msg("creating .pdf files");
             }
         }
+    free(pdf_th);
+}
+
+void free_ttl(Turtle *ttl)
+{
+    for (int i = 0; i < 26; i++)
+    {
+        if (ttl->type_in_use[i] == union_char)
+        {
+            free(ttl->vars[i].word);
+        }
+    }
+    if (ttl->ps_start)
+    {
+    Line *tmp;
+    while (ttl->ps_start != NULL)
+    {
+        tmp = ttl->ps_start;
+        ttl->ps_start = ttl->ps_start->next;
+        free(tmp->colour);
+        free(tmp);
+    }
+    }
+
+    if (ttl->path_start)
+    {
+        Loc *tmp_path;
+        while (ttl->path_start != NULL)
+        {
+            tmp_path = ttl->path_start;
+            ttl->path_start = ttl->path_start->next;
+            free(tmp_path);
+        }
+    }
+    free(ttl->ps_filepath);
+    free(ttl);
 }

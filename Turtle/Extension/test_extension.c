@@ -1522,41 +1522,6 @@ void test_printing_tools(void)
     free_ttl(ttl);
 }
 
-//TODO move this to interp.c
-void free_ttl(Turtle *ttl)
-{
-    for (int i = 0; i < 26; i++)
-    {
-        if (ttl->type_in_use[i] == union_char)
-        {
-            free(ttl->vars[i].word);
-        }
-    }
-    if (ttl->ps_start)
-    {
-    Line *tmp;
-    while (ttl->ps_start != NULL)
-    {
-        tmp = ttl->ps_start;
-        ttl->ps_start = ttl->ps_start->next;
-        free(tmp->colour);
-        free(tmp);
-    }
-    }
-
-    if (ttl->path_start)
-    {
-        Loc *tmp_path;
-        while (ttl->path_start != NULL)
-        {
-            tmp_path = ttl->path_start;
-            ttl->path_start = ttl->path_start->next;
-            free(tmp_path);
-        }
-    }
-    free(ttl);
-}
-
 void test_postscript(void)
 {
     // argv[2] ends in ".ps"
