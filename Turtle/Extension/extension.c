@@ -30,6 +30,13 @@ int main(int argc, char **argv)
     tokenise_files_cc(files, threads_tokens, ttl_token,ttl_file_count);
     // parse & interpret each file
     pthread_t *threads_interp = calloc(ttl_file_count, sizeof(pthread_t));
+    if (ps_create)
+    {
+        for (int i = 0; i < ttl_file_count; i++)
+        {
+            ttl_token[i].ttl->ps_mode = true;
+        }
+    }
     interp_cc(ttl_token, threads_interp, ttl_file_count);
     //create files
     int valid_files = 0;
@@ -45,8 +52,29 @@ int main(int argc, char **argv)
         pthread_t *txt_threads = calloc(valid_files, sizeof(pthread_t));
         main_cc_txt_file(ttl_token, txt_threads, ttl_file_count, valid_files);
     }
-    
-
+    if (ps_create)
+    {
+        pthread_t *ps_threads = calloc(valid_files, sizeof(pthread_t));
+        thread_setup_ps_file(ttl_token, ps_threads, ttl_file_count, valid_files);
+        // for (int i = 0; i < ttl_file_count; i++)
+        // {
+        //     if (ttl_token[i].ttl->valid)
+        //     {
+        //         if (pthread_create(ps_threads + i, NULL, &create_ps_file_cc, &ttl_token[i]) != 0)
+        //         {
+        //             panic_msg("creating threads for .ps files");
+        //         }
+        //     }
+        // }
+        // for (int i = 0; i < valid_files; i++)
+        // {
+        //     if (pthread_join(ps_threads[i], NULL) != 0)
+        //     {
+        //         panic_msg("creating .ps files");
+        //     }
+        // }
+        // free(ps_threads);
+    }
     exit(EXIT_FAILURE);
     Turtle *ttl = init_ttl();
 
@@ -257,10 +285,7 @@ bool is_forward(Token *t, Turtle *ttl)
             {  
                 update_postscript_ins(ttl, steps);
             }
-            else
-            {   
-                update_txt_ins(ttl,steps);
-            }
+            update_txt_ins(ttl,steps);
         }
         return true;
     }
@@ -1595,7 +1620,7 @@ void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount)
 
 void main_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids)
 {
-    for (int i = 0; i< fcount; i++)
+    for (int i = 0; i < fcount; i++)
     {
         if (ttl_token[i].ttl->valid)
         {
@@ -1614,4 +1639,66 @@ void main_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int v
     }
 
     free(th_txt);
+}
+
+void *create_ps_file_cc(void *ttl_tok)
+{
+    Prog_args *turtle_token = ttl_tok;
+    Turtle *ttl = turtle_token->ttl;
+    char *name = extract_name(turtle_token->head->filename);
+    char *full_name = calloc(strlen(name) + strlen(".ps") + NULL_CHAR, sizeof(char));
+    strcpy(full_name, name);
+    strcat(full_name, ".ps");
+    char *file_path = create_file_path(full_name);
+    FILE *f = fopen(file_path, "w");
+    if (!f)
+    {
+        panic_msg("creating .ps file");
+    }
+
+    fprintf(f, "0.2 setlinewidth\n10 10 scale\n");
+    Line *l = ttl->ps_start;
+    if (l)
+    {
+        Line *current = l;
+        while (current)
+        {   
+            fprintf(f, "newpath\n");
+            fprintf(f,"%f %f moveto\n", current->x0,current->y0);
+            fprintf(f,"%f %f lineto\n", current->x1, current->y1);
+            fprintf(f, "%s setrgbcolor\n", current->colour);
+            fprintf(f,"stroke\n");
+            current = current->next;
+        }
+    }
+    fprintf(f, "showpage\n");
+    ttl->ps_filepath = calloc(strlen(file_path) + NULL_CHAR, sizeof(char));
+    strcpy(ttl->ps_filepath, file_path);
+    fclose(f);
+    free(name);
+    free(full_name);
+    free(file_path);
+    return (void *) file_path;
+}
+
+void thread_setup_ps_file(Prog_args *ttl_tok, pthread_t *th_ps, int fcount, int valids)
+{
+       for (int i = 0; i < fcount; i++)
+        {
+            if (ttl_tok[i].ttl->valid)
+            {
+                if (pthread_create(th_ps + i, NULL, &create_ps_file_cc, &ttl_tok[i]) != 0)
+                {
+                    panic_msg("creating threads for .ps files");
+                }
+            }
+        }
+        for (int i = 0; i < valids; i++)
+        {
+            if (pthread_join(th_ps[i], NULL) != 0)
+            {
+                panic_msg("creating .ps files");
+            }
+        }
+        free(th_ps);
 }

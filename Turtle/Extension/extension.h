@@ -106,6 +106,7 @@ typedef struct turtle
     bool ps_mode;
     Line *ps_start;
     Line *ps_last;
+    char *ps_filepath;
     bool valid;
 } Turtle;
 
@@ -123,20 +124,21 @@ typedef struct prog_args
 } Prog_args;
 
 //Extension
+void thread_setup_ps_file(Prog_args *ttl_tok, pthread_t *th_ps, int fcount, int valids);
+void *create_ps_file_cc(void *ttl_tok);
 void main_cc_txt_file(Prog_args *ttl_token, pthread_t *th_txt, int fcount, int valids);
+void *cc_txt_file(void *ttl_tok);
 void interp_cc(Prog_args *ttl_token, pthread_t *th_interp, int fcount);
 void tokenise_files_cc(File_type **files, pthread_t *tok_threads, Prog_args *ttl_tok,int fcount);
 void file_pointers_cc(File_type **files, pthread_t *f_th, int argc, char **argv, int fcount);
 void init_turtles_cc(Prog_args *ttl_token, pthread_t *ttl_threads, int files);
 void set_flags(bool *txt, bool *ps, int *file_count, int argc, char **argv);
 char *extract_name(char *c);
-void *cc_txt_file(void *ttl_tok);
 bool is_ttl_file(char *f);
 void *init_cc_ttl();
 void *read_file_cc(void *filename);
 void *tokenise_cc(void *file);
 void *is_prog_cc(void *token_turtle);
-
 void test_extract_name(void);
 
 //Parser & interpreter
