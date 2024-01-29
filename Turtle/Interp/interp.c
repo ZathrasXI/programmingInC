@@ -210,7 +210,7 @@ bool is_forward(Token *t, Turtle *ttl)
         is_varnum(t->next->str)
     )
     {
-        int steps;
+        int steps = 0;
         if (is_number(t->next->str))
         {
             sscanf(t->next->str, "%d", &steps);
